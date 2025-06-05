@@ -6,21 +6,21 @@
         <!-- Avatar Section -->
         <div class="relative">
           <div class="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-lg">
-            <img 
-              v-if="getAvatarUrl()" 
-              :src="getAvatarUrl()" 
+            <img
+              v-if="getAvatarUrl()"
+              :src="getAvatarUrl()"
               :alt="currentUser?.name || 'Avatar'"
               class="w-full h-full object-cover"
               @error="handleAvatarError"
             />
-            <div 
-              v-else 
+            <div
+              v-else
               class="w-full h-full flex items-center justify-center text-2xl font-bold text-indigo-600 bg-indigo-100"
             >
               {{ userInitials }}
             </div>
           </div>
-          
+
           <!-- Upload Button -->
           <button
             @click="triggerFileInput"
@@ -32,7 +32,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </button>
-          
+
           <!-- Remove Avatar Button (se ha avatar personalizzato) -->
           <button
             v-if="hasCustomAvatar"
@@ -43,9 +43,9 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
-          
+
           <!-- Loading Spinner for Avatar Upload -->
-          <div 
+          <div
             v-if="uploadingAvatar"
             class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center"
           >
@@ -55,13 +55,13 @@
             </svg>
           </div>
         </div>
-        
+
         <!-- User Info -->
         <div class="flex-1">
           <h1 class="text-3xl font-bold text-gray-900">{{ currentUser?.name || 'Nome Utente' }}</h1>
           <p class="text-gray-600">{{ currentUser?.email }}</p>
           <div class="flex items-center mt-2 space-x-4">
-            <span 
+            <span
               v-if="currentUser?.email_verified_at"
               class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
             >
@@ -70,7 +70,7 @@
               </svg>
               Email verificata
             </span>
-            <span 
+            <span
               v-else
               class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
             >
@@ -81,7 +81,7 @@
             </span>
           </div>
         </div>
-        
+
         <!-- Stats Preview -->
         <div v-if="userStats" class="text-right">
           <div class="text-2xl font-bold text-indigo-600">{{ userStats.profile_completion }}%</div>
@@ -105,13 +105,10 @@
     <!-- Form di Aggiornamento Profilo -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h2 class="text-xl font-semibold text-gray-900 mb-6">Informazioni Profilo</h2>
-      
+
       <form @submit.prevent="handleUpdateProfile" class="space-y-6">
         <!-- Alert Errori -->
-        <div 
-          v-if="error" 
-          class="bg-red-50 border border-red-200 rounded-md p-4"
-        >
+        <div v-if="error" class="bg-red-50 border border-red-200 rounded-md p-4">
           <div class="flex">
             <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
@@ -119,20 +116,19 @@
             <div class="ml-3">
               <p class="text-sm text-red-800">{{ error }}</p>
             </div>
-            <button 
+            <button
               @click="clearError"
               class="ml-auto text-red-400 hover:text-red-600"
             >
               <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-              </path>
             </svg>
           </button>
         </div>
 
         <!-- Alert Successo -->
-        <div 
-          v-if="successMessage" 
+        <div
+          v-if="successMessage"
           class="bg-green-50 border border-green-200 rounded-md p-4"
         >
           <div class="flex">
@@ -195,7 +191,7 @@
           <p class="text-sm text-gray-600 mb-4">
             Lascia vuoto se non vuoi cambiare la password corrente.
           </p>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <!-- Password Corrente -->
             <div>
@@ -268,7 +264,7 @@
           >
             Annulla modifiche
           </button>
-          
+
           <button
             type="submit"
             :disabled="updating"
@@ -290,18 +286,18 @@
     <!-- Sezione Statistiche Dettagliate -->
     <div v-if="userStats" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
       <h2 class="text-xl font-semibold text-gray-900 mb-6">Statistiche Account</h2>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="text-center p-4 bg-gray-50 rounded-lg">
           <div class="text-2xl font-bold text-indigo-600">{{ userStats.profile_completion }}%</div>
           <div class="text-sm text-gray-600">Profilo completato</div>
         </div>
-        
+
         <div class="text-center p-4 bg-gray-50 rounded-lg">
           <div class="text-2xl font-bold text-green-600">{{ userStats.account_age_days }}</div>
           <div class="text-sm text-gray-600">Giorni da membro</div>
         </div>
-        
+
         <div class="text-center p-4 bg-gray-50 rounded-lg">
           <div class="text-2xl font-bold" :class="userStats.email_verified ? 'text-green-600' : 'text-red-600'">
             {{ userStats.email_verified ? '✓' : '✗' }}
@@ -309,7 +305,7 @@
           <div class="text-sm text-gray-600">Email verificata</div>
         </div>
       </div>
-      
+
       <div class="mt-4 text-sm text-gray-500">
         <p v-if="userStats.last_profile_update">
           Ultimo aggiornamento: {{ userStats.last_profile_update }}
@@ -324,10 +320,10 @@
     <div class="bg-white rounded-lg shadow-sm border border-red-200 p-6">
       <h2 class="text-xl font-semibold text-red-900 mb-4">Zona Pericolosa</h2>
       <p class="text-gray-600 mb-4">
-        L'eliminazione dell'account è permanente e non può essere annullata. 
+        L'eliminazione dell'account è permanente e non può essere annullata.
         Tutti i tuoi dati verranno rimossi definitivamente.
       </p>
-      
+
       <button
         @click="showDeleteConfirmation = true"
         class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
@@ -337,7 +333,7 @@
     </div>
 
     <!-- Modal Conferma Eliminazione -->
-    <div 
+    <div
       v-if="showDeleteConfirmation"
       class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
       @click="showDeleteConfirmation = false"

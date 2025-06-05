@@ -1,9 +1,322 @@
-@import 'bootstrap/dist/css/bootstrap.css';
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* app.css - Tech Company Game Design System */
+@import "tailwindcss";
 
-/* Custom styles */
-body {
-    font-family: 'Figtree', sans-serif;
+/* Google Fonts Import - Inter per tipografia moderna */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Design Tokens Personalizzati */
+@theme {
+    /* === PALETTE COLORI === */
+    /* Brand Primary - Turchese/Teal (basato sullo screenshot) */
+    --color-brand-50: #f0fdfa;
+    --color-brand-100: #ccfbf1;
+    --color-brand-200: #99f6e4;
+    --color-brand-300: #5eead4;
+    --color-brand-400: #2dd4bf;
+    --color-brand-500: #14b8a6;  /* Colore principale */
+    --color-brand-600: #0d9488;
+    --color-brand-700: #0f766e;
+    --color-brand-800: #115e59;
+    --color-brand-900: #134e4a;
+    --color-brand-950: #042f2e;
+
+    /* Secondary - Blu scuro per contrasti */
+    --color-secondary-50: #eff6ff;
+    --color-secondary-100: #dbeafe;
+    --color-secondary-200: #bfdbfe;
+    --color-secondary-300: #93c5fd;
+    --color-secondary-400: #60a5fa;
+    --color-secondary-500: #3b82f6;
+    --color-secondary-600: #2563eb;
+    --color-secondary-700: #1d4ed8;
+    --color-secondary-800: #1e40af;
+    --color-secondary-900: #1e3a8a;
+    --color-secondary-950: #172554;
+
+    /* Grigi neutri per testi e sfondi */
+    --color-neutral-50: #f9fafb;
+    --color-neutral-100: #f3f4f6;
+    --color-neutral-200: #e5e7eb;
+    --color-neutral-300: #d1d5db;
+    --color-neutral-400: #9ca3af;
+    --color-neutral-500: #6b7280;
+    --color-neutral-600: #4b5563;
+    --color-neutral-700: #374151;
+    --color-neutral-800: #1f2937;
+    --color-neutral-900: #111827;
+    --color-neutral-950: #030712;
+
+    /* Colori di stato per il gioco */
+    --color-success-50: #f0fdf4;
+    --color-success-100: #dcfce7;
+    --color-success-200: #bbf7d0;
+    --color-success-300: #86efac;
+    --color-success-400: #4ade80;
+    --color-success-500: #22c55e;
+    --color-success-600: #16a34a;
+    --color-success-700: #15803d;
+    --color-success-800: #166534;
+    --color-success-900: #14532d;
+
+    --color-warning-50: #fffbeb;
+    --color-warning-100: #fef3c7;
+    --color-warning-200: #fde68a;
+    --color-warning-300: #fcd34d;
+    --color-warning-400: #fbbf24;
+    --color-warning-500: #f59e0b;
+    --color-warning-600: #d97706;
+    --color-warning-700: #b45309;
+    --color-warning-800: #92400e;
+    --color-warning-900: #78350f;
+
+    --color-danger-50: #fef2f2;
+    --color-danger-100: #fee2e2;
+    --color-danger-200: #fecaca;
+    --color-danger-300: #fca5a5;
+    --color-danger-400: #f87171;
+    --color-danger-500: #ef4444;
+    --color-danger-600: #dc2626;
+    --color-danger-700: #b91c1c;
+    --color-danger-800: #991b1b;
+    --color-danger-900: #7f1d1d;
+
+    /* === TIPOGRAFIA === */
+    /* Font families */
+    --font-heading: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: "Inter", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+
+    /* Font sizes semantici per il gioco */
+    --text-hero: 4.5rem;          /* Per titoli principali come "WE ARE A SOFTWARE FACTORY" */
+    --text-hero-mobile: 2.5rem;   /* Versione mobile del hero */
+    --text-page-title: 3rem;      /* Titoli di pagina */
+    --text-section: 2.25rem;      /* Titoli di sezione */
+    --text-card-title: 1.5rem;    /* Titoli delle card */
+    --text-large: 1.25rem;        /* Testo importante */
+    --text-body: 1rem;            /* Testo standard */
+    --text-small: 0.875rem;       /* Testo secondario */
+    --text-tiny: 0.75rem;         /* Labels, caption */
+
+    /* Line heights */
+    --leading-hero: 1.1;
+    --leading-heading: 1.2;
+    --leading-body: 1.6;
+    --leading-relaxed: 1.75;
+
+    /* === SPAZIATURE === */
+    /* Spacing semantico per il layout del gioco */
+    --space-section: 6rem;        /* Tra sezioni principali */
+    --space-section-mobile: 3rem; /* Mobile version */
+    --space-component: 2rem;      /* Tra componenti */
+    --space-element: 1rem;        /* Tra elementi */
+    --space-tight: 0.5rem;        /* Spazi stretti */
+    --space-loose: 3rem;          /* Spazi ampi */
+
+    /* === BREAKPOINTS PERSONALIZZATI === */
+    --breakpoint-mobile: 475px;   /* Mobile large */
+    --breakpoint-tablet: 768px;   /* Tablet */
+    --breakpoint-laptop: 1024px;  /* Laptop */
+    --breakpoint-desktop: 1280px; /* Desktop */
+    --breakpoint-wide: 1536px;    /* Wide screen */
+    --breakpoint-ultra: 1920px;   /* Ultra wide */
+
+    /* === SHADOWS & ELEVAZIONI === */
+    /* Sistema di elevazione per profondità */
+    --shadow-flat: none;
+    --shadow-low: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-medium: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-high: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-highest: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-brand: 0 10px 15px -3px rgb(20 184 166 / 0.2), 0 4px 6px -4px rgb(20 184 166 / 0.1);
+
+    /* === BORDER RADIUS === */
+    --radius-small: 0.375rem;     /* 6px */
+    --radius-medium: 0.5rem;      /* 8px */
+    --radius-large: 0.75rem;      /* 12px */
+    --radius-xl: 1rem;            /* 16px */
+    --radius-2xl: 1.5rem;         /* 24px */
+    --radius-full: 9999px;        /* Completamente arrotondato */
+
+    /* === ANIMAZIONI === */
+    /* Durate per transizioni fluide */
+    --transition-instant: 100ms;
+    --transition-fast: 200ms;
+    --transition-normal: 300ms;
+    --transition-slow: 500ms;
+
+    /* Easing functions */
+    --ease-linear: linear;
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* === STILI BASE === */
+@layer base {
+    /* Reset e configurazione di base */
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        font-family: var(--font-body);
+        scroll-behavior: smooth;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+        background-color: var(--color-neutral-50);
+        color: var(--color-neutral-900);
+        line-height: var(--leading-body);
+        font-size: var(--text-body);
+    }
+
+    /* Tipografia base */
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-heading);
+        font-weight: 600;
+        line-height: var(--leading-heading);
+        color: var(--color-neutral-900);
+    }
+
+    h1 { font-size: var(--text-hero); }
+    h2 { font-size: var(--text-page-title); }
+    h3 { font-size: var(--text-section); }
+    h4 { font-size: var(--text-card-title); }
+    h5 { font-size: var(--text-large); }
+    h6 { font-size: var(--text-body); }
+
+    /* Responsive typography per mobile */
+    @media (max-width: 768px) {
+        h1 { font-size: var(--text-hero-mobile); }
+        h2 { font-size: var(--text-section); }
+        h3 { font-size: var(--text-card-title); }
+    }
+
+    /* Link base */
+    a {
+        color: var(--color-brand-600);
+        text-decoration: none;
+        transition: color var(--transition-fast) var(--ease-out);
+    }
+
+    a:hover {
+        color: var(--color-brand-700);
+    }
+
+    /* Form elements base */
+    input, textarea, select {
+        font-family: inherit;
+    }
+
+    /* Focus visible per accessibilità */
+    *:focus-visible {
+        outline: 2px solid var(--color-brand-500);
+        outline-offset: 2px;
+        border-radius: var(--radius-small);
+    }
+}
+
+/* === COMPONENTI RIUTILIZZABILI === */
+@layer components {
+    /* === BUTTONS === */
+    .btn-primary {
+        @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium text-white;
+        background-color: var(--color-brand-600);
+        border-radius: var(--radius-medium);
+        transition: all var(--transition-fast) var(--ease-out);
+        border: 1px solid var(--color-brand-600);
+        box-shadow: var(--shadow-low);
+    }
+
+    .btn-primary:hover {
+        background-color: var(--color-brand-700);
+        border-color: var(--color-brand-700);
+        box-shadow: var(--shadow-medium);
+        transform: translateY(-1px);
+    }
+
+    .btn-primary:active {
+        transform: translateY(0);
+        box-shadow: var(--shadow-low);
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium;
+        color: var(--color-brand-700);
+        background-color: var(--color-neutral-50);
+        border: 1px solid var(--color-brand-200);
+        border-radius: var(--radius-medium);
+        transition: all var(--transition-fast) var(--ease-out);
+    }
+
+    .btn-secondary:hover {
+        background-color: var(--color-brand-50);
+        border-color: var(--color-brand-300);
+        color: var(--color-brand-800);
+    }
+
+    .btn-outline {
+        @apply inline-flex items-center justify-center px-6 py-3 text-sm font-medium;
+        color: var(--color-brand-600);
+        background-color: transparent;
+        border: 2px solid var(--color-brand-600);
+        border-radius: var(--radius-medium);
+        transition: all var(--transition-fast) var(--ease-out);
+    }
+
+    .btn-outline:hover {
+        background-color: var(--color-brand-600);
+        color: white;
+    }
+
+    .btn-ghost {
+        @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium;
+        color: var(--color-neutral-600);
+        background-color: transparent;
+        border-radius: var(--radius-medium);
+        transition: all var(--transition-fast) var(--ease-out);
+    }
+
+    .btn-ghost:hover {
+        background-color: var(--color-neutral-100);
+        color: var(--color-neutral-900);
+    }
+
+    /* Button sizes */
+    .btn-sm {
+        @apply px-3 py-2 text-xs;
+    }
+
+    .btn-lg {
+        @apply px-8 py-4 text-base;
+    }
+
+    .btn-xl {
+        @apply px-10 py-5 text-lg;
+    }
+
+    /* === CARDS === */
+    .card {
+        background-color: white;
+        border: 1px solid var(--color-neutral-200);
+        border-radius: var(--radius-large);
+        box-shadow: var(--shadow-low);
+        padding: 1.5rem;
+        transition: all var(--transition-normal) var(--ease-out);
+    }
+
+    .card:hover {
+        box-shadow: var(--shadow-medium);
+        transform: translateY(-2px);
+    }
+
+    .card-game {
+        @apply card;
+        border-color: var(--color-brand-200);
+        position: relative;
+        overflow: hidden;
+    }
 }
