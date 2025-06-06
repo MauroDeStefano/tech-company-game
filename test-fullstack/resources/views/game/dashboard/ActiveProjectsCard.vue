@@ -146,9 +146,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useGameStore } from '@/stores/game'
-import { useNotificationStore } from '@/stores/notifications'
-import { formatCurrency } from '@/utils/helpers'
+import { useGameStore } from '@/js/stores/game'
+import { useNotificationStore } from '@/js/stores/notifications'
+import { formatCurrency } from '@/js/utils/helpers'
 
 // Stores
 const gameStore = useGameStore()

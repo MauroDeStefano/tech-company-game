@@ -1,4 +1,3 @@
-<!-- src/views/game/DashboardView.vue -->
 <template>
   <div class="dashboard-view">
     <!-- Page Header -->
@@ -77,16 +76,16 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useGameStore } from '@/stores/game'
-import { useNotificationStore } from '@/stores/notifications'
+import { useGameStore } from '@/js/stores/game'
+import { useNotificationStore } from '@/js/stores/notifications'
 
 // Components
-import GameStatsOverview from '@/components/game/dashboard/GameStatsOverview.vue'
-import QuickActionsCard from '@/components/game/dashboard/QuickActionsCard.vue'
-import ActiveProjectsCard from '@/components/game/dashboard/ActiveProjectsCard.vue'
-import TeamStatusCard from '@/components/game/dashboard/TeamStatusCard.vue'
-import RecentActivityCard from '@/components/game/dashboard/RecentActivityCard.vue'
-import FinancialSummaryCard from '@/components/game/dashboard/FinancialSummaryCard.vue'
+import GameStatsOverview from '@/views/game/dashboard/GameStatsOverview.vue'
+import QuickActionsCard from '@/views/game/dashboard/QuickActionsCard.vue'
+import ActiveProjectsCard from '@/views/game/dashboard/ActiveProjectsCard.vue'
+import TeamStatusCard from '@/views/game/dashboard/TeamStatusCard.vue'
+import RecentActivityCard from '@/views/game/dashboard/RecentActivityCard.vue'
+import FinancialSummaryCard from '@/views/game/dashboard/FinancialSummaryCard.vue'
 
 // Stores
 const gameStore = useGameStore()

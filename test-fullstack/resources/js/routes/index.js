@@ -26,14 +26,14 @@ const routes = [
     ...generalRoutes,
 
     // Catch-all 404 route (must be last!)
-    // {
-    //     path: '/:pathMatch(.*)*',
-    //     name: 'NotFound',
-    //     component: () => import('@/views/general/NotFoundView.vue'),
-    //     meta: {
-    //         title: 'Pagina non trovata'
-    //     }
-    // }
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: () => import('@/views/general/NotFoundView.vue'),
+        meta: {
+            title: 'Pagina non trovata'
+        }
+    }
 ]
 
 const router = createRouter({

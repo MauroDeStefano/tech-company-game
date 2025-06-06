@@ -113,7 +113,7 @@
 
 <script setup>
 import { ref, computed, nextTick, watch } from 'vue'
-import { generateId } from '@/utils/helpers'
+import { generateId } from '@/js/utils/helpers'
 
 // Props
 const props = defineProps({

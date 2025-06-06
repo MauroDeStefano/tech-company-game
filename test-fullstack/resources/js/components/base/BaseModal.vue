@@ -125,7 +125,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { generateId } from '@/utils/helpers'
+import { generateId } from '@/js/utils/helpers'
 import BaseButton from './BaseButton.vue'
 
 // Props

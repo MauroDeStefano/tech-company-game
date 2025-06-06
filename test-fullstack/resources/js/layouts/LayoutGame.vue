@@ -63,15 +63,15 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useGameStore } from '@/stores/game'
-import { useNotificationStore } from '@/stores/notifications'
+import { useGameStore } from '@/js/stores/game'
+import { useNotificationStore } from '@/js/stores/notifications'
 
 // Components
-import GameHeader from '@/components/layout/GameHeader.vue'
-import NavigationBar from '@/components/layout/NavigationBar.vue'
-import SidebarMenu from '@/components/layout/SidebarMenu.vue'
-import NotificationContainer from '@/components/shared/NotificationContainer.vue'
-import GameOverModal from '@/components/game/shared/GameOverModal.vue'
+import GameHeader from '@/js/components/layout/GameHeader.vue'
+import NavigationBar from '@/js/components/layout/NavigationBar.vue'
+import SidebarMenu from '@/js/components/layout/SidebarMenu.vue'
+import NotificationContainer from '@/js/components/shared/NotificationContainer.vue'
+import GameOverModal from '@/js/components/game/shared/GameOverModal.vue'
 
 // Stores
 const gameStore = useGameStore()

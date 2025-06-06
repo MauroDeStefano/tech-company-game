@@ -14,7 +14,7 @@ export default [
     // Main game interface with nested routes
     {
         path: '/game',
-        component: () => import('@/layouts/LayoutGame.vue'),
+        component: () => import('@/js/layouts/LayoutGame.vue'),
         meta: {
             requiresAuth: true,
             requiresGame: true
@@ -69,27 +69,27 @@ export default [
         ]
     },
 
-    // Game creation
-    {
-        path: '/new-game',
-        name: 'NewGame',
-        component: () => import('@/views/game/NewGameView.vue'),
-        meta: {
-            title: 'Nuova Partita',
-            requiresAuth: true,
-            layout: 'LayoutDefault'
-        }
-    },
+    // // Game creation
+    // {
+    //     path: '/new-game',
+    //     name: 'NewGame',
+    //     component: () => import('@/views/game/NewGameView.vue'),
+    //     meta: {
+    //         title: 'Nuova Partita',
+    //         requiresAuth: true,
+    //         layout: 'LayoutDefault'
+    //     }
+    // },
 
     // Game statistics and history
-    {
-        path: '/game/:id/stats',
-        name: 'GameStats',
-        component: () => import('@/views/game/GameStatsView.vue'),
-        meta: {
-            title: 'Statistiche Partita',
-            requiresAuth: true,
-            layout: 'LayoutDefault'
-        }
-    }
+    // {
+    //     path: '/game/:id/stats',
+    //     name: 'GameStats',
+    //     component: () => import('@/views/game/GameStatsView.vue'),
+    //     meta: {
+    //         title: 'Statistiche Partita',
+    //         requiresAuth: true,
+    //         layout: 'LayoutDefault'
+    //     }
+    // }
 ]

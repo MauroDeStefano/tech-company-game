@@ -375,7 +375,7 @@
 
 <script setup>
 import { ref, onMounted, reactive, computed } from 'vue'
-import { useUser } from '@/composables/useUser'
+import { useUser } from '@/js/composables/useUser'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()

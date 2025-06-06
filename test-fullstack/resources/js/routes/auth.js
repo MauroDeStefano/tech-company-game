@@ -29,14 +29,14 @@ export default [
             layout: 'LayoutAuth'
         }
     },
-    {
-        path: '/reset-password',
-        name: 'ResetPassword',
-        component: () => import('@/views/auth/ResetPasswordView.vue'),
-        meta: {
-            title: 'Reimposta Password',
-            isAuthPage: true,
-            layout: 'LayoutAuth'
-        }
-    }
+    // {
+    //     path: '/reset-password',
+    //     name: 'ResetPassword',
+    //     component: () => import('@/views/auth/ResetPasswordView.vue'),
+    //     meta: {
+    //         title: 'Reimposta Password',
+    //         isAuthPage: true,
+    //         layout: 'LayoutAuth'
+    //     }
+    // }
 ]

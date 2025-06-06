@@ -96,8 +96,8 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useGameStore } from '@/stores/game'
-import { formatCurrency, formatRelativeTime } from '@/utils/helpers'
+import { useGameStore } from '@/js/stores/game'
+import { formatCurrency, formatRelativeTime } from '@/js/utils/helpers'
 
 // Stores
 const gameStore = useGameStore()

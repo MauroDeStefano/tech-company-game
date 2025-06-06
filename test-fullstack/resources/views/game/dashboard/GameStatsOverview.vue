@@ -1,4 +1,3 @@
-<!-- src/components/game/dashboard/GameStatsOverview.vue -->
 <template>
   <BaseCard
     title="Statistiche Principali"
@@ -148,8 +147,8 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useGameStore } from '@/stores/game'
-import { formatCurrency } from '@/utils/helpers'
+import { useGameStore } from '@/js/stores/game'
+import { formatCurrency } from '@/js/utils/helpers'
 
 // Stores
 const gameStore = useGameStore()

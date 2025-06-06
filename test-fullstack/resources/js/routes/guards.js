@@ -1,5 +1,5 @@
-import { useAuthStore } from '@/stores/auth'
-import { useGameStore } from '@/stores/game'
+import { useAuthStore } from '@/js/stores/auth'
+import { useGameStore } from '@/js/stores/game'
 
 /**
  * Authentication Guard

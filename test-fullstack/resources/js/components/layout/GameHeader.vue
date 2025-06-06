@@ -172,11 +172,11 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useGameStore } from '@/stores/game'
-import { useAuthStore } from '@/stores/auth'
-import { useNotificationStore } from '@/stores/notifications'
-import { formatCurrency } from '@/utils/helpers'
-import StatusBadge from '@/components/shared/StatusBadge.vue'
+import { useGameStore } from '@/js/stores/game'
+import { useAuthStore } from '@/js/stores/auth'
+import { useNotificationStore } from '@/js/stores/notifications'
+import { formatCurrency } from '@/js/utils/helpers'
+import StatusBadge from '@/js/components/shared/StatusBadge.vue'
 
 // Stores
 const gameStore = useGameStore()

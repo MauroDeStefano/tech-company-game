@@ -35,35 +35,35 @@ export default [
     },
 
     // About page
-    {
-        path: '/about',
-        name: 'About',
-        component: () => import('@/views/general/AboutView.vue'),
-        meta: {
-            title: 'Info sul Gioco',
-            layout: 'LayoutDefault'
-        }
-    },
+    // {
+    //     path: '/about',
+    //     name: 'About',
+    //     component: () => import('@/views/general/AboutView.vue'),
+    //     meta: {
+    //         title: 'Info sul Gioco',
+    //         layout: 'LayoutDefault'
+    //     }
+    // },
 
     // Help/Tutorial
-    {
-        path: '/help',
-        name: 'Help',
-        component: () => import('@/views/general/HelpView.vue'),
-        meta: {
-            title: 'Aiuto e Tutorial',
-            layout: 'LayoutDefault'
-        }
-    },
+    // {
+    //     path: '/help',
+    //     name: 'Help',
+    //     component: () => import('@/views/general/HelpView.vue'),
+    //     meta: {
+    //         title: 'Aiuto e Tutorial',
+    //         layout: 'LayoutDefault'
+    //     }
+    // },
 
     // Forbidden page
-    {
-        path: '/forbidden',
-        name: 'Forbidden',
-        component: () => import('@/views/general/ForbiddenView.vue'),
-        meta: {
-            title: 'Accesso Negato',
-            layout: 'LayoutDefault'
-        }
-    }
+    // {
+    //     path: '/forbidden',
+    //     name: 'Forbidden',
+    //     component: () => import('@/views/general/ForbiddenView.vue'),
+    //     meta: {
+    //         title: 'Accesso Negato',
+    //         layout: 'LayoutDefault'
+    //     }
+    // }
 ]

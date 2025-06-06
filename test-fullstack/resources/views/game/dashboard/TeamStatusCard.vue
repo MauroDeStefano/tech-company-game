@@ -198,9 +198,9 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { useGameStore } from '@/stores/game'
-import { formatCurrency } from '@/utils/helpers'
-import StatusBadge from '@/components/shared/StatusBadge.vue'
+import { useGameStore } from '@/js/stores/game'
+import { formatCurrency } from '@/js/utils/helpers'
+import StatusBadge from '@/js/components/shared/StatusBadge.vue'
 
 // Stores
 const gameStore = useGameStore()
