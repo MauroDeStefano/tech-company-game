@@ -1,8 +1,8 @@
 import './bootstrap'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import router from './routes'
-
+import router from './router'
+import App from './App.vue'
 // Import global CSS (will use our design system)
 import '../css/app.css'
 
@@ -19,7 +19,7 @@ import BaseModal from './components/base/BaseModal.vue'
 import BaseSpinner from './components/base/BaseSpinner.vue'
 
 // Create Vue app
-const app = createApp({})
+const app = createApp(App)
 
 // Register global layouts
 app.component('LayoutDefault', LayoutDefault)

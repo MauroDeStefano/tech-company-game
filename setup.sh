@@ -265,7 +265,7 @@ cat > resources/js/App.vue << 'EOF'
     <!-- Header -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-tail" href="#">
           <strong>Laravel + Vue.js</strong>
         </a>
         <span class="navbar-text">
@@ -418,7 +418,7 @@ cat > resources/views/welcome.blade.php << 'EOF'
         <!-- Header -->
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" href="#">
+                <a class="navbar-tail" href="#">
                     <strong>Laravel + Vue.js</strong>
                 </a>
                 <span class="navbar-text">

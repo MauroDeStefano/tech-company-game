@@ -1,3 +1,4 @@
+# Rimuovi la riga version che è obsoleta
 # Volumi per persistenza dati
 volumes:
   postgres_data:
@@ -11,55 +12,7 @@ networks:
     driver: bridge
 
 services:
-  # Servizio Laravel con controllo migration automatico
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: tech_company_game_app
-    restart: unless-stopped
-    working_dir: /var/www
-    volumes:
-      - ./:/var/www
-      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
-    environment:
-      - APP_ENV=local
-      - APP_DEBUG=true
-      - DB_CONNECTION=pgsql
-      - DB_HOST=postgres
-      - DB_PORT=5432
-      - DB_DATABASE=tech_company_game
-      - DB_USERNAME=postgres
-      - DB_PASSWORD=postgres
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - CACHE_STORE=redis
-      - SESSION_DRIVER=redis
-      - QUEUE_CONNECTION=redis
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - tech_company_game
-
-  # Webserver Nginx
-  nginx:
-    image: nginx:alpine
-    container_name: tech_company_game_nginx
-    restart: unless-stopped
-    ports:
-      - "8000:80"
-    volumes:
-      - ./:/var/www
-      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
-    depends_on:
-      - app
-    networks:
-      - tech_company_game
-
-  # Database PostgreSQL
+  # Database PostgreSQL - DEVE essere definito per primo
   postgres:
     image: postgres:15-alpine
     container_name: tech_company_game_postgres
@@ -95,30 +48,89 @@ services:
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
     networks:
       - tech_company_game
 
-  # Laravel Queue Worker
-  queue:
+  # Servizio Laravel
+  app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: tech_company_game_queue
+    container_name: tech_company_game_app
     restart: unless-stopped
     working_dir: /var/www
     volumes:
       - ./:/var/www
-    command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600
+      - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini
     environment:
       - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=base64:J63qRTDLub5NuZvP+kb8YIorGS6qFYHKVo6u7179stY=
       - DB_CONNECTION=pgsql
       - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=tech_company_game
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
       - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CACHE_STORE=redis
+      - SESSION_DRIVER=redis
       - QUEUE_CONNECTION=redis
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - tech_company_game
+    # Health check semplificato
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Webserver Nginx
+  nginx:
+    image: nginx:alpine
+    container_name: tech_company_game_nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - app
     networks:
       - tech_company_game
+
+  # Laravel Queue Worker (opzionale - puoi commentare per ora)
+  # queue:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: tech_company_game_queue
+  #   restart: unless-stopped
+  #   working_dir: /var/www
+  #   volumes:
+  #     - ./:/var/www
+  #   command: php artisan queue:work redis --sleep=3 --tries=3 --max-time=3600 --daemon
+  #   environment:
+  #     - APP_ENV=local
+  #     - DB_CONNECTION=pgsql
+  #     - DB_HOST=postgres
+  #     - DB_PORT=5432
+  #     - DB_DATABASE=tech_company_game
+  #     - DB_USERNAME=postgres
+  #     - DB_PASSWORD=postgres
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - QUEUE_CONNECTION=redis
+  #   depends_on:
+  #     - app
+  #   networks:
+  #     - tech_company_game

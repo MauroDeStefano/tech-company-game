@@ -1,0 +1,96 @@
+# Laravel .dockerignore
+
+# Laravel specific
+storage/
+bootstrap/cache/
+vendor/
+node_modules/
+
+# Symbolic links (problema Windows)
+public/storage
+
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Testing
+.phpunit.result.cache
+coverage/
+tests/_output/
+
+# Build artifacts
+public/js/
+public/css/
+public/mix-manifest.json
+public/hot
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies directories
+node_modules/
+vendor/
+
+# Cache directories
+.cache/
+.tmp/
+.temp/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Yarn integrity file
+.yarn-integrity
+
+# Socket files (possono causare problemi simili)
+*.sock
+
+# Virtual environments
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Laravel Mix
+/public/js
+/public/css
+/public/mix-manifest.json
