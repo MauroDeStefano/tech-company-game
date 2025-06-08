@@ -364,118 +364,54 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
-import { useGameStore } from '@/js/stores/game'
-import { useNotificationStore } from '@/js/stores/notifications'
-import { formatCurrency } from '@/js/utils/helpers'
+// 🎯 HR.vue - Implementazione con vere chiamate API
+
+// Nella sezione <script setup> sostituisci i metodi con questi:
+
+// Aggiungi gli import necessari
+import { useAuthStore } from '@/js/stores/auth' // Se hai autenticazione
 
 // Stores
 const gameStore = useGameStore()
 const notificationStore = useNotificationStore()
-
-// Reactive state
-const loadingDevelopers = ref(true)
-const loadingSalesPeople = ref(true)
-const hiringId = ref(null)
-const developerFilter = ref('all')
-const salesFilter = ref('all')
-const marketDevelopers = ref([])
-const marketSalesPeople = ref([])
-
-// 🎯 CORREZIONE: Computed properties che usano i getters dello store
-const currentMoney = computed(() => {
-  // Usa il getter dello store che gestisce la struttura corretta
-  return gameStore.currentGameMoney || 0
+const authStore = useAuthStore() 
+// 🎯 API BASE URL e headers
+const API_BASE = '/api'
+const getHeaders = () => ({
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+  'Authorization': `Bearer ${authStore.token}`, // Se hai auth token
 })
 
-const moneyColorClass = computed(() => {
-  const money = currentMoney.value
-  if (money < 0) return 'text-red-600'
-  if (money < 2000) return 'text-yellow-600'
-  return 'text-green-600'
-})
+// 🎯 METODI API REALI per caricamento dati mercato
 
-const currentDevelopers = computed(() => {
-  // Usa il getter developers che ritorna l'array
-  return gameStore.developers.data || []
-})
-
-const currentSalesPeople = computed(() => {
-  // Usa il getter salesPeople che ritorna l'array
-  return gameStore.salesPeople.data || []
-})
-
-const currentTeamSize = computed(() => {
-  return gameStore.currentGameTeamSize || 0
-})
-
-const monthlyCosts = computed(() => {
-  // Usa il getter costs dal GameResource
-  return gameStore.currentGame?.costs?.monthly || 0
-})
-
-const isLowBudget = computed(() => {
-  return currentMoney.value < 3000
-})
-
-const filteredDevelopers = computed(() => {
-  if (developerFilter.value === 'all') return marketDevelopers.value
-  return marketDevelopers.value.filter(dev => dev.seniority.toString() === developerFilter.value)
-})
-
-const filteredSalesPeople = computed(() => {
-  if (salesFilter.value === 'all') return marketSalesPeople.value
-  return marketSalesPeople.value.filter(sales => sales.experience.toString() === salesFilter.value)
-})
-
-// Methods
 const loadMarketDevelopers = async () => {
   try {
     loadingDevelopers.value = true
-    // Simulated API call - replace with actual API
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    
+    const response = await fetch(`${API_BASE}/games/${gameStore.currentGameId}/market/developers`, {
+      method: 'GET',
+      headers: getHeaders(),
+    })
 
-    // Mock data - replace with actual API call
-    marketDevelopers.value = [
-      {
-        id: 1,
-        name: 'Marco Rossi',
-        seniority: 3,
-        specialization: 'fullstack',
-        hiring_cost: 3000,
-        monthly_salary: 2500,
-        skills: ['Vue.js', 'Laravel', 'Docker']
-      },
-      {
-        id: 2,
-        name: 'Anna Verdi',
-        seniority: 4,
-        specialization: 'frontend',
-        hiring_cost: 4000,
-        monthly_salary: 3200,
-        skills: ['React', 'TypeScript', 'Design Systems']
-      },
-      {
-        id: 3,
-        name: 'Luca Bianchi',
-        seniority: 2,
-        specialization: 'backend',
-        hiring_cost: 2000,
-        monthly_salary: 1800,
-        skills: ['PHP', 'MySQL', 'Redis']
-      },
-      {
-        id: 4,
-        name: 'Sofia Neri',
-        seniority: 5,
-        specialization: 'devops',
-        hiring_cost: 5500,
-        monthly_salary: 4000,
-        skills: ['AWS', 'Kubernetes', 'CI/CD']
-      }
-    ]
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP Error: ${response.status}`)
+    }
+
+    const result = await response.json()
+    
+    if (result.success) {
+      marketDevelopers.value = result.data
+      console.log('✅ Market developers loaded:', result.meta)
+    } else {
+      throw new Error(result.message || 'Errore sconosciuto')
+    }
+
   } catch (error) {
-    notificationStore.error('Errore nel caricamento degli sviluppatori')
+    console.error('❌ Error loading market developers:', error)
+    notificationStore.error(`Errore nel caricamento sviluppatori: ${error.message}`)
+    marketDevelopers.value = [] // Fallback
   } finally {
     loadingDevelopers.value = false
   }
@@ -484,164 +420,250 @@ const loadMarketDevelopers = async () => {
 const loadMarketSalesPeople = async () => {
   try {
     loadingSalesPeople.value = true
-    // Simulated API call - replace with actual API
-    await new Promise(resolve => setTimeout(resolve, 1200))
+    
+    const response = await fetch(`${API_BASE}/games/${gameStore.currentGameId}/market/sales-people`, {
+      method: 'GET',
+      headers: getHeaders(),
+    })
 
-    // Mock data - replace with actual API call
-    marketSalesPeople.value = [
-      {
-        id: 1,
-        name: 'Roberto Ferrari',
-        experience: 3,
-        specialization: 'enterprise',
-        hiring_cost: 2500,
-        monthly_salary: 2000,
-        estimated_generation_time: 45,
-        estimated_project_value: 3000
-      },
-      {
-        id: 2,
-        name: 'Giulia Romano',
-        experience: 4,
-        specialization: 'startup',
-        hiring_cost: 3500,
-        monthly_salary: 2800,
-        estimated_generation_time: 35,
-        estimated_project_value: 4000
-      },
-      {
-        id: 3,
-        name: 'Matteo Conti',
-        experience: 2,
-        specialization: 'sme',
-        hiring_cost: 1800,
-        monthly_salary: 1500,
-        estimated_generation_time: 50,
-        estimated_project_value: 2000
-      }
-    ]
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `HTTP Error: ${response.status}`)
+    }
+
+    const result = await response.json()
+    
+    if (result.success) {
+      marketSalesPeople.value = result.data
+      console.log('✅ Market sales people loaded:', result.meta)
+    } else {
+      throw new Error(result.message || 'Errore sconosciuto')
+    }
+
   } catch (error) {
-    notificationStore.error('Errore nel caricamento dei commerciali')
+    console.error('❌ Error loading market sales people:', error)
+    notificationStore.error(`Errore nel caricamento commerciali: ${error.message}`)
+    marketSalesPeople.value = [] // Fallback
   } finally {
     loadingSalesPeople.value = false
   }
 }
 
-const canAfford = (cost) => {
-  return currentMoney.value >= cost
-};
+// 🎯 METODI API REALI per assunzione
 
 const hireDeveloper = async (developer) => {
-  if (!canAfford(developer.hiring_cost)) {
+  // Controllo preliminare budget
+  if (!canAfford(developer.hire_cost?.amount || developer.monthly_salary)) {
     notificationStore.error('Budget insufficiente per questa assunzione')
     return
   }
 
-  const hireId = `dev-${developer.id || developer.name}`
+  const hireId = `dev-${developer.id}`
   hiringId.value = hireId
 
   try {
-    // TODO: Replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    const response = await fetch(`${API_BASE}/games/${gameStore.currentGameId}/hire/developer/${developer.id}`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        developer_id: developer.id,
+        hire_cost: developer.hire_cost?.amount || developer.monthly_salary
+      })
+    })
 
-    // Simulate successful hire
-    notificationStore.success(`${developer.name} è stato assunto come sviluppatore!`)
+    // ⚠️ IMPORTANTE: Controlla SEMPRE response.ok con fetch
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `Errore HTTP: ${response.status}`)
+    }
 
-    // Remove from market
-    marketDevelopers.value = marketDevelopers.value.filter(d => d.id !== developer.id)
+    const result = await response.json()
 
-    // Update game money via store action (better approach)
-    await gameStore.refreshCurrentGame()
+    if (result.success) {
+      // ✅ SUCCESSO
+      notificationStore.success(result.message)
+      
+      // Rimuovi dal mercato
+      marketDevelopers.value = marketDevelopers.value.filter(d => d.id !== developer.id)
+      
+      // Aggiorna stato del gioco
+      await gameStore.refreshCurrentGame()
+      
+      console.log('✅ Developer hired successfully:', result.data)
+    } else {
+      // ❌ Errore dal server ma con status 200
+      throw new Error(result.message || 'Errore durante l\'assunzione')
+    }
 
   } catch (error) {
-    notificationStore.error('Errore durante l\'assunzione dello sviluppatore')
+    console.error('❌ Hiring error:', error)
+    
+    // 🎯 GESTIONE ERRORI SPECIFICI
+    if (error.message.includes('Budget insufficiente')) {
+      notificationStore.error('Budget insufficiente per questa assunzione')
+    } else if (error.message.includes('fetch')) {
+      notificationStore.error('Errore di connessione. Controlla la tua connessione internet.')
+    } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+      notificationStore.error('Sessione scaduta. Effettua di nuovo il login.')
+      // Redirect al login se necessario
+      // authStore.logout()
+    } else {
+      notificationStore.error(`Errore durante l'assunzione: ${error.message}`)
+    }
   } finally {
     hiringId.value = null
   }
 }
 
 const hireSalesPerson = async (salesPerson) => {
-  if (!canAfford(salesPerson.hiring_cost)) {
+  if (!canAfford(salesPerson.hire_cost?.amount || salesPerson.monthly_salary)) {
     notificationStore.error('Budget insufficiente per questa assunzione')
     return
   }
 
-  const hireId = `sales-${salesPerson.id || salesPerson.name}`
+  const hireId = `sales-${salesPerson.id}`
   hiringId.value = hireId
 
   try {
-    // TODO: Replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    const response = await fetch(`${API_BASE}/games/${gameStore.currentGameId}/hire/sales-person/${salesPerson.id}`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        sales_person_id: salesPerson.id,
+        hire_cost: salesPerson.hire_cost?.amount || salesPerson.monthly_salary
+      })
+    })
 
-    // Simulate successful hire
-    notificationStore.success(`${salesPerson.name} è stato assunto come commerciale!`)
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(errorData.message || `Errore HTTP: ${response.status}`)
+    }
 
-    // Remove from market
-    marketSalesPeople.value = marketSalesPeople.value.filter(s => s.id !== salesPerson.id)
+    const result = await response.json()
 
-    // Update game money via store action (better approach)
-    await gameStore.refreshCurrentGame()
+    if (result.success) {
+      notificationStore.success(result.message)
+      
+      // Rimuovi dal mercato
+      marketSalesPeople.value = marketSalesPeople.value.filter(s => s.id !== salesPerson.id)
+      
+      // Aggiorna stato del gioco
+      await gameStore.refreshCurrentGame()
+      
+      console.log('✅ Sales person hired successfully:', result.data)
+    } else {
+      throw new Error(result.message || 'Errore durante l\'assunzione')
+    }
 
   } catch (error) {
-    notificationStore.error('Errore durante l\'assunzione del commerciale')
+    console.error('❌ Hiring sales person error:', error)
+    
+    if (error.message.includes('Budget insufficiente')) {
+      notificationStore.error('Budget insufficiente per questa assunzione')
+    } else if (error.message.includes('fetch')) {
+      notificationStore.error('Errore di connessione. Controlla la tua connessione internet.')
+    } else if (error.message.includes('401')) {
+      notificationStore.error('Sessione scaduta. Effettua di nuovo il login.')
+    } else {
+      notificationStore.error(`Errore durante l'assunzione: ${error.message}`)
+    }
   } finally {
     hiringId.value = null
   }
 }
 
-// Helper functions
-const getSeniorityText = (seniority) => {
-  const levels = {
-    1: 'Junior',
-    2: 'Junior-Mid',
-    3: 'Mid',
-    4: 'Senior',
-    5: 'Lead'
-  }
-  return levels[seniority] || 'Unknown'
+// 🎯 HELPER CORRETTO per canAfford che funziona con diverse strutture dati
+const canAfford = (cost) => {
+  const actualCost = typeof cost === 'object' ? cost.amount : cost
+  return currentMoney.value >= actualCost
 }
 
-const getExperienceText = (experience) => {
-  const levels = {
-    1: 'Trainee',
-    2: 'Junior',
-    3: 'Mid',
-    4: 'Senior',
-    5: 'Manager'
-  }
-  return levels[experience] || 'Unknown'
+// 🎯 METODI HELPER per accesso ai dati API
+
+// Funzione per ottenere il costo di assunzione
+const getHireCost = (person) => {
+  return person.hire_cost?.amount || person.monthly_salary || 0
 }
 
-const getSpecializationText = (specialization) => {
-  const specs = {
-    frontend: 'Frontend',
-    backend: 'Backend',
-    fullstack: 'Full Stack',
-    mobile: 'Mobile',
-    devops: 'DevOps'
-  }
-  return specs[specialization] || specialization
+// Funzione per ottenere lo stipendio formattato
+const getFormattedSalary = (person) => {
+  const salary = person.salary?.monthly || person.monthly_salary || 0
+  return formatCurrency(salary)
 }
 
-const getSalesSpecializationText = (specialization) => {
-  const specs = {
-    startup: 'Startup',
-    sme: 'PMI',
-    enterprise: 'Enterprise',
-    ecommerce: 'E-commerce',
-    consulting: 'Consulting'
-  }
-  return specs[specialization] || specialization
-}
+// 🎯 COMPUTED PROPERTIES corretti per strutture API
 
-// 🎯 DEBUG: Aggiungi per verificare la struttura dati
-onMounted(() => {
-  console.log('🔍 HR Component mounted - Debug info:')
-  console.log('Current game:', gameStore.currentGame)
-  console.log('Current money:', currentMoney.value)
-  console.log('Money structure:', gameStore.currentGame?.money)
+const filteredDevelopers = computed(() => {
+  let developers = marketDevelopers.value || []
   
-  loadMarketDevelopers()
-  loadMarketSalesPeople()
+  if (developerFilter.value === 'all') return developers
+  
+  return developers.filter(dev => {
+    const seniority = dev.seniority?.level || dev.seniority
+    return seniority.toString() === developerFilter.value
+  })
 })
+
+const filteredSalesPeople = computed(() => {
+  let salesPeople = marketSalesPeople.value || []
+  
+  if (salesFilter.value === 'all') return salesPeople
+  
+  return salesPeople.filter(sales => {
+    const experience = sales.experience?.level || sales.experience
+    return experience.toString() === salesFilter.value
+  })
+})
+
+// 🎯 TEMPLATE FIXES per compatibilità con API response
+
+// Nel template, cambia:
+// {{ developer.hiring_cost }} 
+// in:
+// {{ formatCurrency(getHireCost(developer)) }}
+
+// {{ developer.monthly_salary }}
+// in:
+// {{ getFormattedSalary(developer) }}
+
+// E per i controlli di disponibilità:
+// :class="{ 'opacity-50': !canAfford(developer.hiring_cost) }"
+// in:
+// :class="{ 'opacity-50': !canAfford(getHireCost(developer)) }"
+
+// 🎯 DEBUGGING onMounted con API reali
+onMounted(async () => {
+  console.log('🔍 HR Component mounted - Debug info:')
+  console.log('Current game ID:', gameStore.currentGameId)
+  console.log('Current money:', currentMoney.value)
+  console.log('API Base URL:', API_BASE)
+  console.log('Auth token present:', !!authStore.token)
+  
+  // Carica i dati del mercato
+  await Promise.all([
+    loadMarketDevelopers(),
+    loadMarketSalesPeople()
+  ])
+  
+  console.log('Market data loaded')
+})
+
+// 🎯 WATCH per ricaricare quando cambia il gioco
+watch(() => gameStore.currentGameId, async (newGameId) => {
+  if (newGameId) {
+    console.log('Game changed, reloading market data for game:', newGameId)
+    await Promise.all([
+      loadMarketDevelopers(),
+      loadMarketSalesPeople()
+    ])
+  }
+})
+
+// 🎯 ERROR HANDLING GLOBALE per non gestiti
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('❌ Unhandled promise rejection in HR component:', event.reason)
+  notificationStore.error('Si è verificato un errore imprevisto.')
+  event.preventDefault()
+})
+
 </script>

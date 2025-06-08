@@ -25,7 +25,6 @@ export default [
     },
     {
         path: '/game',
-        name: 'game',
         component: () => import('@/js/layouts/LayoutGame.vue'),
         meta: {
             requiresAuth: true,

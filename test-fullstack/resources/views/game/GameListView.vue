@@ -321,11 +321,52 @@ const resumeGame = async (game) => {
   try {
     isLoading.value = true
     
-    await gameStore.loadGame(game.id)
-    router.push({ name: 'game' })
+    console.log('🎮 Resuming game:', game.id)
+    
+    // 🎯 FIX 1: Verifica che il game.id sia valido
+    if (!game?.id) {
+      throw new Error('Game ID non valido')
+    }
+    
+    // 🎯 FIX 2: Carica il game nello store con error handling migliore
+    const loadedGame = await gameStore.loadGame(game.id)
+    
+    if (!loadedGame) {
+      throw new Error('Impossibile caricare i dati della partita')
+    }
+    
+    console.log('✅ Game loaded successfully:', loadedGame.id)
+    
+    // 🎯 FIX 3: Verifica che il router sia disponibile
+    if (!router) {
+      throw new Error('Router non disponibile')
+    }
+    
+    // 🎯 FIX 4: Usa path invece di name se la route name non è definita
+    // Cambia da { name: 'game' } a '/game/dashboard' o simile
+    await router.push('/game/dashboard') // O la tua route corretta
+    
   } catch (error) {
-    notificationStore.error('Errore nel caricamento della partita')
     console.error('❌ Error resuming game:', error)
+    
+    // 🎯 FIX 5: Error handling specifico
+    if (error.message.includes('Network Error') || error.response?.status >= 500) {
+      notificationStore.error('Errore di connessione. Controlla la tua connessione internet.')
+    } else if (error.response?.status === 404) {
+      notificationStore.error('Partita non trovata. Potrebbe essere stata eliminata.')
+    } else if (error.response?.status === 403) {
+      notificationStore.error('Non hai i permessi per accedere a questa partita.')
+    } else {
+      notificationStore.error(`Errore nel caricamento della partita: ${error.message}`)
+    }
+    
+    // 🎯 FIX 6: Fallback - ricarica la lista delle partite
+    try {
+      await loadGames(false)
+    } catch (refreshError) {
+      console.error('❌ Error refreshing games list:', refreshError)
+    }
+    
   } finally {
     isLoading.value = false
   }

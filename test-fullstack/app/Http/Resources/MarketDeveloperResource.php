@@ -7,36 +7,47 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class MarketDeveloperResource extends JsonResource
 {
-
+    /**
+     * Transform the resource into an array.
+     *
+     * @param Request $request
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
         return [
-            'name' => $this->name ?? $this['name'],
+            'id' => $this->resource['id'] ?? $this->id,
+            'name' => $this->resource['name'] ?? $this->name,
             'seniority' => [
-                'level' => $this->seniority ?? $this['seniority'],
-                'name' => $this->getSeniorityName ? $this->getSeniorityName() : $this->getSeniorityNameStatic($this['seniority']),
-                'stars' => str_repeat('⭐', $this->seniority ?? $this['seniority']),
+                'level' => $this->resource['seniority'] ?? $this->seniority,
+                'name' => $this->getSeniorityNameStatic($this->resource['seniority'] ?? $this->seniority),
+                'stars' => str_repeat('⭐', $this->resource['seniority'] ?? $this->seniority),
+                'color' => $this->getSeniorityColorStatic($this->resource['seniority'] ?? $this->seniority),
             ],
             'specialization' => [
-                'code' => $this->specialization ?? $this['specialization'],
-                'name' => $this->getSpecializationName ? $this->getSpecializationName() : $this->getSpecializationNameStatic($this['specialization']),
+                'code' => $this->resource['specialization'] ?? $this->specialization ?? null,
+                'name' => $this->getSpecializationNameStatic($this->resource['specialization'] ?? $this->specialization ?? null),
             ],
             'salary' => [
-                'monthly' => $this->monthly_salary ?? $this['monthly_salary'],
-                'formatted' => number_format($this->monthly_salary ?? $this['monthly_salary'], 2) . ' €',
+                'monthly' => $this->resource['monthly_salary'] ?? $this->monthly_salary,
+                'formatted' => number_format($this->resource['monthly_salary'] ?? $this->monthly_salary, 2) . ' €',
             ],
             'hire_cost' => [
-                'amount' => $this->monthly_salary ?? $this['monthly_salary'], // Costo assunzione = 1 mese di stipendio
-                'formatted' => number_format($this->monthly_salary ?? $this['monthly_salary'], 2) . ' €',
+                'amount' => $this->resource['monthly_salary'] ?? $this->monthly_salary, // Costo = 1 mese di stipendio
+                'formatted' => number_format($this->resource['monthly_salary'] ?? $this->monthly_salary, 2) . ' €',
             ],
+            'skills' => $this->resource['skills'] ?? $this->skills ?? [],
         ];
     }
 
+    /**
+     * Helper statico per seniority name (compatibile con array e oggetti)
+     */
     private function getSeniorityNameStatic(int $seniority): string
     {
         return match($seniority) {
             1 => 'Junior',
-            2 => 'Junior-Mid',
+            2 => 'Junior-Mid', 
             3 => 'Mid',
             4 => 'Senior',
             5 => 'Lead',
@@ -44,7 +55,24 @@ class MarketDeveloperResource extends JsonResource
         };
     }
 
+    /**
+     * Helper statico per seniority color
+     */
+    private function getSeniorityColorStatic(int $seniority): string
+    {
+        return match($seniority) {
+            1 => '#6b7280',     // gray-500
+            2 => '#3b82f6',     // blue-500
+            3 => '#10b981',     // green-500
+            4 => '#f59e0b',     // yellow-500
+            5 => '#8b5cf6',     // purple-500
+            default => '#9ca3af', // gray-400
+        };
+    }
 
+    /**
+     * Helper statico per specialization name
+     */
     private function getSpecializationNameStatic(?string $specialization): ?string
     {
         return match($specialization) {
@@ -53,7 +81,7 @@ class MarketDeveloperResource extends JsonResource
             'fullstack' => 'Full Stack',
             'mobile' => 'Mobile',
             'devops' => 'DevOps',
-            default => null,
+            default => 'Generica',
         };
     }
 }

@@ -435,15 +435,39 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/js/stores/game'
 import { useNotificationStore } from '@/js/stores/notifications'
-import api from '@/js/services/api'
-import { formatCurrency, formatDate } from '@/js/utils/helpers'
+import { useAuthStore } from '@/js/stores/auth'
 
-// Stores
+// ✅ UTILITY IMPORTS - aggiunti helper necessari
+const formatCurrency = (amount) => {
+  if (typeof amount !== 'number') return '€0,00'
+  return new Intl.NumberFormat('it-IT', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(amount)
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  try {
+    return new Date(dateString).toLocaleDateString('it-IT', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  } catch (error) {
+    return 'Data non valida'
+  }
+}
+
+// ✅ STORES - correttamente importati
 const gameStore = useGameStore()
 const notificationStore = useNotificationStore()
+const authStore = useAuthStore()
 const router = useRouter()
 
-// Reactive state
+// ✅ REACTIVE STATE - ben organizzato
 const loading = ref({
   salesPeople: false,
   projects: false
@@ -460,24 +484,26 @@ const selectedSalesPerson = ref(null)
 const generatingProject = ref(null)
 const completingGeneration = ref(null)
 
-// Computed properties
+// ✅ COMPUTED PROPERTIES - ottimizzati per performance
 const availableSales = computed(() => {
-  return salesPeople.value.filter(s => s.status.is_available).length
+  return salesPeople.value.filter(s => s.status?.is_available || !s.status?.is_busy).length
 })
 
 const activeGenerations = computed(() => {
-  return salesPeople.value.filter(s => s.status.is_busy).length
+  return salesPeople.value.filter(s => s.status?.is_busy || s.current_generation).length
 })
 
 const totalValueGenerated = computed(() => {
-  return salesPeople.value.reduce((sum, s) => sum + (s.statistics.total_value_generated || 0), 0)
+  return salesPeople.value.reduce((sum, s) => {
+    return sum + (s.statistics?.total_value_generated || 0)
+  }, 0)
 })
 
 const averageConversionRate = computed(() => {
   if (salesPeople.value.length === 0) return 0
 
   const totalConversion = salesPeople.value.reduce((sum, s) => {
-    return sum + (s.statistics.conversion_rate || 0)
+    return sum + (s.statistics?.conversion_rate || 0)
   }, 0)
 
   return Math.round(totalConversion / salesPeople.value.length)
@@ -488,13 +514,15 @@ const averageProjectValue = computed(() => {
 
   const totalValue = recentProjects.value
     .slice(0, 10)
-    .reduce((sum, p) => sum + (p.value.amount || 0), 0)
+    .reduce((sum, p) => sum + (p.value?.amount || 0), 0)
 
   return totalValue / Math.min(10, recentProjects.value.length)
 })
 
 const teamEfficiencyRating = computed(() => {
-  const totalProjects = salesPeople.value.reduce((sum, s) => sum + (s.statistics.projects_generated || 0), 0)
+  const totalProjects = salesPeople.value.reduce((sum, s) => {
+    return sum + (s.statistics?.projects_generated || 0)
+  }, 0)
   const teamSize = salesPeople.value.length
 
   if (teamSize === 0) return 'N/A'
@@ -507,7 +535,9 @@ const teamEfficiencyRating = computed(() => {
 })
 
 const teamEfficiencyDescription = computed(() => {
-  const totalProjects = salesPeople.value.reduce((sum, s) => sum + (s.statistics.projects_generated || 0), 0)
+  const totalProjects = salesPeople.value.reduce((sum, s) => {
+    return sum + (s.statistics?.projects_generated || 0)
+  }, 0)
   const teamSize = salesPeople.value.length
 
   if (teamSize === 0) return 'Nessun commerciale'
@@ -519,9 +549,13 @@ const teamEfficiencyDescription = computed(() => {
 const projectsThisMonth = computed(() => {
   const now = new Date()
   const thisMonth = recentProjects.value.filter(p => {
-    const projectDate = new Date(p.created_at)
-    return projectDate.getMonth() === now.getMonth() &&
-           projectDate.getFullYear() === now.getFullYear()
+    try {
+      const projectDate = new Date(p.created_at)
+      return projectDate.getMonth() === now.getMonth() &&
+             projectDate.getFullYear() === now.getFullYear()
+    } catch (error) {
+      return false
+    }
   })
   return thisMonth.length
 })
@@ -534,34 +568,96 @@ const projectsThisMonthTrend = computed(() => {
   return '📊 In crescita'
 })
 
-// Methods
+// ✅ API CONFIGURATION - sicuro e centralizzato
+const API_BASE = '/api'
+const getHeaders = () => ({
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+  'Authorization': `Bearer ${authStore.token}`,
+})
+
+// ✅ API METHODS - con gestione errori robusta
 const fetchSalesPeople = async () => {
+  if (!gameStore.currentGame?.id) {
+    console.warn('No current game available for sales people fetch')
+    return
+  }
+
   loading.value.salesPeople = true
   try {
-    const response = await api.get(`/games/${gameStore.currentGame.id}/sales-people`)
-    salesPeople.value = response.data.data
+    const response = await fetch(`${API_BASE}/games/${gameStore.currentGame.id}/sales-people`, {
+      method: 'GET',
+      headers: getHeaders(),
+    })
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.message || `HTTP Error: ${response.status}`)
+    }
+
+    const result = await response.json()
+    salesPeople.value = result.data || []
+    
+    console.log('✅ Sales people loaded:', result.data?.length || 0)
+    
   } catch (error) {
-    notificationStore.error('Errore nel caricamento dei commerciali')
-    console.error('Error fetching sales people:', error)
+    console.error('❌ Error fetching sales people:', error)
+    notificationStore.error(`Errore nel caricamento dei commerciali: ${error.message}`)
+    salesPeople.value = []
   } finally {
     loading.value.salesPeople = false
   }
 }
 
 const fetchGeneratedProjects = async () => {
+  if (!gameStore.currentGame?.id) {
+    console.warn('No current game available for projects fetch')
+    return
+  }
+
   loading.value.projects = true
   try {
-    const response = await api.get(`/games/${gameStore.currentGame.id}/projects`, {
-      params: {
-        limit: 20,
-        sort: 'created_at',
-        order: 'desc'
-      }
+    const response = await fetch(`${API_BASE}/games/${gameStore.currentGame.id}/projects/pending`, {
+      method: 'GET',
+      headers: getHeaders(),
     })
-    recentProjects.value = response.data.data
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.message || `HTTP Error: ${response.status}`)
+    }
+
+    const result = await response.json()
+    
+    // Combina progetti pending e alcuni completati recenti
+    let allProjects = result.data || []
+    
+    // Prova a recuperare anche progetti completati recenti
+    try {
+      const completedResponse = await fetch(`${API_BASE}/games/${gameStore.currentGame.id}/projects?status=completed&limit=10`, {
+        method: 'GET',
+        headers: getHeaders(),
+      })
+      
+      if (completedResponse.ok) {
+        const completedResult = await completedResponse.json()
+        allProjects = [...allProjects, ...(completedResult.data || [])]
+      }
+    } catch (completedError) {
+      console.warn('Could not fetch completed projects:', completedError)
+    }
+    
+    // Ordina per data di creazione
+    recentProjects.value = allProjects.sort((a, b) => {
+      return new Date(b.created_at) - new Date(a.created_at)
+    }).slice(0, 20) // Limita a 20 progetti più recenti
+    
+    console.log('✅ Projects loaded:', recentProjects.value.length)
+    
   } catch (error) {
-    notificationStore.error('Errore nel caricamento dei progetti')
-    console.error('Error fetching projects:', error)
+    console.error('❌ Error fetching projects:', error)
+    notificationStore.error(`Errore nel caricamento dei progetti: ${error.message}`)
+    recentProjects.value = []
   } finally {
     loading.value.projects = false
   }
@@ -576,37 +672,86 @@ const refreshGeneratedProjects = () => {
 }
 
 const startGeneration = async (salesPerson) => {
+  if (!salesPerson.status?.is_available) {
+    notificationStore.warning('Il commerciale è già occupato')
+    return
+  }
+
   generatingProject.value = salesPerson.id
+  
   try {
-    await api.post(`/games/${gameStore.currentGame.id}/sales-people/${salesPerson.id}/generate-project`)
+    const response = await fetch(`${API_BASE}/games/${gameStore.currentGame.id}/sales-people/${salesPerson.id}/generate-project`, {
+      method: 'POST',
+      headers: getHeaders(),
+    })
 
-    notificationStore.success(`${salesPerson.name} ha iniziato a generare un nuovo progetto!`)
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.message || `HTTP Error: ${response.status}`)
+    }
 
-    await fetchSalesPeople()
+    const result = await response.json()
+
+    if (result.success) {
+      notificationStore.success(result.message || `${salesPerson.name} ha iniziato a generare un nuovo progetto!`)
+      await fetchSalesPeople() // Ricarica i dati
+    } else {
+      throw new Error(result.message || 'Errore durante l\'avvio della generazione')
+    }
+
   } catch (error) {
-    notificationStore.error('Errore nell\'avvio della generazione')
-    console.error('Error starting generation:', error)
+    console.error('❌ Error starting generation:', error)
+    notificationStore.error(`Errore nell'avvio della generazione: ${error.message}`)
   } finally {
     generatingProject.value = null
   }
 }
 
 const completeGeneration = async (generation) => {
+  if (!generation?.id) {
+    notificationStore.error('ID generazione non valido')
+    return
+  }
+
   completingGeneration.value = generation.id
+  
   try {
-    await api.post(`/generations/${generation.id}/complete`)
+    const response = await fetch(`${API_BASE}/generations/${generation.id}/complete`, {
+      method: 'POST',
+      headers: getHeaders(),
+    })
 
-    notificationStore.success(`Nuovo progetto generato! Valore: ${formatCurrency(generation.estimated_value.amount)}`)
-
-    await Promise.all([fetchSalesPeople(), fetchGeneratedProjects()])
-    await gameStore.refreshGameState()
-  } catch (error) {
-    if (error.response?.status === 400) {
-      notificationStore.warning('La generazione non è ancora completata')
-    } else {
-      notificationStore.error('Errore nel completamento della generazione')
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      
+      if (response.status === 400) {
+        notificationStore.warning('La generazione non è ancora completata')
+        return
+      }
+      
+      throw new Error(errorData.message || `HTTP Error: ${response.status}`)
     }
-    console.error('Error completing generation:', error)
+
+    const result = await response.json()
+
+    if (result.success) {
+      const value = generation.estimated_value?.amount || 0
+      notificationStore.success(`Nuovo progetto generato! Valore: ${formatCurrency(value)}`)
+
+      // Ricarica entrambi i dati
+      await Promise.all([fetchSalesPeople(), fetchGeneratedProjects()])
+      
+      // Aggiorna stato del gioco se disponibile
+      if (gameStore.loadGame && gameStore.currentGame?.id) {
+        await gameStore.loadGame(gameStore.currentGame.id)
+      }
+    } else {
+      throw new Error(result.message || 'Errore nel completamento della generazione')
+    }
+
+  } catch (error) {
+    console.error('❌ Error completing generation:', error)
+    notificationStore.error(`Errore nel completamento: ${error.message}`)
   } finally {
     completingGeneration.value = null
   }
@@ -626,15 +771,29 @@ const cancelGeneration = async () => {
   if (!selectedSalesPerson.value) return
 
   try {
-    await api.post(`/games/${gameStore.currentGame.id}/sales-people/${selectedSalesPerson.value.id}/cancel-generation`)
+    const response = await fetch(`${API_BASE}/games/${gameStore.currentGame.id}/sales-people/${selectedSalesPerson.value.id}/cancel-generation`, {
+      method: 'POST',
+      headers: getHeaders(),
+    })
 
-    notificationStore.success('Generazione annullata')
-    closeCancelModal()
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.message || `HTTP Error: ${response.status}`)
+    }
 
-    await fetchSalesPeople()
+    const result = await response.json()
+
+    if (result.success) {
+      notificationStore.success('Generazione annullata')
+      closeCancelModal()
+      await fetchSalesPeople()
+    } else {
+      throw new Error(result.message || 'Errore nell\'annullamento della generazione')
+    }
+
   } catch (error) {
-    notificationStore.error('Errore nell\'annullamento della generazione')
-    console.error('Error canceling generation:', error)
+    console.error('❌ Error canceling generation:', error)
+    notificationStore.error(`Errore nell'annullamento: ${error.message}`)
   }
 }
 
@@ -646,23 +805,74 @@ const goToProduction = () => {
   router.push('/game/production')
 }
 
-// Auto-refresh data
+// ✅ AUTO-REFRESH - gestito correttamente per evitare memory leaks
 let refreshInterval = null
 
-onMounted(async () => {
-  await Promise.all([fetchSalesPeople(), fetchGeneratedProjects()])
-
-  // Auto-refresh every 30 seconds
-  refreshInterval = setInterval(() => {
-    if (!modals.value.cancel) {
-      Promise.all([fetchSalesPeople(), fetchGeneratedProjects()])
-    }
-  }, 30000)
-})
-
-onUnmounted(() => {
+const setupAutoRefresh = () => {
+  // Cancella interval esistente se presente
   if (refreshInterval) {
     clearInterval(refreshInterval)
   }
+  
+  // Auto-refresh ogni 30 secondi solo se non ci sono modal aperti
+  refreshInterval = setInterval(() => {
+    if (!modals.value.cancel && !generatingProject.value && !completingGeneration.value) {
+      Promise.all([fetchSalesPeople(), fetchGeneratedProjects()])
+        .catch(error => console.warn('Auto-refresh failed:', error))
+    }
+  }, 30000)
+}
+
+const cleanupAutoRefresh = () => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
+  }
+}
+
+// ✅ LIFECYCLE HOOKS - ben gestiti
+onMounted(async () => {
+  console.log('🔍 Sales Component mounted - Debug info:')
+  console.log('Current game:', gameStore.currentGame?.id)
+  console.log('Auth token present:', !!authStore.token)
+  
+  if (!gameStore.currentGame?.id) {
+    notificationStore.error('Nessuna partita caricata. Torna alla dashboard.')
+    router.push('/game/dashboard')
+    return
+  }
+  
+  // Carica i dati iniziali
+  await Promise.all([fetchSalesPeople(), fetchGeneratedProjects()])
+  
+  // Setup auto-refresh
+  setupAutoRefresh()
+  
+  console.log('Sales data loaded and auto-refresh started')
+})
+
+onUnmounted(() => {
+  cleanupAutoRefresh()
+  console.log('Sales component unmounted, auto-refresh stopped')
+})
+
+// ✅ VISIBILITY CHANGE HANDLING - pausa/riprende auto-refresh
+const handleVisibilityChange = () => {
+  if (document.hidden) {
+    cleanupAutoRefresh()
+  } else {
+    // Ricarica dati quando la pagina diventa visibile
+    Promise.all([fetchSalesPeople(), fetchGeneratedProjects()])
+      .then(() => setupAutoRefresh())
+      .catch(error => console.warn('Refresh on visibility change failed:', error))
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 </script>
