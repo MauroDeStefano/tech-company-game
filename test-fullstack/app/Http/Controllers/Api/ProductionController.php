@@ -413,7 +413,7 @@ class ProductionController extends Controller
             'developers' => [
                 'total' => $developers->count(),
                 'available' => $developers->where('is_busy', false)->count(),
-                'busy' => $developers->where('is_busy', true)->count(),
+                'busy' => $developers->where('is_busy', true)->count(), 
                 'average_seniority' => $developers->avg('seniority'),
                 'total_monthly_costs' => $developers->sum('monthly_salary'),
             ],

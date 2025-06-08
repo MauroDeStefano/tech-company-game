@@ -1,97 +1,142 @@
 <!-- src/components/game/dashboard/RecentActivityCard.vue -->
 <template>
-  <BaseCard
-    title="Attività Recenti"
-    icon="📋"
-    :loading="loading"
-    class="recent-activity-card"
-  >
-    <template #actions>
-      <BaseButton
-        variant="ghost"
-        size="sm"
-        icon="🗂️"
-        @click="viewAllActivity"
-      >
-        Vedi Tutto
-      </BaseButton>
-    </template>
-
-    <!-- Empty State -->
-    <div v-if="activities.length === 0" class="empty-state">
-      <div class="empty-icon">📝</div>
-      <h4 class="empty-title">Nessuna Attività</h4>
-      <p class="empty-description">
-        Non ci sono attività recenti da mostrare. Inizia ad assegnare progetti o assumere personale!
-      </p>
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📋</span>
+          <h3 class="text-lg font-bold text-gray-900">Attività Recenti</h3>
+          <div v-if="loading" class="ml-2">
+            <svg class="animate-spin w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        </div>
+        <button
+          @click="viewAllActivity"
+          class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+        >
+          <span>🗂️</span>
+          Vedi Tutto
+        </button>
+      </div>
     </div>
 
-    <!-- Activities List -->
-    <div v-else class="activities-list">
-      <div
-        v-for="activity in displayedActivities"
-        :key="activity.id"
-        class="activity-item"
-        :class="`activity-item--${activity.type}`"
-      >
-        <!-- Activity Icon -->
-        <div class="activity-icon" :class="`activity-icon--${activity.type}`">
-          {{ activity.icon }}
-        </div>
-
-        <!-- Activity Content -->
-        <div class="activity-content">
-          <div class="activity-header">
-            <span class="activity-title">{{ activity.title }}</span>
-            <span class="activity-time">{{ formatRelativeTime(activity.timestamp) }}</span>
-          </div>
-
-          <div class="activity-description">{{ activity.description }}</div>
-
-          <!-- Activity Details -->
-          <div v-if="activity.details" class="activity-details">
-            <span
-              v-for="detail in activity.details"
-              :key="detail.key"
-              class="activity-detail"
-              :class="`detail--${detail.type}`"
-            >
-              {{ detail.label }}: {{ detail.value }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Activity Value (if any) -->
-        <div v-if="activity.value" class="activity-value" :class="`value--${activity.valueType}`">
-          {{ formatActivityValue(activity.value, activity.valueType) }}
-        </div>
+    <!-- Content -->
+    <div>
+      <!-- Empty State -->
+      <div v-if="activities.length === 0" class="text-center py-8">
+        <div class="text-6xl mb-4">📝</div>
+        <h4 class="text-lg font-semibold text-gray-900 mb-2">Nessuna Attività</h4>
+        <p class="text-gray-600 max-w-sm mx-auto">
+          Non ci sono attività recenti da mostrare. Inizia ad assegnare progetti o assumere personale!
+        </p>
       </div>
 
-      <!-- Show More Button -->
-      <div v-if="activities.length > displayLimit" class="show-more">
-        <BaseButton
-          variant="ghost"
-          size="sm"
-          @click="showAll = !showAll"
+      <!-- Activities List -->
+      <div v-else class="space-y-4">
+        <div
+          v-for="activity in displayedActivities"
+          :key="activity.id"
+          class="flex items-start gap-3 p-3 rounded-lg border"
+          :class="{
+            'border-green-200 bg-green-50': activity.type === 'success',
+            'border-blue-200 bg-blue-50': activity.type === 'info',
+            'border-yellow-200 bg-yellow-50': activity.type === 'warning',
+            'border-red-200 bg-red-50': activity.type === 'danger'
+          }"
         >
-          {{ showAll ? 'Mostra meno' : `+${activities.length - displayLimit} altre attività` }}
-        </BaseButton>
+          <!-- Activity Icon -->
+          <div 
+            class="flex items-center justify-center w-8 h-8 rounded-full text-sm"
+            :class="{
+              'bg-green-100': activity.type === 'success',
+              'bg-blue-100': activity.type === 'info',
+              'bg-yellow-100': activity.type === 'warning',
+              'bg-red-100': activity.type === 'danger'
+            }"
+          >
+            {{ activity.icon }}
+          </div>
+
+          <!-- Activity Content -->
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-1">
+              <span 
+                class="font-medium text-sm"
+                :class="{
+                  'text-green-800': activity.type === 'success',
+                  'text-blue-800': activity.type === 'info',
+                  'text-yellow-800': activity.type === 'warning',
+                  'text-red-800': activity.type === 'danger'
+                }"
+              >
+                {{ activity.title }}
+              </span>
+              <span class="text-xs text-gray-500">{{ formatRelativeTime(activity.timestamp) }}</span>
+            </div>
+
+            <div class="text-sm text-gray-700 mb-2">{{ activity.description }}</div>
+
+            <!-- Activity Details -->
+            <div v-if="activity.details" class="flex flex-wrap gap-2">
+              <span
+                v-for="detail in activity.details"
+                :key="detail.key"
+                class="text-xs px-2 py-1 rounded-full"
+                :class="{
+                  'bg-green-100 text-green-700': detail.type === 'success',
+                  'bg-blue-100 text-blue-700': detail.type === 'info',
+                  'bg-yellow-100 text-yellow-700': detail.type === 'warning',
+                  'bg-gray-100 text-gray-700': detail.type === 'neutral'
+                }"
+              >
+                {{ detail.label }}: {{ detail.value }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Activity Value (if any) -->
+          <div v-if="activity.value" 
+            class="text-sm font-semibold"
+            :class="{
+              'text-green-600': activity.valueType === 'money',
+              'text-red-600': activity.valueType === 'cost'
+            }"
+          >
+            {{ formatActivityValue(activity.value, activity.valueType) }}
+          </div>
+        </div>
+
+        <!-- Show More Button -->
+        <div v-if="activities.length > displayLimit" class="text-center pt-2">
+          <button
+            @click="showAll = !showAll"
+            class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors duration-200"
+          >
+            {{ showAll ? 'Mostra meno' : `+${activities.length - displayLimit} altre attività` }}
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Activity Summary -->
-    <div v-if="activities.length > 0" class="activity-summary">
-      <div class="summary-item">
-        <span class="summary-icon">📊</span>
-        <span class="summary-text">{{ activities.length }} attività nelle ultime 24h</span>
-      </div>
+    <div v-if="activities.length > 0" class="mt-6 pt-4 border-t border-gray-200">
+      <div class="flex items-center justify-between text-sm">
+        <div class="flex items-center gap-2 text-gray-600">
+          <span>📊</span>
+          <span>{{ activities.length }} attività nelle ultime 24h</span>
+        </div>
 
-      <div v-if="todayEarnings > 0" class="summary-item">
-        <span class="summary-icon">💰</span>
-        <span class="summary-text">{{ formatCurrency(todayEarnings) }} guadagnati oggi</span>
+        <div v-if="todayEarnings > 0" class="flex items-center gap-2 text-green-600 font-medium">
+          <span>💰</span>
+          <span>{{ formatCurrency(todayEarnings) }} guadagnati oggi</span>
+        </div>
       </div>
     </div>
-  </BaseCard>
+  </div>
 </template>
 
 <script setup>
@@ -331,198 +376,3 @@ onUnmounted(() => {
   }
 })
 </script>
-
-<style scoped>
-.recent-activity-card {
-  @apply h-full;
-}
-
-/* Empty State */
-.empty-state {
-  @apply text-center py-8;
-}
-
-.empty-icon {
-  @apply text-4xl mb-4;
-}
-
-.empty-title {
-  @apply text-lg font-semibold text-neutral-900 mb-2;
-}
-
-.empty-description {
-  @apply text-neutral-600 max-w-sm mx-auto;
-}
-
-/* Activities List */
-.activities-list {
-  @apply space-y-3;
-}
-
-.activity-item {
-  @apply flex items-start space-x-3 p-3 rounded-lg;
-  @apply transition-all duration-200 hover:shadow-sm;
-}
-
-.activity-item--success {
-  @apply bg-success-50 hover:bg-success-100;
-}
-
-.activity-item--info {
-  @apply bg-blue-50 hover:bg-blue-100;
-}
-
-.activity-item--warning {
-  @apply bg-warning-50 hover:bg-warning-100;
-}
-
-.activity-item--danger {
-  @apply bg-danger-50 hover:bg-danger-100;
-}
-
-/* Activity Icon */
-.activity-icon {
-  @apply w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0;
-  @apply text-base font-medium;
-}
-
-.activity-icon--success {
-  @apply bg-success-100 text-success-700;
-}
-
-.activity-icon--info {
-  @apply bg-blue-100 text-blue-700;
-}
-
-.activity-icon--warning {
-  @apply bg-warning-100 text-warning-700;
-}
-
-.activity-icon--danger {
-  @apply bg-danger-100 text-danger-700;
-}
-
-/* Activity Content */
-.activity-content {
-  @apply flex-1 min-w-0;
-}
-
-.activity-header {
-  @apply flex items-center justify-between mb-1;
-}
-
-.activity-title {
-  @apply font-medium text-neutral-900;
-}
-
-.activity-time {
-  @apply text-xs text-neutral-500 flex-shrink-0 ml-2;
-}
-
-.activity-description {
-  @apply text-sm text-neutral-700 mb-2;
-}
-
-.activity-details {
-  @apply flex flex-wrap gap-2;
-}
-
-.activity-detail {
-  @apply text-xs px-2 py-1 rounded-full;
-}
-
-.detail--info {
-  @apply bg-blue-100 text-blue-700;
-}
-
-.detail--success {
-  @apply bg-success-100 text-success-700;
-}
-
-.detail--warning {
-  @apply bg-warning-100 text-warning-700;
-}
-
-.detail--neutral {
-  @apply bg-neutral-100 text-neutral-700;
-}
-
-/* Activity Value */
-.activity-value {
-  @apply flex-shrink-0 text-sm font-semibold;
-}
-
-.value--money {
-  @apply text-success-600;
-}
-
-.value--cost {
-  @apply text-danger-600;
-}
-
-/* Show More */
-.show-more {
-  @apply text-center pt-2;
-}
-
-/* Activity Summary */
-.activity-summary {
-  @apply border-t border-neutral-200 pt-4 mt-4 space-y-2;
-}
-
-.summary-item {
-  @apply flex items-center text-sm text-neutral-600;
-}
-
-.summary-icon {
-  @apply mr-2;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .activity-item {
-    @apply flex-col space-y-2 space-x-0 p-2;
-  }
-
-  .activity-icon {
-    @apply self-start;
-  }
-
-  .activity-header {
-    @apply flex-col items-start space-y-1;
-  }
-
-  .activity-time {
-    @apply ml-0;
-  }
-
-  .activity-details {
-    @apply flex-col gap-1;
-  }
-
-  .activity-value {
-    @apply self-start;
-  }
-}
-
-/* Animations */
-.activity-item {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Hover effects */
-.activity-item:hover .activity-icon {
-  @apply transform scale-105;
-}
-</style>

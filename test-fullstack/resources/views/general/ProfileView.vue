@@ -1,86 +1,87 @@
 <template>
-  <div class="profile-view">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-white">
     <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">
-          <span class="title-icon">👤</span>
-          Il Tuo Profilo
-        </h1>
-        <p class="page-subtitle">
-          Gestisci le informazioni del tuo account e le preferenze
-        </p>
-      </div>
+    <div class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex-1">
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">
+              <span class="text-2xl mr-2">👤</span>
+              Il Tuo Profilo
+            </h1>
+            <p class="text-lg text-gray-600 mt-1">
+              Gestisci le informazioni del tuo account e le preferenze
+            </p>
+          </div>
 
-      <div class="header-actions">
-        <BaseButton
-          variant="outline"
-          icon="⚙️"
-          @click="goToSettings"
-        >
-          Impostazioni
-        </BaseButton>
+          <div>
+            <button
+              @click="goToSettings"
+              class="px-4 py-2 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-medium rounded-xl transition-colors duration-200 flex items-center gap-2"
+            >
+              <span class="text-lg">⚙️</span>
+              Impostazioni
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Profile Content -->
-    <div class="profile-content">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       <!-- User Profile Card -->
-      <div class="profile-section">
-        <BaseCard
-          title="Informazioni Profilo"
-          icon="👤"
-          class="profile-card"
-        >
-          <div class="profile-info">
+      <section>
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-2xl">👤</span>
+            <h2 class="text-xl font-bold text-gray-900">Informazioni Profilo</h2>
+          </div>
+
+          <div class="flex flex-col lg:flex-row gap-8">
             <!-- Avatar Section -->
-            <div class="avatar-section">
-              <div class="avatar-container">
-                <div class="avatar" :class="{ 'avatar--loading': uploadingAvatar }">
+            <div class="flex flex-col items-center">
+              <div class="relative">
+                <div class="relative w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-lg">
                   <img
                     v-if="user?.avatar_url"
                     :src="user.avatar_url"
                     :alt="user.name"
-                    class="avatar-image"
+                    class="w-full h-full object-cover"
                     @error="handleAvatarError"
                   />
-                  <div v-else class="avatar-fallback">
+                  <div v-else class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
                     {{ userInitials }}
                   </div>
 
                   <!-- Loading overlay -->
-                  <div v-if="uploadingAvatar" class="avatar-loading">
-                    <div class="loading-spinner">
-                      <svg class="animate-spin h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                      </svg>
-                    </div>
+                  <div v-if="uploadingAvatar" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <svg class="animate-spin h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
                   </div>
                 </div>
 
                 <!-- Avatar Actions -->
-                <div class="avatar-actions">
-                  <BaseButton
-                    size="sm"
-                    variant="outline"
-                    icon="📷"
+                <div class="flex gap-2 mt-4">
+                  <button
                     @click="triggerFileInput"
                     :disabled="uploadingAvatar"
+                    class="px-3 py-2 text-sm border border-gray-300 hover:border-gray-400 hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-700 font-medium rounded-lg transition-colors duration-200 flex items-center gap-1"
                   >
+                    <span class="text-sm">📷</span>
                     Cambia
-                  </BaseButton>
+                  </button>
 
-                  <BaseButton
+                  <button
                     v-if="user?.avatar_url"
-                    size="sm"
-                    variant="ghost"
-                    icon="🗑️"
                     @click="removeAvatar"
                     :disabled="uploadingAvatar"
+                    class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 disabled:bg-gray-100 disabled:cursor-not-allowed font-medium rounded-lg transition-colors duration-200 flex items-center gap-1"
                   >
+                    <span class="text-sm">🗑️</span>
                     Rimuovi
-                  </BaseButton>
+                  </button>
                 </div>
               </div>
 
@@ -95,22 +96,22 @@
             </div>
 
             <!-- User Details -->
-            <div class="user-details">
-              <div class="user-main">
-                <h2 class="user-name">{{ user?.name || 'Nome Utente' }}</h2>
-                <p class="user-email">{{ user?.email }}</p>
+            <div class="flex-1">
+              <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ user?.name || 'Nome Utente' }}</h2>
+                <p class="text-lg text-gray-600 mb-3">{{ user?.email }}</p>
 
                 <!-- Verification Status -->
-                <div class="verification-status">
+                <div class="mb-4">
                   <span
                     v-if="user?.email_verified_at"
-                    class="status-badge status-badge--verified"
+                    class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-lg"
                   >
                     ✅ Email Verificata
                   </span>
                   <span
                     v-else
-                    class="status-badge status-badge--unverified"
+                    class="inline-flex items-center gap-1 px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-lg"
                   >
                     ⚠️ Email Non Verificata
                   </span>
@@ -118,304 +119,446 @@
               </div>
 
               <!-- User Stats -->
-              <div class="user-stats">
-                <div class="stat-item">
-                  <span class="stat-value">{{ userStats.accountAge }}</span>
-                  <span class="stat-label">Giorni come membro</span>
+              <div class="grid grid-cols-3 gap-4">
+                <div class="text-center bg-blue-50 rounded-lg p-4 border border-blue-200">
+                  <div class="text-2xl font-bold text-blue-900">{{ userStats.accountAge }}</div>
+                  <div class="text-sm text-blue-700">Giorni come membro</div>
                 </div>
 
-                <div class="stat-item">
-                  <span class="stat-value">{{ userStats.totalGames }}</span>
-                  <span class="stat-label">Partite create</span>
+                <div class="text-center bg-green-50 rounded-lg p-4 border border-green-200">
+                  <div class="text-2xl font-bold text-green-900">{{ userStats.totalGames }}</div>
+                  <div class="text-sm text-green-700">Partite create</div>
                 </div>
 
-                <div class="stat-item">
-                  <span class="stat-value">{{ userStats.hoursPlayed }}h</span>
-                  <span class="stat-label">Ore di gioco</span>
+                <div class="text-center bg-purple-50 rounded-lg p-4 border border-purple-200">
+                  <div class="text-2xl font-bold text-purple-900">{{ userStats.hoursPlayed }}h</div>
+                  <div class="text-sm text-purple-700">Ore di gioco</div>
                 </div>
               </div>
             </div>
           </div>
-        </BaseCard>
-      </div>
+        </div>
+      </section>
 
       <!-- Edit Profile Form -->
-      <div class="profile-section">
-        <BaseCard
-          title="Modifica Profilo"
-          icon="✏️"
-          class="edit-card"
-        >
+      <section>
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-2xl">✏️</span>
+            <h2 class="text-xl font-bold text-gray-900">Modifica Profilo</h2>
+          </div>
+
           <!-- Success Message -->
-          <div v-if="successMessage" class="success-alert">
-            <span class="success-icon">✅</span>
-            <span class="success-text">{{ successMessage }}</span>
-            <button @click="successMessage = ''" class="success-dismiss">✕</button>
+          <div v-if="successMessage" class="mb-6 flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <span class="text-green-600">✅</span>
+            <span class="text-green-800 flex-1">{{ successMessage }}</span>
+            <button @click="successMessage = ''" class="text-green-600 hover:text-green-800 transition-colors duration-200">✕</button>
           </div>
 
           <!-- Error Message -->
-          <div v-if="errorMessage" class="error-alert">
-            <span class="error-icon">⚠️</span>
-            <span class="error-text">{{ errorMessage }}</span>
-            <button @click="errorMessage = ''" class="error-dismiss">✕</button>
+          <div v-if="errorMessage" class="mb-6 flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <span class="text-red-600">⚠️</span>
+            <span class="text-red-800 flex-1">{{ errorMessage }}</span>
+            <button @click="errorMessage = ''" class="text-red-600 hover:text-red-800 transition-colors duration-200">✕</button>
           </div>
 
-          <form @submit.prevent="handleUpdateProfile" class="profile-form">
+          <form @submit.prevent="handleUpdateProfile" class="space-y-6">
             <!-- Name Field -->
-            <BaseInput
-              v-model="profileForm.name"
-              label="Nome Completo"
-              placeholder="Il tuo nome completo"
-              :error-message="validationErrors.name"
-              :disabled="isUpdating"
-              required
-              left-icon="👤"
-            />
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Nome Completo</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 text-lg">👤</span>
+                </div>
+                <input
+                  v-model="profileForm.name"
+                  type="text"
+                  placeholder="Il tuo nome completo"
+                  :disabled="isUpdating"
+                  required
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200"
+                  :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': validationErrors.name }"
+                />
+              </div>
+              <p v-if="validationErrors.name" class="text-red-600 text-sm font-medium mt-1">
+                {{ validationErrors.name }}
+              </p>
+            </div>
 
             <!-- Email Field -->
-            <BaseInput
-              v-model="profileForm.email"
-              type="email"
-              label="Email"
-              placeholder="tua@email.com"
-              :error-message="validationErrors.email"
-              :disabled="isUpdating"
-              required
-              left-icon="✉️"
-            />
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 text-lg">✉️</span>
+                </div>
+                <input
+                  v-model="profileForm.email"
+                  type="email"
+                  placeholder="tua@email.com"
+                  :disabled="isUpdating"
+                  required
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200"
+                  :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': validationErrors.email }"
+                />
+              </div>
+              <p v-if="validationErrors.email" class="text-red-600 text-sm font-medium mt-1">
+                {{ validationErrors.email }}
+              </p>
+            </div>
 
             <!-- Bio Field -->
-            <BaseInput
-              v-model="profileForm.bio"
-              input-type="textarea"
-              label="Bio (Opzionale)"
-              placeholder="Raccontaci qualcosa di te..."
-              :error-message="validationErrors.bio"
-              :disabled="isUpdating"
-              :rows="3"
-              :maxlength="500"
-              :show-counter="true"
-            />
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Bio (Opzionale)</label>
+              <textarea
+                v-model="profileForm.bio"
+                placeholder="Raccontaci qualcosa di te..."
+                :disabled="isUpdating"
+                rows="3"
+                maxlength="500"
+                class="block w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200 resize-none"
+                :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': validationErrors.bio }"
+              ></textarea>
+              <div class="flex justify-between items-center mt-1">
+                <p v-if="validationErrors.bio" class="text-red-600 text-sm font-medium">
+                  {{ validationErrors.bio }}
+                </p>
+                <span class="text-gray-500 text-sm">{{ profileForm.bio.length }}/500</span>
+              </div>
+            </div>
 
             <!-- Form Actions -->
-            <div class="form-actions">
-              <BaseButton
+            <div class="flex gap-4 pt-4">
+              <button
                 type="button"
-                variant="outline"
                 @click="resetForm"
                 :disabled="isUpdating"
+                class="flex-1 px-4 py-3 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-700 font-semibold rounded-xl transition-colors duration-200"
               >
                 Annulla
-              </BaseButton>
+              </button>
 
-              <BaseButton
+              <button
                 type="submit"
-                variant="primary"
-                :loading="isUpdating"
-                :disabled="!isFormChanged"
+                :disabled="isUpdating || !isFormChanged"
+                class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
               >
-                Salva Modifiche
-              </BaseButton>
+                <svg v-if="isUpdating" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-if="isUpdating">Salvando...</span>
+                <span v-else>Salva Modifiche</span>
+              </button>
             </div>
           </form>
-        </BaseCard>
-      </div>
+        </div>
+      </section>
 
       <!-- Change Password Section -->
-      <div class="profile-section">
-        <BaseCard
-          title="Cambia Password"
-          icon="🔒"
-          class="password-card"
-        >
-          <form @submit.prevent="handleChangePassword" class="password-form">
+      <section>
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-2xl">🔒</span>
+            <h2 class="text-xl font-bold text-gray-900">Cambia Password</h2>
+          </div>
+
+          <form @submit.prevent="handleChangePassword" class="space-y-6">
             <!-- Current Password -->
-            <BaseInput
-              v-model="passwordForm.currentPassword"
-              type="password"
-              label="Password Attuale"
-              placeholder="Inserisci la password attuale"
-              :error-message="passwordErrors.currentPassword"
-              :disabled="isChangingPassword"
-              required
-              left-icon="🔒"
-            />
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Password Attuale</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 text-lg">🔒</span>
+                </div>
+                <input
+                  v-model="passwordForm.currentPassword"
+                  type="password"
+                  placeholder="Inserisci la password attuale"
+                  :disabled="isChangingPassword"
+                  required
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200"
+                  :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': passwordErrors.currentPassword }"
+                />
+              </div>
+              <p v-if="passwordErrors.currentPassword" class="text-red-600 text-sm font-medium mt-1">
+                {{ passwordErrors.currentPassword }}
+              </p>
+            </div>
 
             <!-- New Password -->
-            <BaseInput
-              v-model="passwordForm.newPassword"
-              type="password"
-              label="Nuova Password"
-              placeholder="Inserisci la nuova password"
-              :error-message="passwordErrors.newPassword"
-              :disabled="isChangingPassword"
-              required
-              left-icon="🆕"
-            />
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Nuova Password</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 text-lg">🆕</span>
+                </div>
+                <input
+                  v-model="passwordForm.newPassword"
+                  type="password"
+                  placeholder="Inserisci la nuova password"
+                  :disabled="isChangingPassword"
+                  required
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200"
+                  :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': passwordErrors.newPassword }"
+                />
+              </div>
+              <p v-if="passwordErrors.newPassword" class="text-red-600 text-sm font-medium mt-1">
+                {{ passwordErrors.newPassword }}
+              </p>
+            </div>
 
             <!-- Confirm Password -->
-            <BaseInput
-              v-model="passwordForm.confirmPassword"
-              type="password"
-              label="Conferma Password"
-              placeholder="Ripeti la nuova password"
-              :error-message="passwordErrors.confirmPassword"
-              :disabled="isChangingPassword"
-              required
-              left-icon="✅"
-            />
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Conferma Password</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 text-lg">✅</span>
+                </div>
+                <input
+                  v-model="passwordForm.confirmPassword"
+                  type="password"
+                  placeholder="Ripeti la nuova password"
+                  :disabled="isChangingPassword"
+                  required
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed transition-colors duration-200"
+                  :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': passwordErrors.confirmPassword }"
+                />
+              </div>
+              <p v-if="passwordErrors.confirmPassword" class="text-red-600 text-sm font-medium mt-1">
+                {{ passwordErrors.confirmPassword }}
+              </p>
+            </div>
 
             <!-- Password Strength Indicator -->
-            <div v-if="passwordForm.newPassword" class="password-strength">
-              <div class="strength-label">Forza Password:</div>
-              <div class="strength-bar">
+            <div v-if="passwordForm.newPassword" class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div class="text-sm text-gray-600 mb-2">Forza Password:</div>
+              <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
                 <div
-                  class="strength-fill"
-                  :class="`strength-fill--${passwordStrength.level}`"
+                  class="h-2 rounded-full transition-all duration-300"
+                  :class="{
+                    'bg-red-500': passwordStrength.level === 'weak',
+                    'bg-yellow-500': passwordStrength.level === 'medium',
+                    'bg-green-500': passwordStrength.level === 'strong'
+                  }"
                   :style="{ width: `${passwordStrength.percentage}%` }"
                 ></div>
               </div>
-              <div class="strength-text">{{ passwordStrength.text }}</div>
+              <div class="text-sm font-medium"
+                   :class="{
+                     'text-red-600': passwordStrength.level === 'weak',
+                     'text-yellow-600': passwordStrength.level === 'medium',
+                     'text-green-600': passwordStrength.level === 'strong'
+                   }">
+                {{ passwordStrength.text }}
+              </div>
             </div>
 
             <!-- Password Form Actions -->
-            <div class="form-actions">
-              <BaseButton
+            <div class="flex gap-4 pt-4">
+              <button
                 type="button"
-                variant="outline"
                 @click="resetPasswordForm"
                 :disabled="isChangingPassword"
+                class="flex-1 px-4 py-3 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-700 font-semibold rounded-xl transition-colors duration-200"
               >
                 Annulla
-              </BaseButton>
+              </button>
 
-              <BaseButton
+              <button
                 type="submit"
-                variant="primary"
-                :loading="isChangingPassword"
-                :disabled="!isPasswordFormValid"
+                :disabled="isChangingPassword || !isPasswordFormValid"
+                class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
               >
-                Cambia Password
-              </BaseButton>
+                <svg v-if="isChangingPassword" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-if="isChangingPassword">Cambiando...</span>
+                <span v-else>Cambia Password</span>
+              </button>
             </div>
           </form>
-        </BaseCard>
-      </div>
+        </div>
+      </section>
 
       <!-- Account Stats -->
-      <div class="profile-section">
-        <BaseCard
-          title="Statistiche Account"
-          icon="📊"
-          class="stats-card"
-        >
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-icon">🎮</span>
-                <span class="stat-title">Gaming</span>
+      <section>
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-2xl">📊</span>
+            <h2 class="text-xl font-bold text-gray-900">Statistiche Account</h2>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="text-2xl">🎮</span>
+                <span class="text-lg font-semibold text-blue-900">Gaming</span>
               </div>
-              <div class="stat-content">
-                <div class="stat-row">
-                  <span class="stat-label">Partite Totali</span>
-                  <span class="stat-value">{{ userStats.totalGames }}</span>
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span class="text-blue-700">Partite Totali</span>
+                  <span class="font-bold text-blue-900">{{ userStats.totalGames }}</span>
                 </div>
-                <div class="stat-row">
-                  <span class="stat-label">Partite Completate</span>
-                  <span class="stat-value">{{ userStats.completedGames }}</span>
+                <div class="flex justify-between">
+                  <span class="text-blue-700">Partite Completate</span>
+                  <span class="font-bold text-blue-900">{{ userStats.completedGames }}</span>
                 </div>
-                <div class="stat-row">
-                  <span class="stat-label">Miglior Patrimonio</span>
-                  <span class="stat-value">{{ formatCurrency(userStats.bestMoney) }}</span>
+                <div class="flex justify-between">
+                  <span class="text-blue-700">Miglior Patrimonio</span>
+                  <span class="font-bold text-blue-900">{{ formatCurrency(userStats.bestMoney) }}</span>
                 </div>
               </div>
             </div>
 
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-icon">📈</span>
-                <span class="stat-title">Progressi</span>
+            <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="text-2xl">📈</span>
+                <span class="text-lg font-semibold text-green-900">Progressi</span>
               </div>
-              <div class="stat-content">
-                <div class="stat-row">
-                  <span class="stat-label">Livello Utente</span>
-                  <span class="stat-value">{{ userStats.userLevel }}</span>
+              <div class="space-y-3">
+                <div class="flex justify-between">
+                  <span class="text-green-700">Livello Utente</span>
+                  <span class="font-bold text-green-900">{{ userStats.userLevel }}</span>
                 </div>
-                <div class="stat-row">
-                  <span class="stat-label">Punti Esperienza</span>
-                  <span class="stat-value">{{ userStats.experiencePoints }}</span>
+                <div class="flex justify-between">
+                  <span class="text-green-700">Punti Esperienza</span>
+                  <span class="font-bold text-green-900">{{ userStats.experiencePoints }}</span>
                 </div>
-                <div class="stat-row">
-                  <span class="stat-label">Achievement</span>
-                  <span class="stat-value">{{ userStats.achievements }}</span>
+                <div class="flex justify-between">
+                  <span class="text-green-700">Achievement</span>
+                  <span class="font-bold text-green-900">{{ userStats.achievements }}</span>
                 </div>
               </div>
             </div>
           </div>
-        </BaseCard>
-      </div>
+        </div>
+      </section>
 
       <!-- Danger Zone -->
-      <div class="profile-section">
-        <BaseCard
-          title="Zona Pericolosa"
-          icon="⚠️"
-          variant="danger"
-          class="danger-card"
-        >
-          <div class="danger-content">
-            <p class="danger-description">
+      <section>
+        <div class="bg-white rounded-2xl shadow-lg border border-red-200 p-6">
+          <div class="flex items-center gap-3 mb-6">
+            <span class="text-2xl">⚠️</span>
+            <h2 class="text-xl font-bold text-red-900">Zona Pericolosa</h2>
+          </div>
+
+          <div class="bg-red-50 rounded-lg p-4 border border-red-200 mb-6">
+            <p class="text-red-800">
               Le azioni in questa sezione sono irreversibili. Procedi con cautela.
             </p>
-
-            <div class="danger-actions">
-              <BaseButton
-                variant="outline"
-                @click="showDeleteModal = true"
-                class="danger-button"
-              >
-                🗑️ Elimina Account
-              </BaseButton>
-            </div>
           </div>
-        </BaseCard>
-      </div>
+
+          <div>
+            <button
+              @click="showDeleteModal = true"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition-colors duration-200 flex items-center gap-2"
+            >
+              <span class="text-lg">🗑️</span>
+              Elimina Account
+            </button>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- Delete Account Modal -->
-    <BaseModal
-      :is-open="showDeleteModal"
-      title="Elimina Account"
-      variant="danger"
-      @close="showDeleteModal = false"
-      @confirm="handleDeleteAccount"
-      confirm-text="Elimina Account"
-      confirm-variant="danger"
-      :loading="isDeletingAccount"
+    <div
+      v-if="showDeleteModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      @click="showDeleteModal = false"
     >
-      <div class="delete-modal-content">
-        <div class="delete-warning">
-          <span class="warning-icon">⚠️</span>
-          <div class="warning-text">
-            <h4>Attenzione: Azione Irreversibile</h4>
-            <p>Eliminando il tuo account:</p>
-            <ul class="warning-list">
-              <li>Tutte le tue partite verranno eliminate definitivamente</li>
-              <li>I tuoi progressi e statistiche andranno persi</li>
-              <li>Non potrai più accedere a questo account</li>
-              <li>Questa azione non può essere annullata</li>
-            </ul>
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        @click.stop
+      >
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">⚠️</span>
+              <h3 class="text-xl font-bold text-red-900">Elimina Account</h3>
+            </div>
+            <button
+              @click="showDeleteModal = false"
+              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            >
+              <span class="text-lg">✕</span>
+            </button>
           </div>
         </div>
 
-        <BaseInput
-          v-model="deleteConfirmation"
-          label="Per confermare, scrivi 'ELIMINA' qui sotto:"
-          placeholder="ELIMINA"
-          :error-message="deleteError"
-        />
+        <!-- Modal Body -->
+        <div class="p-6">
+          <div class="bg-red-50 rounded-lg p-4 border border-red-200 mb-6">
+            <div class="flex items-start gap-3">
+              <span class="text-2xl text-red-600">⚠️</span>
+              <div class="flex-1">
+                <h4 class="font-bold text-red-900 mb-2">Attenzione: Azione Irreversibile</h4>
+                <p class="text-red-800 mb-3">Eliminando il tuo account:</p>
+                <ul class="space-y-1 text-red-700 text-sm">
+                  <li class="flex items-start gap-2">
+                    <span class="text-red-500 mt-1">•</span>
+                    <span>Tutte le tue partite verranno eliminate definitivamente</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-red-500 mt-1">•</span>
+                    <span>I tuoi progressi e statistiche andranno persi</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-red-500 mt-1">•</span>
+                    <span>Non potrai più accedere a questo account</span>
+                  </li>
+                  <li class="flex items-start gap-2">
+                    <span class="text-red-500 mt-1">•</span>
+                    <span>Questa azione non può essere annullata</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Per confermare, scrivi 'ELIMINA' qui sotto:
+            </label>
+            <input
+              v-model="deleteConfirmation"
+              type="text"
+              placeholder="ELIMINA"
+              class="block w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-colors duration-200"
+              :class="{ 'border-red-300 focus:ring-red-500 focus:border-red-500': deleteError }"
+            />
+            <p v-if="deleteError" class="text-red-600 text-sm font-medium mt-1">
+              {{ deleteError }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-gray-200 flex items-center gap-3">
+          <button
+            @click="showDeleteModal = false"
+            class="flex-1 px-4 py-3 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-colors duration-200"
+          >
+            Annulla
+          </button>
+          <button
+            @click="handleDeleteAccount"
+            :disabled="isDeletingAccount"
+            class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-colors duration-200 flex items-center justify-center gap-2"
+          >
+            <svg v-if="isDeletingAccount" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span v-if="isDeletingAccount">Eliminando...</span>
+            <span v-else>Elimina Account</span>
+          </button>
+        </div>
       </div>
-    </BaseModal>
+    </div>
   </div>
 </template>
 
@@ -732,313 +875,3 @@ onMounted(() => {
   populateForm()
 })
 </script>
-
-<style scoped>
-.profile-view {
-  @apply max-w-4xl mx-auto p-6 space-y-8;
-}
-
-/* Page Header */
-.page-header {
-  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8;
-}
-
-.header-content {
-  @apply mb-4 sm:mb-0;
-}
-
-.page-title {
-  @apply text-3xl font-bold text-neutral-900 flex items-center;
-}
-
-.title-icon {
-  @apply text-4xl mr-3;
-}
-
-.page-subtitle {
-  @apply text-neutral-600 mt-1;
-}
-
-.header-actions {
-  @apply flex items-center space-x-3;
-}
-
-/* Profile Content */
-.profile-content {
-  @apply space-y-8;
-}
-
-.profile-section {
-  @apply relative;
-}
-
-/* Profile Info */
-.profile-info {
-  @apply flex flex-col lg:flex-row lg:items-start lg:space-x-8 space-y-6 lg:space-y-0;
-}
-
-/* Avatar Section */
-.avatar-section {
-  @apply flex flex-col items-center lg:items-start;
-}
-
-.avatar-container {
-  @apply space-y-4;
-}
-
-.avatar {
-  @apply relative w-24 h-24 rounded-full overflow-hidden;
-  @apply border-4 border-white shadow-lg;
-}
-
-.avatar--loading {
-  @apply pointer-events-none;
-}
-
-.avatar-image {
-  @apply w-full h-full object-cover;
-}
-
-.avatar-fallback {
-  @apply w-full h-full flex items-center justify-center;
-  @apply bg-brand-600 text-white text-2xl font-bold;
-}
-
-.avatar-loading {
-  @apply absolute inset-0 bg-black bg-opacity-50;
-  @apply flex items-center justify-center;
-}
-
-.avatar-actions {
-  @apply flex space-x-2;
-}
-
-/* User Details */
-.user-details {
-  @apply flex-1 space-y-6;
-}
-
-.user-main {
-  @apply space-y-2;
-}
-
-.user-name {
-  @apply text-2xl font-bold text-neutral-900;
-}
-
-.user-email {
-  @apply text-neutral-600;
-}
-
-.verification-status {
-  @apply mt-2;
-}
-
-.status-badge {
-  @apply inline-flex items-center px-3 py-1 rounded-full text-sm font-medium;
-}
-
-.status-badge--verified {
-  @apply bg-success-100 text-success-800;
-}
-
-.status-badge--unverified {
-  @apply bg-warning-100 text-warning-800;
-}
-
-/* User Stats */
-.user-stats {
-  @apply grid grid-cols-3 gap-4;
-}
-
-.stat-item {
-  @apply text-center;
-}
-
-.stat-value {
-  @apply block text-2xl font-bold text-brand-600;
-}
-
-.stat-label {
-  @apply text-sm text-neutral-600;
-}
-
-/* Forms */
-.profile-form,
-.password-form {
-  @apply space-y-6;
-}
-
-.form-actions {
-  @apply flex justify-end space-x-3 pt-4 border-t border-neutral-200;
-}
-
-/* Alerts */
-.success-alert,
-.error-alert {
-  @apply flex items-center justify-between p-4 rounded-lg mb-6;
-}
-
-.success-alert {
-  @apply bg-success-50 text-success-800 border border-success-200;
-}
-
-.error-alert {
-  @apply bg-danger-50 text-danger-800 border border-danger-200;
-}
-
-.success-icon,
-.error-icon {
-  @apply mr-3;
-}
-
-.success-text,
-.error-text {
-  @apply flex-1 text-sm;
-}
-
-.success-dismiss,
-.error-dismiss {
-  @apply ml-3 text-current opacity-50 hover:opacity-100;
-  @apply transition-opacity duration-200;
-}
-
-/* Password Strength */
-.password-strength {
-  @apply space-y-2;
-}
-
-.strength-label {
-  @apply text-sm font-medium text-neutral-700;
-}
-
-.strength-bar {
-  @apply w-full h-2 bg-neutral-200 rounded-full overflow-hidden;
-}
-
-.strength-fill {
-  @apply h-full transition-all duration-300 ease-out;
-}
-
-.strength-fill--weak {
-  @apply bg-danger-500;
-}
-
-.strength-fill--medium {
-  @apply bg-warning-500;
-}
-
-.strength-fill--strong {
-  @apply bg-success-500;
-}
-
-.strength-text {
-  @apply text-sm text-neutral-600;
-}
-
-/* Stats Grid */
-.stats-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-6;
-}
-
-.stat-card {
-  @apply bg-neutral-50 rounded-lg p-4;
-}
-
-.stat-header {
-  @apply flex items-center mb-4;
-}
-
-.stat-icon {
-  @apply text-2xl mr-3;
-}
-
-.stat-title {
-  @apply font-semibold text-neutral-900;
-}
-
-.stat-content {
-  @apply space-y-2;
-}
-
-.stat-row {
-  @apply flex justify-between items-center;
-}
-
-.stat-label {
-  @apply text-sm text-neutral-600;
-}
-
-.stat-value {
-  @apply font-semibold text-neutral-900;
-}
-
-/* Danger Zone */
-.danger-content {
-  @apply space-y-4;
-}
-
-.danger-description {
-  @apply text-danger-700;
-}
-
-.danger-actions {
-  @apply flex justify-start;
-}
-
-.danger-button {
-  @apply border-danger-300 text-danger-700 hover:bg-danger-50;
-}
-
-/* Delete Modal */
-.delete-modal-content {
-  @apply space-y-6;
-}
-
-.delete-warning {
-  @apply flex space-x-4;
-}
-
-.warning-icon {
-  @apply text-4xl text-danger-500 flex-shrink-0;
-}
-
-.warning-text h4 {
-  @apply font-semibold text-danger-900 mb-2;
-}
-
-.warning-text p {
-  @apply text-danger-700 mb-2;
-}
-
-.warning-list {
-  @apply list-disc list-inside space-y-1 text-sm text-danger-600;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .profile-view {
-    @apply p-4 space-y-6;
-  }
-
-  .page-title {
-    @apply text-2xl;
-  }
-
-  .title-icon {
-    @apply text-3xl mr-2;
-  }
-
-  .user-stats {
-    @apply grid-cols-1 gap-3;
-  }
-
-  .stats-grid {
-    @apply grid-cols-1;
-  }
-
-  .form-actions {
-    @apply flex-col space-y-2 space-x-0;
-  }
-}
-</style>

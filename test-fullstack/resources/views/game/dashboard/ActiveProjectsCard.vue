@@ -1,146 +1,168 @@
 <!-- src/components/game/dashboard/ActiveProjectsCard.vue -->
 <template>
-  <BaseCard
-    title="Progetti in Corso"
-    icon="🚀"
-    :loading="loading"
-    class="active-projects-card"
-  >
-    <template #actions>
-      <BaseButton
-        variant="ghost"
-        size="sm"
-        icon="📊"
-        @click="goToProduction"
-      >
-        Vedi Tutti
-      </BaseButton>
-    </template>
-
-    <!-- Empty State -->
-    <div v-if="activeProjects.length === 0" class="empty-state">
-      <div class="empty-icon">💤</div>
-      <h4 class="empty-title">Nessun Progetto Attivo</h4>
-      <p class="empty-description">
-        Non ci sono progetti in corso al momento. Assegna sviluppatori ai progetti in attesa per iniziare a produrre.
-      </p>
-      <BaseButton
-        variant="primary"
-        size="sm"
-        icon="🎯"
-        @click="goToProduction"
-        class="empty-action"
-      >
-        Assegna Progetti
-      </BaseButton>
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+    <!-- Header -->
+    <div class="mb-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🚀</span>
+          <h3 class="text-lg font-bold text-gray-900">Progetti in Corso</h3>
+          <div v-if="loading" class="ml-2">
+            <svg class="animate-spin w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        </div>
+        <button
+          @click="goToProduction"
+          class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+        >
+          <span>📊</span>
+          Vedi Tutti
+        </button>
+      </div>
     </div>
 
-    <!-- Active Projects List -->
-    <div v-else class="projects-list">
-      <div
-        v-for="project in displayedProjects"
-        :key="project.id"
-        class="project-item"
-        :class="{ 'project-item--nearly-complete': project.isNearlyComplete }"
-      >
-        <!-- Project Header -->
-        <div class="project-header">
-          <div class="project-info">
-            <h4 class="project-name">{{ project.name }}</h4>
-            <div class="project-meta">
-              <span class="project-developer">
-                👨‍💻 {{ project.developer?.name || 'Sconosciuto' }}
-              </span>
-              <span class="project-complexity">
-                {{ getComplexityBadge(project.complexity) }}
-              </span>
+    <!-- Content -->
+    <div class="space-y-4">
+      <!-- Empty State -->
+      <div v-if="activeProjects.length === 0" class="text-center py-8">
+        <div class="text-6xl mb-4">💤</div>
+        <h4 class="text-lg font-semibold text-gray-900 mb-2">Nessun Progetto Attivo</h4>
+        <p class="text-gray-600 mb-6 max-w-sm mx-auto">
+          Non ci sono progetti in corso al momento. Assegna sviluppatori ai progetti in attesa per iniziare a produrre.
+        </p>
+        <button
+          @click="goToProduction"
+          class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200"
+        >
+          <span>🎯</span>
+          Assegna Progetti
+        </button>
+      </div>
+
+      <!-- Active Projects List -->
+      <div v-else class="space-y-4">
+        <div
+          v-for="project in displayedProjects"
+          :key="project.id"
+          class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow duration-200"
+          :class="{ 'border-green-300 bg-green-50': project.isNearlyComplete }"
+        >
+          <!-- Project Header -->
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex-1">
+              <h4 class="font-semibold text-gray-900 mb-1">{{ project.name }}</h4>
+              <div class="flex items-center gap-3 text-sm text-gray-600">
+                <span class="flex items-center gap-1">
+                  <span>👨‍💻</span>
+                  {{ project.developer?.name || 'Sconosciuto' }}
+                </span>
+                <span class="text-xs px-2 py-1 rounded-full bg-gray-100">
+                  {{ getComplexityBadge(project.complexity) }}
+                </span>
+              </div>
+            </div>
+
+            <div class="text-right">
+              <div class="text-lg font-bold text-gray-900">
+                {{ formatCurrency(project.value) }}
+              </div>
             </div>
           </div>
 
-          <div class="project-value">
-            {{ formatCurrency(project.value) }}
+          <!-- Progress Bar -->
+          <div class="mb-3">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm font-medium text-gray-700">Progresso</span>
+              <span class="text-sm font-semibold text-gray-900">{{ Math.round(project.progress || 0) }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div
+                class="h-2 rounded-full transition-all duration-300"
+                :class="{
+                  'bg-green-500': project.progress >= 95,
+                  'bg-blue-500': project.progress >= 75 && project.progress < 95,
+                  'bg-yellow-500': project.progress >= 50 && project.progress < 75,
+                  'bg-orange-500': project.progress >= 25 && project.progress < 50,
+                  'bg-red-500': project.progress < 25
+                }"
+                :style="{ width: `${project.progress || 0}%` }"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Time Info -->
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2 text-sm text-gray-600">
+              <span>⏰</span>
+              <span>{{ getTimeRemaining(project) }}</span>
+            </div>
+            <div v-if="project.isNearlyComplete" class="flex items-center gap-1 text-sm text-green-600 font-medium">
+              <span>🎉</span>
+              <span>Quasi completato!</span>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="flex items-center gap-2">
+            <button
+              v-if="project.isNearlyComplete"
+              @click="completeProject(project)"
+              :disabled="completing[project.id]"
+              class="flex items-center gap-2 px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg text-sm transition-colors duration-200"
+            >
+              <span v-if="completing[project.id]">
+                <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </span>
+              <span v-else>✅</span>
+              Completa
+            </button>
+
+            <button
+              @click="viewProjectDetails(project)"
+              class="flex items-center gap-2 px-3 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors duration-200"
+            >
+              <span>👁️</span>
+              Dettagli
+            </button>
           </div>
         </div>
 
-        <!-- Progress Bar -->
-        <div class="progress-section">
-          <div class="progress-info">
-            <span class="progress-label">Progresso</span>
-            <span class="progress-percentage">{{ Math.round(project.progress || 0) }}%</span>
-          </div>
-          <div class="progress-bar">
-            <div
-              class="progress-fill"
-              :class="getProgressColorClass(project.progress)"
-              :style="{ width: `${project.progress || 0}%` }"
-            ></div>
-          </div>
-        </div>
-
-        <!-- Time Info -->
-        <div class="time-info">
-          <div class="time-item">
-            <span class="time-icon">⏰</span>
-            <span class="time-text">{{ getTimeRemaining(project) }}</span>
-          </div>
-          <div v-if="project.isNearlyComplete" class="completion-notice">
-            <span class="notice-icon">🎉</span>
-            <span class="notice-text">Quasi completato!</span>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="project-actions">
-          <BaseButton
-            v-if="project.isNearlyComplete"
-            variant="success"
-            size="sm"
-            icon="✅"
-            @click="completeProject(project)"
-            :loading="completing[project.id]"
+        <!-- Show More Button -->
+        <div v-if="activeProjects.length > displayLimit" class="text-center">
+          <button
+            @click="showAll = !showAll"
+            class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg text-sm font-medium transition-colors duration-200"
           >
-            Completa
-          </BaseButton>
-
-          <BaseButton
-            variant="ghost"
-            size="sm"
-            icon="👁️"
-            @click="viewProjectDetails(project)"
-          >
-            Dettagli
-          </BaseButton>
+            {{ showAll ? 'Mostra meno' : `+${activeProjects.length - displayLimit} altri progetti` }}
+          </button>
         </div>
-      </div>
-
-      <!-- Show More Button -->
-      <div v-if="activeProjects.length > displayLimit" class="show-more">
-        <BaseButton
-          variant="ghost"
-          size="sm"
-          @click="showAll = !showAll"
-        >
-          {{ showAll ? 'Mostra meno' : `+${activeProjects.length - displayLimit} altri progetti` }}
-        </BaseButton>
       </div>
     </div>
 
     <!-- Summary Stats -->
-    <div v-if="activeProjects.length > 0" class="projects-summary">
-      <div class="summary-stat">
-        <span class="stat-value">{{ activeProjects.length }}</span>
-        <span class="stat-label">Progetti Attivi</span>
-      </div>
-      <div class="summary-stat">
-        <span class="stat-value">{{ formatCurrency(totalValue) }}</span>
-        <span class="stat-label">Valore Totale</span>
-      </div>
-      <div class="summary-stat">
-        <span class="stat-value">{{ Math.round(averageProgress) }}%</span>
-        <span class="stat-label">Progresso Medio</span>
+    <div v-if="activeProjects.length > 0" class="mt-6 pt-4 border-t border-gray-200">
+      <div class="grid grid-cols-3 gap-4">
+        <div class="text-center">
+          <div class="text-2xl font-bold text-gray-900">{{ activeProjects.length }}</div>
+          <div class="text-sm text-gray-600">Progetti Attivi</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-gray-900">{{ formatCurrency(totalValue) }}</div>
+          <div class="text-sm text-gray-600">Valore Totale</div>
+        </div>
+        <div class="text-center">
+          <div class="text-2xl font-bold text-gray-900">{{ Math.round(averageProgress) }}%</div>
+          <div class="text-sm text-gray-600">Progresso Medio</div>
+        </div>
       </div>
     </div>
-  </BaseCard>
+  </div>
 </template>
 
 <script setup>
@@ -226,14 +248,6 @@ const getComplexityBadge = (complexity) => {
   return badges[complexity] || '❓ Sconosciuto'
 }
 
-const getProgressColorClass = (progress) => {
-  if (progress >= 95) return 'progress-fill--complete'
-  if (progress >= 75) return 'progress-fill--high'
-  if (progress >= 50) return 'progress-fill--medium'
-  if (progress >= 25) return 'progress-fill--low'
-  return 'progress-fill--minimal'
-}
-
 const getTimeRemaining = (project) => {
   if (!project.estimated_completion_at) return 'Tempo sconosciuto'
 
@@ -281,233 +295,3 @@ const goToProduction = () => {
   router.push({ name: 'Production' })
 }
 </script>
-
-<style scoped>
-.active-projects-card {
-  @apply h-full;
-}
-
-/* Empty State */
-.empty-state {
-  @apply text-center py-8;
-}
-
-.empty-icon {
-  @apply text-4xl mb-4;
-}
-
-.empty-title {
-  @apply text-lg font-semibold text-neutral-900 mb-2;
-}
-
-.empty-description {
-  @apply text-neutral-600 mb-4 max-w-sm mx-auto;
-}
-
-.empty-action {
-  @apply mx-auto;
-}
-
-/* Projects List */
-.projects-list {
-  @apply space-y-4;
-}
-
-.project-item {
-  @apply bg-neutral-50 rounded-lg p-4 border border-neutral-200;
-  @apply transition-all duration-200 hover:shadow-md;
-}
-
-.project-item--nearly-complete {
-  @apply bg-success-50 border-success-200;
-}
-
-/* Project Header */
-.project-header {
-  @apply flex items-start justify-between mb-3;
-}
-
-.project-info {
-  @apply flex-1 min-w-0;
-}
-
-.project-name {
-  @apply font-semibold text-neutral-900 mb-1 truncate;
-}
-
-.project-meta {
-  @apply flex items-center space-x-3 text-sm text-neutral-600;
-}
-
-.project-developer {
-  @apply truncate;
-}
-
-.project-complexity {
-  @apply flex-shrink-0;
-}
-
-.project-value {
-  @apply text-lg font-bold text-success-600 flex-shrink-0;
-}
-
-/* Progress Section */
-.progress-section {
-  @apply mb-3;
-}
-
-.progress-info {
-  @apply flex items-center justify-between mb-2 text-sm;
-}
-
-.progress-label {
-  @apply text-neutral-600;
-}
-
-.progress-percentage {
-  @apply font-semibold text-neutral-900;
-}
-
-.progress-bar {
-  @apply w-full h-2 bg-neutral-200 rounded-full overflow-hidden;
-}
-
-.progress-fill {
-  @apply h-full transition-all duration-500 ease-out;
-}
-
-.progress-fill--minimal {
-  @apply bg-neutral-400;
-}
-
-.progress-fill--low {
-  @apply bg-warning-500;
-}
-
-.progress-fill--medium {
-  @apply bg-blue-500;
-}
-
-.progress-fill--high {
-  @apply bg-brand-500;
-}
-
-.progress-fill--complete {
-  @apply bg-success-500;
-}
-
-/* Time Info */
-.time-info {
-  @apply flex items-center justify-between mb-3;
-}
-
-.time-item {
-  @apply flex items-center space-x-1 text-sm text-neutral-600;
-}
-
-.time-icon {
-  @apply text-base;
-}
-
-.completion-notice {
-  @apply flex items-center space-x-1 text-sm text-success-700 bg-success-100 px-2 py-1 rounded-full;
-}
-
-.notice-icon {
-  @apply text-base;
-}
-
-/* Project Actions */
-.project-actions {
-  @apply flex items-center justify-end space-x-2;
-}
-
-/* Show More */
-.show-more {
-  @apply text-center pt-2;
-}
-
-/* Summary Stats */
-.projects-summary {
-  @apply border-t border-neutral-200 pt-4 mt-4;
-  @apply grid grid-cols-3 gap-4;
-}
-
-.summary-stat {
-  @apply text-center;
-}
-
-.stat-value {
-  @apply block text-lg font-bold text-neutral-900;
-}
-
-.stat-label {
-  @apply text-xs text-neutral-600;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .project-header {
-    @apply flex-col space-y-2;
-  }
-
-  .project-value {
-    @apply text-base self-start;
-  }
-
-  .project-meta {
-    @apply flex-col items-start space-y-1 space-x-0;
-  }
-
-  .time-info {
-    @apply flex-col items-start space-y-2;
-  }
-
-  .completion-notice {
-    @apply self-start;
-  }
-
-  .project-actions {
-    @apply justify-start;
-  }
-
-  .projects-summary {
-    @apply grid-cols-1 gap-2;
-  }
-}
-
-/* Animations */
-.project-item {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.progress-fill {
-  animation: progressGrow 1s ease-out;
-}
-
-@keyframes progressGrow {
-  from {
-    width: 0%;
-  }
-}
-
-/* Hover effects */
-.project-item:hover {
-  @apply transform -translate-y-1;
-}
-
-.project-item--nearly-complete:hover {
-  @apply shadow-success-200;
-}
-</style>

@@ -1,32 +1,44 @@
 <template>
-  <div class="game-layout">
+  <div class="min-h-screen bg-gray-100 flex flex-col">
     <!-- Game Header con stats e controlli -->
-    <GameHeader class="game-layout__header" />
+    <GameHeader class="relative z-40" />
 
     <!-- Main game area -->
-    <div class="game-layout__main">
+    <div class="flex-1 flex overflow-hidden">
       <!-- Desktop Sidebar / Mobile Bottom Navigation -->
-      <NavigationBar class="game-layout__nav" />
+      <NavigationBar />
 
       <!-- Content Area -->
-      <main class="game-layout__content">
+      <main class="flex-1 overflow-hidden lg:ml-64">
         <!-- Loading overlay quando cambia sezione -->
-        <div v-if="isLoading" class="loading-overlay">
-          <BaseSpinner size="large" />
-          <p class="loading-text">Caricamento...</p>
+        <div v-if="isLoading" class="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+          <div class="text-center">
+            <svg class="animate-spin h-12 w-12 text-blue-600 mx-auto mb-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+            </svg>
+            <p class="text-lg text-gray-600">Caricamento...</p>
+          </div>
         </div>
 
         <!-- Route content -->
-        <router-view v-slot="{ Component, route }">
-          <transition
-            name="page-transition"
-            mode="out-in"
-            @before-enter="isLoading = true"
-            @after-enter="isLoading = false"
-          >
-            <component :is="Component" :key="route.path" />
-          </transition>
-        </router-view>
+        <div class="h-full overflow-y-auto">
+          <router-view v-slot="{ Component, route }">
+            <transition
+              enter-active-class="transition-all duration-300"
+              leave-active-class="transition-all duration-300"
+              enter-from-class="opacity-0 translate-y-4"
+              enter-to-class="opacity-100 translate-y-0"
+              leave-from-class="opacity-100 translate-y-0"
+              leave-to-class="opacity-0 -translate-y-4"
+              mode="out-in"
+              @before-enter="isLoading = true"
+              @after-enter="isLoading = false"
+            >
+              <component :is="Component" :key="route.path" />
+            </transition>
+          </router-view>
+        </div>
       </main>
     </div>
 
@@ -48,20 +60,24 @@
     />
 
     <!-- Pause overlay -->
-    <div v-if="isGamePaused" class="pause-overlay">
-      <div class="pause-content">
-        <h2>⏸️ Gioco in Pausa</h2>
-        <p>Il gioco è attualmente in pausa</p>
-        <BaseButton @click="resumeGame" variant="primary">
+    <div v-if="isGamePaused" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-2xl shadow-2xl p-8 text-center max-w-md mx-4">
+        <div class="text-6xl mb-4">⏸️</div>
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Gioco in Pausa</h2>
+        <p class="text-gray-600 mb-6">Il gioco è attualmente in pausa</p>
+        <button
+          @click="resumeGame"
+          class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors duration-200"
+        >
           Riprendi Gioco
-        </BaseButton>
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, provide } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/js/stores/game'
 import { useNotificationStore } from '@/js/stores/notifications'
@@ -213,109 +229,3 @@ provide('navigation', {
   toggleSidebar: () => isSidebarOpen.value = !isSidebarOpen.value
 })
 </script>
-
-<style scoped>
-.game-layout {
-  @apply min-h-screen bg-neutral-50 flex flex-col;
-}
-
-.game-layout__header {
-  @apply sticky top-0 z-30 bg-white border-b border-neutral-200 shadow-sm;
-}
-
-.game-layout__main {
-  @apply flex-1 flex;
-}
-
-.game-layout__nav {
-  /* Mobile: fixed bottom navigation */
-  @apply fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-neutral-200;
-
-  /* Desktop: sidebar */
-  @apply lg:relative lg:bottom-auto lg:w-64 lg:border-r lg:border-t-0;
-}
-
-.game-layout__content {
-  @apply flex-1 relative;
-  /* Add bottom padding on mobile for bottom nav */
-  @apply pb-16 lg:pb-0;
-  /* Add padding for content */
-  @apply p-4 lg:p-6;
-}
-
-/* Loading overlay */
-.loading-overlay {
-  @apply absolute inset-0 bg-white bg-opacity-90 flex flex-col items-center justify-center z-20;
-}
-
-.loading-text {
-  @apply mt-4 text-neutral-600 font-medium;
-}
-
-/* Page transitions */
-.page-transition-enter-active,
-.page-transition-leave-active {
-  transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
-}
-
-.page-transition-enter-from {
-  opacity: 0;
-  transform: translateX(20px);
-}
-
-.page-transition-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-/* Pause overlay */
-.pause-overlay {
-  @apply fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50;
-}
-
-.pause-content {
-  @apply bg-white rounded-lg p-8 text-center max-w-md mx-4;
-}
-
-.pause-content h2 {
-  @apply text-2xl font-bold text-neutral-900 mb-4;
-}
-
-.pause-content p {
-  @apply text-neutral-600 mb-6;
-}
-
-/* Mobile optimizations */
-@media (max-width: 1023px) {
-  .game-layout__content {
-    /* Reduce padding on mobile */
-    @apply p-3;
-  }
-
-  .loading-overlay {
-    @apply pb-16; /* Account for bottom nav */
-  }
-}
-
-/* Desktop optimizations */
-@media (min-width: 1024px) {
-  .game-layout__nav {
-    @apply flex-shrink-0;
-  }
-}
-
-/* Responsive text sizing */
-.loading-text {
-  @apply text-sm lg:text-base;
-}
-
-/* Focus management for accessibility */
-.game-layout:focus-within .game-layout__content {
-  @apply outline-none;
-}
-
-/* Smooth scrolling */
-.game-layout__content {
-  scroll-behavior: smooth;
-}
-</style>

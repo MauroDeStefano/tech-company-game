@@ -1,3 +1,5 @@
+import defaultTheme from 'tailwindcss/defaultTheme'
+import colors from 'tailwindcss/colors'
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -17,6 +19,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        ...colors,
         'tail': {
           50: '#f0fdfa',
           100: '#ccfbf1', 

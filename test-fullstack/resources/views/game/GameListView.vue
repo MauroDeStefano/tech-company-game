@@ -1,259 +1,379 @@
 <template>
-  <div class="game-list-view">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-white">
     <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">
-          <span class="title-icon">🎮</span>
-          Le Tue Partite
-        </h1>
-        <p class="page-subtitle">
-          Gestisci e riprendi le tue partite salvate
-        </p>
+    <div class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <!-- Header Content -->
+          <div class="flex-1">
+            <div class="flex items-center gap-3 mb-2">
+              <span class="text-4xl">🎮</span>
+              <h1 class="text-3xl font-bold text-gray-900 tracking-tight">
+                Le Tue Partite
+              </h1>
+            </div>
+            <p class="text-lg text-gray-600">
+              Gestisci e riprendi le tue partite salvate
+            </p>
+          </div>
+
+          <!-- Header Actions -->
+          <div class="flex-shrink-0">
+            <button
+              @click="createNewGame"
+              :disabled="isLoading"
+              class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-lg"
+            >
+              <span class="text-xl">➕</span>
+              Nuova Partita
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Loading Skeleton -->
+      <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-for="i in 3" :key="i" class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 animate-pulse">
+          <!-- Skeleton Header -->
+          <div class="flex items-center justify-between mb-4">
+            <div class="h-6 bg-gray-200 rounded-lg w-3/4"></div>
+            <div class="h-5 w-16 bg-gray-200 rounded-full"></div>
+          </div>
+          
+          <!-- Skeleton Content -->
+          <div class="space-y-3 mb-6">
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 bg-gray-200 rounded"></div>
+              <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="w-6 h-6 bg-gray-200 rounded"></div>
+              <div class="h-4 bg-gray-200 rounded w-2/3"></div>
+            </div>
+          </div>
+          
+          <!-- Skeleton Footer -->
+          <div class="flex items-center justify-between">
+            <div class="h-8 w-20 bg-gray-200 rounded-lg"></div>
+            <div class="h-8 w-8 bg-gray-200 rounded-lg"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="header-actions">
-        <BaseButton
-          variant="primary"
-          icon="➕"
-          @click="createNewGame"
-          :disabled="isLoading"
+      <!-- Empty State -->
+      <div v-else-if="games.length === 0" class="text-center py-16">
+        <div class="max-w-md mx-auto">
+          <div class="text-8xl mb-6">🎯</div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-4">
+            Nessuna Partita Trovata
+          </h3>
+          <p class="text-lg text-gray-600 mb-8 leading-relaxed">
+            Non hai ancora creato nessuna partita. Inizia subito a gestire la tua software house!
+          </p>
+          <button
+            @click="createNewGame"
+            class="inline-flex items-center gap-3 px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg rounded-xl transition-all duration-200 transform hover:scale-105 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-xl"
+          >
+            <span class="text-2xl">🚀</span>
+            Crea la Tua Prima Partita
+          </button>
+        </div>
+      </div>
+
+      <!-- Games Grid -->
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div
+          v-for="game in games"
+          :key="game.id"
+          class="bg-white rounded-2xl shadow-lg border border-gray-100 hover:shadow-xl hover:border-gray-200 transition-all duration-300 cursor-pointer group"
+          :class="{ 
+            'ring-2 ring-blue-500 ring-offset-2': game.status === 'active',
+            'hover:ring-2 hover:ring-gray-300 hover:ring-offset-2': game.status !== 'active'
+          }"
+          @click="selectGame(game)"
         >
-          Nuova Partita
-        </BaseButton>
-      </div>
-    </div>
+          <!-- Game Header -->
+          <div class="p-6 pb-4">
+            <div class="flex items-start justify-between mb-4">
+              <h3 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors duration-200 flex-1 pr-3">
+                {{ game.name || `Partita del ${formatDate(game.created_at)}` }}
+              </h3>
+              
+              <!-- Status Badge -->
+              <span 
+                class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
+                :class="{
+                  'bg-green-100 text-green-800': game.status === 'active',
+                  'bg-yellow-100 text-yellow-800': game.status === 'paused',
+                  'bg-gray-100 text-gray-800': game.status === 'game_over'
+                }"
+              >
+                <span 
+                  v-if="game.status === 'active'"
+                  class="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"
+                ></span>
+                {{ getStatusText(game.status) }}
+              </span>
+            </div>
 
-    <!-- Games Grid -->
-    <div v-if="isLoading" class="loading-grid">
-      <div v-for="i in 3" :key="i" class="game-card-skeleton">
-        <div class="skeleton-header"></div>
-        <div class="skeleton-content">
-          <div class="skeleton-line"></div>
-          <div class="skeleton-line short"></div>
+            <!-- Game Stats Grid -->
+            <div class="grid grid-cols-2 gap-4">
+              <!-- Patrimonio -->
+              <div class="flex items-center gap-2">
+                <span class="text-xl">💰</span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-xs text-gray-500 font-medium">Patrimonio</div>
+                  <div 
+                    class="font-bold text-sm truncate"
+                    :class="{
+                      'text-red-600': game.money < 0,
+                      'text-yellow-600': game.money >= 0 && game.money < 1000,
+                      'text-green-600': game.money >= 1000
+                    }"
+                  >
+                    {{ formatCurrency(game.money) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Team Size -->
+              <div class="flex items-center gap-2">
+                <span class="text-xl">👥</span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-xs text-gray-500 font-medium">Team</div>
+                  <div class="font-bold text-sm text-gray-900">
+                    {{ game.team_size }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Progetti Completati -->
+              <div class="flex items-center gap-2">
+                <span class="text-xl">✅</span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-xs text-gray-500 font-medium">Progetti</div>
+                  <div class="font-bold text-sm text-gray-900">
+                    {{ game.projects_completed }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tempo di Gioco -->
+              <div class="flex items-center gap-2">
+                <span class="text-xl">⏱️</span>
+                <div class="min-w-0 flex-1">
+                  <div class="text-xs text-gray-500 font-medium">Tempo</div>
+                  <div class="font-bold text-sm text-gray-900">
+                    {{ formatPlayTime(game.play_time_hours) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Game Actions Footer -->
+          <div class="p-6 pt-0 border-t border-gray-100">
+            <div class="flex items-center justify-between">
+              <!-- Main Action Button -->
+              <button
+                v-if="game.status === 'active'"
+                @click.stop="resumeGame(game)"
+                :disabled="isLoading"
+                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 text-white font-semibold text-sm rounded-lg transition-colors duration-200"
+              >
+                Continua
+              </button>
+
+              <button
+                v-else-if="game.status === 'paused'"
+                @click.stop="resumeGame(game)"
+                :disabled="isLoading"
+                class="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-semibold text-sm rounded-lg transition-colors duration-200"
+              >
+                Riprendi
+              </button>
+
+              <button
+                v-else
+                @click.stop="viewGameStats(game)"
+                :disabled="isLoading"
+                class="px-4 py-2 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-semibold text-sm rounded-lg transition-colors duration-200"
+              >
+                Visualizza
+              </button>
+
+              <!-- Options Button -->
+              <button
+                @click.stop="showGameOptions(game)"
+                :disabled="isLoading"
+                class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                aria-label="Opzioni partita"
+              >
+                <span class="text-lg">⚙️</span>
+              </button>
+            </div>
+
+            <!-- Last Played -->
+            <div class="mt-3 text-xs text-gray-500">
+              {{ game.last_played }}
+            </div>
+          </div>
         </div>
-        <div class="skeleton-footer"></div>
       </div>
-    </div>
-
-    <div v-else-if="games.length === 0" class="empty-state">
-      <div class="empty-icon">🎯</div>
-      <h3 class="empty-title">Nessuna Partita Trovata</h3>
-      <p class="empty-description">
-        Non hai ancora creato nessuna partita. Inizia subito a gestire la tua software house!
-      </p>
-      <BaseButton
-        variant="primary"
-        icon="🚀"
-        size="lg"
-        @click="createNewGame"
-        class="empty-cta"
-      >
-        Crea la Tua Prima Partita
-      </BaseButton>
-    </div>
-
-    <div v-else class="games-grid">
-      <BaseCard
-        v-for="game in games"
-        :key="game.id"
-        class="game-card"
-        :class="{ 'game-card--active': game.status === 'active' }"
-        clickable
-        @click="selectGame(game)"
-      >
-        <!-- Game Header -->
-        <template #title>
-          <div class="game-header">
-            <div class="game-title">
-              {{ game.name || `Partita del ${formatDate(game.created_at)}` }}
-            </div>
-            <StatusBadge
-              :status="game.status"
-              size="sm"
-              :show-pulse="game.status === 'active'"
-            />
-          </div>
-        </template>
-
-        <!-- Game Stats -->
-        <div class="game-stats">
-          <div class="stat-row">
-            <div class="stat-item">
-              <span class="stat-icon">💰</span>
-              <div class="stat-content">
-                <span class="stat-label">Patrimonio</span>
-                <span class="stat-value" :class="getMoneyClass(game.money)">
-                  {{ formatCurrency(game.money) }}
-                </span>
-              </div>
-            </div>
-
-            <div class="stat-item">
-              <span class="stat-icon">👥</span>
-              <div class="stat-content">
-                <span class="stat-label">Team</span>
-                <span class="stat-value">{{ game.team_size }}</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="stat-row">
-            <div class="stat-item">
-              <span class="stat-icon">✅</span>
-              <div class="stat-content">
-                <span class="stat-label">Progetti</span>
-                <span class="stat-value">{{ game.projects_completed }}</span>
-              </div>
-            </div>
-
-            <div class="stat-item">
-              <span class="stat-icon">⏱️</span>
-              <div class="stat-content">
-                <span class="stat-label">Tempo</span>
-                <span class="stat-value">{{ formatPlayTime(game.play_time_hours) }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Game Actions -->
-        <template #footer>
-          <div class="game-actions">
-            <BaseButton
-              v-if="game.status === 'active'"
-              variant="primary"
-              size="sm"
-              @click.stop="resumeGame(game)"
-              :disabled="isLoading"
-            >
-              Continua
-            </BaseButton>
-
-            <BaseButton
-              v-else-if="game.status === 'paused'"
-              variant="secondary"
-              size="sm"
-              @click.stop="resumeGame(game)"
-              :disabled="isLoading"
-            >
-              Riprendi
-            </BaseButton>
-
-            <BaseButton
-              v-else
-              variant="outline"
-              size="sm"
-              @click.stop="viewGameStats(game)"
-              :disabled="isLoading"
-            >
-              Visualizza
-            </BaseButton>
-
-            <BaseButton
-              variant="ghost"
-              size="sm"
-              icon="⚙️"
-              @click.stop="showGameOptions(game)"
-              :disabled="isLoading"
-              aria-label="Opzioni partita"
-            />
-          </div>
-
-          <div class="game-meta">
-            <span class="last-played">{{ game.last_played }}</span>
-          </div>
-        </template>
-      </BaseCard>
     </div>
 
     <!-- Game Options Modal -->
-    <BaseModal
-      :is-open="showOptionsModal"
-      title="Opzioni Partita"
-      @close="closeOptionsModal"
-      @confirm="executeSelectedAction"
-      :confirm-text="selectedAction?.confirmText || 'Conferma'"
-      :confirm-variant="selectedAction?.variant || 'primary'"
-      :loading="isExecutingAction"
+    <div 
+      v-if="showOptionsModal" 
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      @click="closeOptionsModal"
     >
-      <div class="modal-content">
-        <div class="selected-game-info" v-if="selectedGame">
-          <h4>{{ selectedGame.name || `Partita del ${formatDate(selectedGame.created_at)}` }}</h4>
-          <p class="game-status">Stato: {{ getStatusText(selectedGame.status) }}</p>
+      <div 
+        class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        @click.stop
+      >
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Opzioni Partita</h3>
+            <button
+              @click="closeOptionsModal"
+              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            >
+              <span class="text-lg">✕</span>
+            </button>
+          </div>
+          
+          <!-- Selected Game Info -->
+          <div v-if="selectedGame" class="mt-4 p-4 bg-gray-50 rounded-xl">
+            <h4 class="font-semibold text-gray-900">
+              {{ selectedGame.name || `Partita del ${formatDate(selectedGame.created_at)}` }}
+            </h4>
+            <p class="text-sm text-gray-600 mt-1">
+              Stato: {{ getStatusText(selectedGame.status) }}
+            </p>
+          </div>
         </div>
 
-        <div class="action-options">
-          <div class="option-group">
-            <h5>Azioni Partita</h5>
-            <label class="option-item">
+        <!-- Modal Body -->
+        <div class="p-6 space-y-6">
+          <!-- Action Options -->
+          <div class="space-y-4">
+            <h5 class="font-semibold text-gray-900">Azioni Partita</h5>
+            
+            <!-- Rename Option -->
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors duration-200">
               <input
                 type="radio"
                 v-model="selectedActionType"
                 value="rename"
                 name="gameAction"
+                class="w-4 h-4 text-blue-600 focus:ring-blue-500"
               />
-              <span class="option-content">
-                <span class="option-icon">✏️</span>
-                <span class="option-text">Rinomina Partita</span>
-              </span>
+              <span class="text-xl">✏️</span>
+              <span class="text-sm font-medium text-gray-900">Rinomina Partita</span>
             </label>
 
-            <label class="option-item">
+            <!-- Duplicate Option -->
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors duration-200">
               <input
                 type="radio"
                 v-model="selectedActionType"
                 value="duplicate"
                 name="gameAction"
+                class="w-4 h-4 text-blue-600 focus:ring-blue-500"
               />
-              <span class="option-content">
-                <span class="option-icon">📄</span>
-                <span class="option-text">Duplica Partita</span>
-              </span>
+              <span class="text-xl">📄</span>
+              <span class="text-sm font-medium text-gray-900">Duplica Partita</span>
             </label>
 
-            <label class="option-item">
+            <!-- Export Option -->
+            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors duration-200">
               <input
                 type="radio"
                 v-model="selectedActionType"
                 value="export"
                 name="gameAction"
+                class="w-4 h-4 text-blue-600 focus:ring-blue-500"
               />
-              <span class="option-content">
-                <span class="option-icon">📤</span>
-                <span class="option-text">Esporta Dati</span>
-              </span>
+              <span class="text-xl">📤</span>
+              <span class="text-sm font-medium text-gray-900">Esporta Dati</span>
             </label>
           </div>
 
-          <div class="option-group danger-zone">
-            <h5>Zona Pericolosa</h5>
-            <label class="option-item option-item--danger">
+          <!-- Danger Zone -->
+          <div class="space-y-4">
+            <h5 class="font-semibold text-red-700">Zona Pericolosa</h5>
+            
+            <!-- Delete Option -->
+            <label class="flex items-center gap-3 p-3 border border-red-200 bg-red-50 rounded-xl hover:bg-red-100 cursor-pointer transition-colors duration-200">
               <input
                 type="radio"
                 v-model="selectedActionType"
                 value="delete"
                 name="gameAction"
+                class="w-4 h-4 text-red-600 focus:ring-red-500"
               />
-              <span class="option-content">
-                <span class="option-icon">🗑️</span>
-                <span class="option-text">Elimina Partita</span>
-              </span>
+              <span class="text-xl">🗑️</span>
+              <span class="text-sm font-medium text-red-700">Elimina Partita</span>
             </label>
+          </div>
+
+          <!-- Rename Input -->
+          <div v-if="selectedActionType === 'rename'" class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700">
+              Nuovo Nome
+            </label>
+            <input
+              v-model="newGameName"
+              type="text"
+              placeholder="Inserisci il nuovo nome..."
+              class="block w-full px-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+              :class="{
+                'border-red-300 focus:ring-red-500 focus:border-red-500': renameError
+              }"
+            />
+            <p v-if="renameError" class="text-red-600 text-sm font-medium">
+              {{ renameError }}
+            </p>
           </div>
         </div>
 
-        <!-- Rename Input -->
-        <div v-if="selectedActionType === 'rename'" class="rename-section">
-          <BaseInput
-            v-model="newGameName"
-            label="Nuovo Nome"
-            placeholder="Inserisci il nuovo nome..."
-            :error-message="renameError"
-          />
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-gray-200 flex items-center gap-3">
+          <button
+            @click="closeOptionsModal"
+            class="flex-1 px-4 py-3 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-colors duration-200"
+          >
+            Annulla
+          </button>
+          <button
+            @click="executeSelectedAction"
+            :disabled="!selectedActionType || isExecutingAction"
+            class="flex-1 px-4 py-3 font-semibold rounded-xl transition-all duration-200"
+            :class="{
+              'bg-blue-600 hover:bg-blue-700 text-white': selectedActionType && selectedActionType !== 'delete',
+              'bg-red-600 hover:bg-red-700 text-white': selectedActionType === 'delete',
+              'bg-gray-300 text-gray-500 cursor-not-allowed': !selectedActionType || isExecutingAction
+            }"
+          >
+            <span v-if="isExecutingAction" class="flex items-center justify-center gap-2">
+              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Elaborazione...
+            </span>
+            <span v-else>
+              {{ selectedAction?.confirmText || 'Conferma' }}
+            </span>
+          </button>
         </div>
       </div>
-    </BaseModal>
+    </div>
   </div>
 </template>
 
@@ -263,7 +383,6 @@ import { useRouter } from 'vue-router'
 import { useGameStore } from '@/js/stores/game'
 import { useNotificationStore } from '@/js/stores/notifications'
 import { formatCurrency, formatDate } from '@/js/utils/helpers'
-import StatusBadge from '@/js/components/shared/StatusBadge.vue'
 
 // Stores
 const gameStore = useGameStore()
@@ -439,12 +558,6 @@ const deleteGame = async () => {
   }
 }
 
-const getMoneyClass = (money) => {
-  if (money < 0) return 'stat-value--danger'
-  if (money < 1000) return 'stat-value--warning'
-  return 'stat-value--success'
-}
-
 const getStatusText = (status) => {
   const statusMap = {
     active: 'Attiva',
@@ -464,254 +577,3 @@ onMounted(() => {
   loadGames()
 })
 </script>
-
-<style scoped>
-.game-list-view {
-  @apply min-h-screen p-6;
-}
-
-/* Page Header */
-.page-header {
-  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8;
-}
-
-.header-content {
-  @apply mb-4 sm:mb-0;
-}
-
-.page-title {
-  @apply text-3xl font-bold text-neutral-900 flex items-center;
-}
-
-.title-icon {
-  @apply text-4xl mr-3;
-}
-
-.page-subtitle {
-  @apply text-neutral-600 mt-1;
-}
-
-.header-actions {
-  @apply flex items-center space-x-3;
-}
-
-/* Loading Grid */
-.loading-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
-}
-
-.game-card-skeleton {
-  @apply bg-white rounded-lg border border-neutral-200 p-6 animate-pulse;
-}
-
-.skeleton-header {
-  @apply h-6 bg-neutral-200 rounded mb-4;
-}
-
-.skeleton-content {
-  @apply space-y-2 mb-4;
-}
-
-.skeleton-line {
-  @apply h-4 bg-neutral-200 rounded;
-}
-
-.skeleton-line.short {
-  @apply w-3/4;
-}
-
-.skeleton-footer {
-  @apply h-8 bg-neutral-200 rounded;
-}
-
-/* Empty State */
-.empty-state {
-  @apply text-center py-16;
-}
-
-.empty-icon {
-  @apply text-6xl mb-4;
-}
-
-.empty-title {
-  @apply text-2xl font-bold text-neutral-900 mb-2;
-}
-
-.empty-description {
-  @apply text-neutral-600 mb-8 max-w-md mx-auto;
-}
-
-.empty-cta {
-  @apply mx-auto;
-}
-
-/* Games Grid */
-.games-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
-}
-
-.game-card {
-  @apply transition-all duration-200;
-}
-
-.game-card--active {
-  @apply ring-2 ring-brand-500 ring-opacity-50;
-}
-
-.game-card:hover {
-  @apply shadow-lg transform -translate-y-1;
-}
-
-/* Game Header */
-.game-header {
-  @apply flex items-center justify-between;
-}
-
-.game-title {
-  @apply font-semibold text-neutral-900 truncate flex-1 mr-2;
-}
-
-/* Game Stats */
-.game-stats {
-  @apply space-y-3;
-}
-
-.stat-row {
-  @apply grid grid-cols-2 gap-3;
-}
-
-.stat-item {
-  @apply flex items-center space-x-2;
-}
-
-.stat-icon {
-  @apply text-lg;
-}
-
-.stat-content {
-  @apply flex flex-col;
-}
-
-.stat-label {
-  @apply text-xs text-neutral-600;
-}
-
-.stat-value {
-  @apply text-sm font-semibold text-neutral-900;
-}
-
-.stat-value--success {
-  @apply text-success-600;
-}
-
-.stat-value--warning {
-  @apply text-warning-600;
-}
-
-.stat-value--danger {
-  @apply text-danger-600;
-}
-
-/* Game Actions */
-.game-actions {
-  @apply flex items-center justify-between mb-2;
-}
-
-.game-meta {
-  @apply text-xs text-neutral-500;
-}
-
-/* Modal Content */
-.modal-content {
-  @apply space-y-6;
-}
-
-.selected-game-info {
-  @apply bg-neutral-50 rounded-lg p-4;
-}
-
-.selected-game-info h4 {
-  @apply font-semibold text-neutral-900 mb-1;
-}
-
-.game-status {
-  @apply text-sm text-neutral-600;
-}
-
-.action-options {
-  @apply space-y-6;
-}
-
-.option-group {
-  @apply space-y-3;
-}
-
-.option-group h5 {
-  @apply font-semibold text-neutral-900 mb-3;
-}
-
-.option-group.danger-zone {
-  @apply border-t border-neutral-200 pt-6;
-}
-
-.option-group.danger-zone h5 {
-  @apply text-danger-700;
-}
-
-.option-item {
-  @apply flex items-center p-3 rounded-lg cursor-pointer;
-  @apply border border-neutral-200 hover:bg-neutral-50;
-  @apply transition-colors duration-200;
-}
-
-.option-item--danger {
-  @apply border-danger-200 hover:bg-danger-50;
-}
-
-.option-item input[type="radio"] {
-  @apply mr-3;
-}
-
-.option-content {
-  @apply flex items-center flex-1;
-}
-
-.option-icon {
-  @apply mr-2;
-}
-
-.option-text {
-  @apply text-sm font-medium;
-}
-
-.option-item--danger .option-text {
-  @apply text-danger-700;
-}
-
-.rename-section {
-  @apply border-t border-neutral-200 pt-6;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .games-grid {
-    @apply grid-cols-1 gap-4;
-  }
-
-  .game-list-view {
-    @apply p-4;
-  }
-
-  .page-header {
-    @apply mb-6;
-  }
-
-  .page-title {
-    @apply text-2xl;
-  }
-
-  .title-icon {
-    @apply text-3xl mr-2;
-  }
-}
-</style>

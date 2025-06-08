@@ -47,7 +47,7 @@
           <!-- Loading Spinner for Avatar Upload -->
           <div
             v-if="uploadingAvatar"
-            class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center"
+            class="absolute inset-0 bg-black bg-black/50 rounded-full flex items-center justify-center"
           >
             <svg class="animate-spin h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -335,7 +335,7 @@
     <!-- Modal Conferma Eliminazione -->
     <div
       v-if="showDeleteConfirmation"
-      class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50"
+      class="fixed inset-0 bg-gray-600 bg-black/50 overflow-y-auto h-full w-full z-50"
       @click="showDeleteConfirmation = false"
     >
       <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" @click.stop>

@@ -1,176 +1,205 @@
 <!-- src/components/game/dashboard/TeamStatusCard.vue -->
 <template>
-  <BaseCard
-    title="Team Status"
-    icon="👥"
-    :loading="loading"
-    class="team-status-card"
-  >
-    <template #actions>
-      <BaseButton
-        variant="ghost"
-        size="sm"
-        icon="🧑‍💼"
-        @click="goToHR"
-      >
-        Assumi
-      </BaseButton>
-    </template>
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">👥</span>
+          <h3 class="text-lg font-bold text-gray-900">Team Status</h3>
+          <div v-if="loading" class="ml-2">
+            <svg class="animate-spin w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+        </div>
+        <button
+          @click="goToHR"
+          class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+        >
+          <span>🧑‍💼</span>
+          Assumi
+        </button>
+      </div>
+    </div>
 
     <!-- Team Overview -->
-    <div class="team-overview">
-      <div class="overview-stat">
-        <div class="stat-number">{{ totalTeamSize }}</div>
-        <div class="stat-label">Membri Totali</div>
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="text-center p-3 bg-gray-50 rounded-lg">
+        <div class="text-2xl font-bold text-gray-900">{{ totalTeamSize }}</div>
+        <div class="text-sm text-gray-600">Membri Totali</div>
       </div>
 
-      <div class="overview-stat">
-        <div class="stat-number">{{ availableMembers }}</div>
-        <div class="stat-label">Disponibili</div>
+      <div class="text-center p-3 bg-gray-50 rounded-lg">
+        <div class="text-2xl font-bold text-gray-900">{{ availableMembers }}</div>
+        <div class="text-sm text-gray-600">Disponibili</div>
       </div>
 
-      <div class="overview-stat">
-        <div class="stat-number">{{ formatCurrency(monthlyTeamCosts) }}</div>
-        <div class="stat-label">Costi/Mese</div>
+      <div class="text-center p-3 bg-gray-50 rounded-lg">
+        <div class="text-lg font-bold text-gray-900">{{ formatCurrency(monthlyTeamCosts) }}</div>
+        <div class="text-sm text-gray-600">Costi/Mese</div>
       </div>
     </div>
 
     <!-- Developers Section -->
-    <div class="team-section">
-      <div class="section-header">
-        <h4 class="section-title">
-          <span class="section-icon">👨‍💻</span>
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="flex items-center gap-2 font-semibold text-gray-900">
+          <span class="text-lg">👨‍💻</span>
           Sviluppatori
-          <span class="section-count">({{ developers.length }})</span>
+          <span class="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded-full">({{ developers.length }})</span>
         </h4>
-        <BaseButton
-          variant="ghost"
-          size="sm"
-          icon="🏗️"
+        <button
           @click="goToProduction"
+          class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors duration-200"
         >
+          <span>🏗️</span>
           Gestisci
-        </BaseButton>
+        </button>
       </div>
 
-      <div v-if="developers.length === 0" class="empty-team-section">
-        <span class="empty-icon">💻</span>
-        <span class="empty-text">Nessuno sviluppatore nel team</span>
+      <div v-if="developers.length === 0" class="flex items-center justify-center gap-2 py-4 text-gray-500">
+        <span class="text-2xl">💻</span>
+        <span class="text-sm">Nessuno sviluppatore nel team</span>
       </div>
 
-      <div v-else class="team-members">
+      <div v-else class="space-y-3">
         <div
           v-for="developer in developers.slice(0, 3)"
           :key="developer.id"
-          class="team-member"
-          :class="{ 'team-member--busy': developer.is_busy }"
+          class="flex items-center justify-between p-3 rounded-lg border"
+          :class="{
+            'border-red-200 bg-red-50': developer.is_busy,
+            'border-green-200 bg-green-50': !developer.is_busy
+          }"
         >
-          <div class="member-info">
-            <div class="member-name">{{ developer.name }}</div>
-            <div class="member-details">
-              <span class="member-seniority">{{ getSeniorityText(developer.seniority) }}</span>
-              <StatusBadge
-                :status="developer.is_busy ? 'busy' : 'available'"
-                size="sm"
-                variant="minimal"
-              />
+          <div class="flex-1">
+            <div class="font-medium text-gray-900">{{ developer.name }}</div>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-sm text-gray-600">{{ getSeniorityText(developer.seniority) }}</span>
+              <span 
+                class="text-xs px-2 py-1 rounded-full"
+                :class="{
+                  'bg-red-100 text-red-700': developer.is_busy,
+                  'bg-green-100 text-green-700': !developer.is_busy
+                }"
+              >
+                {{ developer.is_busy ? 'Occupato' : 'Disponibile' }}
+              </span>
             </div>
           </div>
 
-          <div class="member-stats">
-            <div class="member-projects">{{ developer.projects_completed || 0 }} progetti</div>
-            <div class="member-cost">{{ formatCurrency(developer.monthly_salary || 2000) }}/mese</div>
+          <div class="text-right">
+            <div class="text-sm text-gray-600">{{ developer.projects_completed || 0 }} progetti</div>
+            <div class="text-sm font-medium text-gray-900">{{ formatCurrency(developer.monthly_salary || 2000) }}/mese</div>
           </div>
         </div>
 
-        <div v-if="developers.length > 3" class="more-members">
+        <div v-if="developers.length > 3" class="text-center text-sm text-gray-600">
           +{{ developers.length - 3 }} altri sviluppatori
         </div>
       </div>
     </div>
 
     <!-- Sales People Section -->
-    <div class="team-section">
-      <div class="section-header">
-        <h4 class="section-title">
-          <span class="section-icon">💼</span>
+    <div class="mb-6">
+      <div class="flex items-center justify-between mb-3">
+        <h4 class="flex items-center gap-2 font-semibold text-gray-900">
+          <span class="text-lg">💼</span>
           Commerciali
-          <span class="section-count">({{ salesPeople.length }})</span>
+          <span class="text-sm bg-gray-100 text-gray-700 px-2 py-1 rounded-full">({{ salesPeople.length }})</span>
         </h4>
-        <BaseButton
-          variant="ghost"
-          size="sm"
-          icon="💼"
+        <button
           @click="goToSales"
+          class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg transition-colors duration-200"
         >
+          <span>💼</span>
           Gestisci
-        </BaseButton>
+        </button>
       </div>
 
-      <div v-if="salesPeople.length === 0" class="empty-team-section">
-        <span class="empty-icon">💼</span>
-        <span class="empty-text">Nessun commerciale nel team</span>
+      <div v-if="salesPeople.length === 0" class="flex items-center justify-center gap-2 py-4 text-gray-500">
+        <span class="text-2xl">💼</span>
+        <span class="text-sm">Nessun commerciale nel team</span>
       </div>
 
-      <div v-else class="team-members">
+      <div v-else class="space-y-3">
         <div
           v-for="salesPerson in salesPeople.slice(0, 3)"
           :key="salesPerson.id"
-          class="team-member"
-          :class="{ 'team-member--busy': salesPerson.is_busy }"
+          class="flex items-center justify-between p-3 rounded-lg border"
+          :class="{
+            'border-red-200 bg-red-50': salesPerson.is_busy,
+            'border-green-200 bg-green-50': !salesPerson.is_busy
+          }"
         >
-          <div class="member-info">
-            <div class="member-name">{{ salesPerson.name }}</div>
-            <div class="member-details">
-              <span class="member-experience">{{ getExperienceText(salesPerson.experience) }}</span>
-              <StatusBadge
-                :status="salesPerson.is_busy ? 'busy' : 'available'"
-                size="sm"
-                variant="minimal"
-              />
+          <div class="flex-1">
+            <div class="font-medium text-gray-900">{{ salesPerson.name }}</div>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="text-sm text-gray-600">{{ getExperienceText(salesPerson.experience) }}</span>
+              <span 
+                class="text-xs px-2 py-1 rounded-full"
+                :class="{
+                  'bg-red-100 text-red-700': salesPerson.is_busy,
+                  'bg-green-100 text-green-700': !salesPerson.is_busy
+                }"
+              >
+                {{ salesPerson.is_busy ? 'Occupato' : 'Disponibile' }}
+              </span>
             </div>
           </div>
 
-          <div class="member-stats">
-            <div class="member-projects">{{ salesPerson.projects_generated || 0 }} generati</div>
-            <div class="member-cost">{{ formatCurrency(salesPerson.monthly_salary || 1500) }}/mese</div>
+          <div class="text-right">
+            <div class="text-sm text-gray-600">{{ salesPerson.projects_generated || 0 }} generati</div>
+            <div class="text-sm font-medium text-gray-900">{{ formatCurrency(salesPerson.monthly_salary || 1500) }}/mese</div>
           </div>
         </div>
 
-        <div v-if="salesPeople.length > 3" class="more-members">
+        <div v-if="salesPeople.length > 3" class="text-center text-sm text-gray-600">
           +{{ salesPeople.length - 3 }} altri commerciali
         </div>
       </div>
     </div>
 
     <!-- Team Efficiency -->
-    <div class="team-efficiency">
-      <h4 class="efficiency-title">⚡ Efficienza Team</h4>
-      <div class="efficiency-metrics">
-        <div class="efficiency-metric">
-          <div class="metric-label">
-            <span>Utilizzo</span>
-            <span class="metric-value">{{ teamUtilization }}%</span>
+    <div class="mb-6">
+      <h4 class="text-lg font-semibold text-gray-900 mb-4">⚡ Efficienza Team</h4>
+      <div class="space-y-4">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-gray-700">Utilizzo</span>
+            <span class="text-sm font-semibold text-gray-900">{{ teamUtilization }}%</span>
           </div>
-          <div class="metric-bar">
+          <div class="w-full bg-gray-200 rounded-full h-2">
             <div
-              class="metric-fill"
+              class="h-2 rounded-full transition-all duration-300"
               :style="{ width: `${teamUtilization}%` }"
-              :class="getUtilizationColorClass(teamUtilization)"
+              :class="{
+                'bg-green-500': teamUtilization >= 80,
+                'bg-blue-500': teamUtilization >= 50 && teamUtilization < 80,
+                'bg-yellow-500': teamUtilization >= 25 && teamUtilization < 50,
+                'bg-red-500': teamUtilization < 25
+              }"
             ></div>
           </div>
         </div>
 
-        <div class="efficiency-metric">
-          <div class="metric-label">
-            <span>Produttività</span>
-            <span class="metric-value">{{ teamProductivity }}%</span>
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-sm font-medium text-gray-700">Produttività</span>
+            <span class="text-sm font-semibold text-gray-900">{{ teamProductivity }}%</span>
           </div>
-          <div class="metric-bar">
+          <div class="w-full bg-gray-200 rounded-full h-2">
             <div
-              class="metric-fill"
+              class="h-2 rounded-full transition-all duration-300"
               :style="{ width: `${teamProductivity}%` }"
-              :class="getProductivityColorClass(teamProductivity)"
+              :class="{
+                'bg-emerald-500': teamProductivity >= 80,
+                'bg-green-500': teamProductivity >= 60 && teamProductivity < 80,
+                'bg-yellow-500': teamProductivity >= 40 && teamProductivity < 60,
+                'bg-red-500': teamProductivity < 40
+              }"
             ></div>
           </div>
         </div>
@@ -178,21 +207,36 @@
     </div>
 
     <!-- Quick Insights -->
-    <div v-if="teamInsights.length > 0" class="team-insights">
-      <h4 class="insights-title">💡 Suggerimenti</h4>
-      <div class="insights-list">
+    <div v-if="teamInsights.length > 0">
+      <h4 class="text-lg font-semibold text-gray-900 mb-3">💡 Suggerimenti</h4>
+      <div class="space-y-2">
         <div
           v-for="insight in teamInsights"
           :key="insight.id"
-          class="insight-item"
-          :class="`insight-item--${insight.type}`"
+          class="flex items-center gap-3 p-3 rounded-lg border"
+          :class="{
+            'bg-red-50 border-red-200': insight.type === 'danger',
+            'bg-yellow-50 border-yellow-200': insight.type === 'warning',
+            'bg-blue-50 border-blue-200': insight.type === 'info',
+            'bg-green-50 border-green-200': insight.type === 'success'
+          }"
         >
-          <span class="insight-icon">{{ insight.icon }}</span>
-          <span class="insight-text">{{ insight.text }}</span>
+          <span class="text-lg">{{ insight.icon }}</span>
+          <span 
+            class="text-sm"
+            :class="{
+              'text-red-800': insight.type === 'danger',
+              'text-yellow-800': insight.type === 'warning',
+              'text-blue-800': insight.type === 'info',
+              'text-green-800': insight.type === 'success'
+            }"
+          >
+            {{ insight.text }}
+          </span>
         </div>
       </div>
     </div>
-  </BaseCard>
+  </div>
 </template>
 
 <script setup>
@@ -200,7 +244,6 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGameStore } from '@/js/stores/game'
 import { formatCurrency } from '@/js/utils/helpers'
-import StatusBadge from '@/js/components/shared/StatusBadge.vue'
 
 // Stores
 const gameStore = useGameStore()
@@ -359,20 +402,6 @@ const getExperienceText = (experience) => {
   return levels[experience] || 'Sconosciuto'
 }
 
-const getUtilizationColorClass = (utilization) => {
-  if (utilization >= 80) return 'metric-fill--high'
-  if (utilization >= 50) return 'metric-fill--medium'
-  if (utilization >= 25) return 'metric-fill--low'
-  return 'metric-fill--minimal'
-}
-
-const getProductivityColorClass = (productivity) => {
-  if (productivity >= 80) return 'metric-fill--excellent'
-  if (productivity >= 60) return 'metric-fill--good'
-  if (productivity >= 40) return 'metric-fill--fair'
-  return 'metric-fill--poor'
-}
-
 const goToProduction = () => {
   router.push({ name: 'Production' })
 }
@@ -385,270 +414,3 @@ const goToHR = () => {
   router.push({ name: 'HR' })
 }
 </script>
-
-<style scoped>
-.team-status-card {
-  @apply h-full;
-}
-
-/* Team Overview */
-.team-overview {
-  @apply grid grid-cols-3 gap-4 mb-6 p-4 bg-neutral-50 rounded-lg;
-}
-
-.overview-stat {
-  @apply text-center;
-}
-
-.stat-number {
-  @apply text-xl font-bold text-neutral-900;
-}
-
-.stat-label {
-  @apply text-xs text-neutral-600 mt-1;
-}
-
-/* Team Sections */
-.team-section {
-  @apply mb-6 pb-4 border-b border-neutral-200 last:border-b-0;
-}
-
-.section-header {
-  @apply flex items-center justify-between mb-3;
-}
-
-.section-title {
-  @apply text-sm font-semibold text-neutral-900 flex items-center;
-}
-
-.section-icon {
-  @apply text-base mr-2;
-}
-
-.section-count {
-  @apply text-neutral-500 font-normal ml-1;
-}
-
-/* Empty Team Section */
-.empty-team-section {
-  @apply flex items-center justify-center py-4 text-neutral-500;
-}
-
-.empty-icon {
-  @apply text-2xl mr-2;
-}
-
-.empty-text {
-  @apply text-sm;
-}
-
-/* Team Members */
-.team-members {
-  @apply space-y-3;
-}
-
-.team-member {
-  @apply flex items-center justify-between p-3 bg-white rounded-lg border border-neutral-200;
-  @apply transition-all duration-200 hover:shadow-sm hover:border-brand-300;
-}
-
-.team-member--busy {
-  @apply bg-warning-50 border-warning-200;
-}
-
-.team-member--busy:hover {
-  @apply border-warning-300;
-}
-
-.member-info {
-  @apply flex-1 min-w-0;
-}
-
-.member-name {
-  @apply font-medium text-neutral-900 truncate;
-}
-
-.member-details {
-  @apply flex items-center space-x-2 mt-1;
-}
-
-.member-seniority,
-.member-experience {
-  @apply text-xs text-neutral-600;
-}
-
-.member-stats {
-  @apply text-right flex-shrink-0 ml-3;
-}
-
-.member-projects {
-  @apply text-xs text-neutral-600;
-}
-
-.member-cost {
-  @apply text-xs font-medium text-neutral-900;
-}
-
-.more-members {
-  @apply text-center text-sm text-neutral-500 py-2 bg-neutral-50 rounded-lg;
-}
-
-/* Team Efficiency */
-.team-efficiency {
-  @apply mb-6;
-}
-
-.efficiency-title {
-  @apply text-sm font-semibold text-neutral-900 mb-3;
-}
-
-.efficiency-metrics {
-  @apply space-y-3;
-}
-
-.efficiency-metric {
-  @apply space-y-1;
-}
-
-.metric-label {
-  @apply flex items-center justify-between text-sm;
-}
-
-.metric-value {
-  @apply font-semibold text-neutral-900;
-}
-
-.metric-bar {
-  @apply w-full h-2 bg-neutral-200 rounded-full overflow-hidden;
-}
-
-.metric-fill {
-  @apply h-full transition-all duration-500 ease-out;
-}
-
-.metric-fill--minimal {
-  @apply bg-neutral-400;
-}
-
-.metric-fill--low {
-  @apply bg-warning-500;
-}
-
-.metric-fill--medium {
-  @apply bg-blue-500;
-}
-
-.metric-fill--high {
-  @apply bg-brand-500;
-}
-
-.metric-fill--poor {
-  @apply bg-danger-500;
-}
-
-.metric-fill--fair {
-  @apply bg-warning-500;
-}
-
-.metric-fill--good {
-  @apply bg-blue-500;
-}
-
-.metric-fill--excellent {
-  @apply bg-success-500;
-}
-
-/* Team Insights */
-.team-insights {
-  @apply border-t border-neutral-200 pt-4;
-}
-
-.insights-title {
-  @apply text-sm font-semibold text-neutral-900 mb-3;
-}
-
-.insights-list {
-  @apply space-y-2;
-}
-
-.insight-item {
-  @apply flex items-start p-2 rounded-lg text-sm;
-}
-
-.insight-item--info {
-  @apply bg-blue-50 text-blue-800;
-}
-
-.insight-item--success {
-  @apply bg-success-50 text-success-800;
-}
-
-.insight-item--warning {
-  @apply bg-warning-50 text-warning-800;
-}
-
-.insight-item--danger {
-  @apply bg-danger-50 text-danger-800;
-}
-
-.insight-icon {
-  @apply mr-2 mt-0.5 flex-shrink-0;
-}
-
-.insight-text {
-  @apply leading-relaxed;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .team-overview {
-    @apply grid-cols-1 gap-2 p-3;
-  }
-
-  .stat-number {
-    @apply text-lg;
-  }
-
-  .section-header {
-    @apply flex-col items-start space-y-2;
-  }
-
-  .team-member {
-    @apply flex-col items-start space-y-2 p-2;
-  }
-
-  .member-stats {
-    @apply text-left ml-0 w-full;
-  }
-
-  .efficiency-metrics {
-    @apply space-y-2;
-  }
-}
-
-/* Animations */
-.team-member {
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.metric-fill {
-  animation: metricGrow 1s ease-out;
-}
-
-@keyframes metricGrow {
-  from {
-    width: 0%;
-  }
-}
-</style>

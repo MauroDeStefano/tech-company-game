@@ -70,11 +70,7 @@ class Game extends Model
         'offline_duration_seconds' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
-    ];
 
-    protected $hidden = [
-        'deleted_at',
     ];
 
     protected static function boot(): void

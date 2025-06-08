@@ -1,157 +1,204 @@
 <template>
-  <div class="login-view">
-    <div class="login-container">
-      <!-- Header -->
-      <div class="login-header">
-        <div class="brand-logo">🏢</div>
-        <h1 class="brand-title">Tech Company Game</h1>
-        <p class="brand-subtitle">Accedi al tuo account per gestire la tua software house</p>
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 via-sky-50 to-white relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-20">
+    </div>
+
+    <!-- Main Login Container -->
+    <div class="w-full max-w-md mx-auto p-6 z-10 relative">
+      <!-- Header Section -->
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2 tracking-tight">
+          Tech Company Game
+        </h1>
+        <p class="text-gray-600 text-lg">
+          Accedi al tuo account per gestire la tua software house
+        </p>
       </div>
 
-      <!-- Login Form -->
-      <BaseCard class="login-card">
-        <form @submit.prevent="handleLogin" class="login-form">
+      <!-- Login Card -->
+      <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8">
+        <form @submit.prevent="handleLogin" class="space-y-6">
           <!-- Error Alert -->
-          <div v-if="error" class="error-alert">
-            <div class="error-icon">⚠️</div>
-            <div class="error-content">
-              <p class="error-message">{{ error }}</p>
-              <button
-                type="button"
-                @click="clearError"
-                class="error-dismiss"
-                aria-label="Chiudi errore"
-              >
-                ✕
-              </button>
+          <div 
+            v-if="error" 
+            class="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3"
+          >
+            <div class="text-red-500 text-xl flex-shrink-0 mt-0.5">⚠️</div>
+            <div class="flex-1 min-w-0">
+              <p class="text-red-800 font-medium text-sm">{{ error }}</p>
             </div>
+            <button
+              type="button"
+              @click="clearError"
+              class="text-red-400 hover:text-red-600 transition-colors duration-200 flex-shrink-0 p-1 rounded-lg hover:bg-red-100"
+              aria-label="Chiudi errore"
+            >
+              <span class="text-sm font-bold">✕</span>
+            </button>
           </div>
 
           <!-- Rate Limit Warning -->
-          <div v-if="!canAttemptLogin" class="warning-alert">
-            <div class="warning-icon">🕐</div>
-            <div class="warning-content">
-              <p class="warning-message">
+          <div 
+            v-if="!canAttemptLogin" 
+            class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-start gap-3"
+          >
+            <div class="text-yellow-600 text-xl flex-shrink-0 mt-0.5">🕐</div>
+            <div class="flex-1">
+              <p class="text-yellow-800 font-medium text-sm">
                 Troppi tentativi di login. Riprova tra {{ formatTimeRemaining(timeUntilNextAttempt) }}.
               </p>
             </div>
           </div>
 
           <!-- Email Field -->
-          <BaseInput
-            v-model="loginForm.email"
-            type="email"
-            label="Email"
-            placeholder="mario.rossi@esempio.com"
-            :error-message="validationErrors.email"
-            :disabled="isLoading || !canAttemptLogin"
-            required
-            autofocus
-            left-icon="✉️"
-          />
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700">
+              Email
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-400 text-lg">✉️</span>
+              </div>
+              <input
+                v-model="loginForm.email"
+                type="email"
+                placeholder="mario.rossi@esempio.com"
+                :disabled="isLoading || !canAttemptLogin"
+                required
+                autofocus
+                class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed transition-all duration-200"
+                :class="{
+                  'border-red-300 focus:ring-red-500 focus:border-red-500': validationErrors.email,
+                  'border-gray-300': !validationErrors.email
+                }"
+              />
+            </div>
+            <p v-if="validationErrors.email" class="text-red-600 text-sm font-medium">
+              {{ validationErrors.email }}
+            </p>
+          </div>
 
           <!-- Password Field -->
-          <BaseInput
-            v-model="loginForm.password"
-            type="password"
-            label="Password"
-            placeholder="Inserisci la tua password"
-            :error-message="validationErrors.password"
-            :disabled="isLoading || !canAttemptLogin"
-            required
-            left-icon="🔒"
-          />
+          <div class="space-y-2">
+            <label class="block text-sm font-semibold text-gray-700">
+              Password
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="text-gray-400 text-lg">🔒</span>
+              </div>
+              <input
+                v-model="loginForm.password"
+                type="password"
+                placeholder="Inserisci la tua password"
+                :disabled="isLoading || !canAttemptLogin"
+                required
+                class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed transition-all duration-200"
+                :class="{
+                  'border-red-300 focus:ring-red-500 focus:border-red-500': validationErrors.password,
+                  'border-gray-300': !validationErrors.password
+                }"
+              />
+            </div>
+            <p v-if="validationErrors.password" class="text-red-600 text-sm font-medium">
+              {{ validationErrors.password }}
+            </p>
+          </div>
 
           <!-- Remember Me & Forgot Password -->
-          <div class="form-options">
-            <label class="remember-me">
+          <div class="flex items-center justify-between">
+            <label class="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
                 v-model="loginForm.rememberMe"
                 :disabled="isLoading"
-                class="remember-checkbox"
+                class="w-4 h-4 text-sky-600 bg-gray-100 border-gray-300 rounded focus:ring-sky-500 focus:ring-2 disabled:bg-gray-50 disabled:cursor-not-allowed"
               />
-              <span class="remember-text">Ricordami</span>
+              <span class="text-sm text-gray-700 font-medium">Ricordami</span>
             </label>
 
             <router-link
               to="/forgot-password"
-              class="forgot-link"
-              :class="{ 'forgot-link--disabled': isLoading }"
+              class="text-sm text-sky-600 hover:text-sky-800 font-semibold transition-colors duration-200"
+              :class="{ 'opacity-50 cursor-not-allowed': isLoading }"
             >
               Password dimenticata?
             </router-link>
           </div>
 
           <!-- Submit Button -->
-          <BaseButton
+          <button
             type="submit"
-            variant="primary"
-            size="lg"
-            block
-            :loading="isLoading"
-            :disabled="!isFormValid || !canAttemptLogin"
-            class="login-button"
+            :disabled="!isFormValid || !canAttemptLogin || isLoading"
+            class="w-full py-3 px-4 bg-sky-600 hover:bg-sky-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 shadow-lg"
           >
-            <template v-if="isLoading">
+            <span v-if="isLoading" class="flex items-center justify-center gap-2">
+              <svg class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
               Accesso in corso...
-            </template>
-            <template v-else>
-              Accedi
-            </template>
-          </BaseButton>
+            </span>
+            <span v-else>Accedi</span>
+          </button>
 
           <!-- Divider -->
-          <div class="divider">
-            <span class="divider-text">oppure</span>
+          <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="w-full border-t border-gray-300"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="px-4 bg-white text-gray-500 font-medium">oppure</span>
+            </div>
           </div>
 
-          <!-- Social Login (placeholder) -->
-          <div class="social-login">
-            <BaseButton
-              variant="outline"
-              size="lg"
-              block
-              :disabled="isLoading"
-              class="social-button"
-            >
-              <span class="social-icon">🔗</span>
-              Accedi con Google
-            </BaseButton>
-          </div>
+          <!-- Social Login -->
+          <button
+            type="button"
+            :disabled="isLoading"
+            class="w-full py-3 px-4 border border-gray-300 bg-white hover:bg-gray-50 disabled:bg-gray-50 disabled:cursor-not-allowed text-gray-700 font-semibold rounded-xl transition-all duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 shadow-sm flex items-center justify-center gap-3"
+          >
+            <span class="text-xl">🔗</span>
+            Accedi con Google
+          </button>
 
           <!-- Register Link -->
-          <div class="register-section">
-            <p class="register-text">
+          <div class="text-center pt-4">
+            <p class="text-gray-600 text-sm">
               Non hai ancora un account?
               <router-link
                 to="/register"
-                class="register-link"
-                :class="{ 'register-link--disabled': isLoading }"
+                class="text-sky-600 hover:text-sky-800 font-semibold transition-colors duration-200 ml-1"
+                :class="{ 'opacity-50 cursor-not-allowed': isLoading }"
               >
                 Registrati qui
               </router-link>
             </p>
           </div>
         </form>
-      </BaseCard>
+      </div>
 
       <!-- Footer -->
-      <div class="login-footer">
-        <p class="footer-text">
+      <div class="text-center mt-8 space-y-3">
+        <p class="text-gray-500 text-sm">
           © 2025 Tech Company Game. Tutti i diritti riservati.
         </p>
-        <div class="footer-links">
-          <router-link to="/about" class="footer-link">Info</router-link>
-          <router-link to="/help" class="footer-link">Aiuto</router-link>
+        <div class="flex justify-center items-center gap-6">
+          <router-link 
+            to="/about" 
+            class="text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors duration-200"
+          >
+            Info
+          </router-link>
+          <router-link 
+            to="/help" 
+            class="text-gray-500 hover:text-gray-700 text-sm font-medium transition-colors duration-200"
+          >
+            Aiuto
+          </router-link>
         </div>
       </div>
-    </div>
-
-    <!-- Background Decoration -->
-    <div class="login-background">
-      <div class="bg-pattern"></div>
-      <div class="bg-gradient"></div>
     </div>
   </div>
 </template>
@@ -212,7 +259,7 @@ const handleLogin = async () => {
     notificationStore.success('Accesso effettuato con successo!')
 
     // Redirect to intended page or dashboard
-    const redirectTo = route.query.redirect || '/game'
+    const redirectTo = route.query.redirect || '/games'
     router.push(redirectTo)
 
   } catch (err) {
@@ -256,280 +303,3 @@ onMounted(() => {
   }
 })
 </script>
-
-<style scoped>
-.login-view {
-  @apply min-h-screen flex items-center justify-center relative;
-  @apply bg-gradient-to-br from-brand-50 to-brand-100;
-}
-
-.login-container {
-  @apply relative z-10 w-full max-w-md px-6;
-}
-
-/* Header */
-.login-header {
-  @apply text-center mb-8;
-}
-
-.brand-logo {
-  @apply text-6xl mb-4;
-}
-
-.brand-title {
-  @apply text-3xl font-bold text-neutral-900 mb-2;
-}
-
-.brand-subtitle {
-  @apply text-neutral-600 text-sm;
-}
-
-/* Login Card */
-.login-card {
-  @apply shadow-xl border-0;
-  @apply bg-white/95 backdrop-blur-sm;
-}
-
-.login-form {
-  @apply space-y-6 p-8;
-}
-
-/* Error Alert */
-.error-alert {
-  @apply flex items-start p-4 bg-danger-50 border border-danger-200 rounded-lg;
-}
-
-.error-icon {
-  @apply text-danger-500 mr-3 flex-shrink-0;
-}
-
-.error-content {
-  @apply flex-1 flex justify-between items-start;
-}
-
-.error-message {
-  @apply text-sm text-danger-800;
-}
-
-.error-dismiss {
-  @apply ml-2 text-danger-400 hover:text-danger-600;
-  @apply transition-colors duration-200;
-}
-
-/* Warning Alert */
-.warning-alert {
-  @apply flex items-start p-4 bg-warning-50 border border-warning-200 rounded-lg;
-}
-
-.warning-icon {
-  @apply text-warning-500 mr-3 flex-shrink-0;
-}
-
-.warning-content {
-  @apply flex-1;
-}
-
-.warning-message {
-  @apply text-sm text-warning-800;
-}
-
-/* Form Options */
-.form-options {
-  @apply flex items-center justify-between;
-}
-
-.remember-me {
-  @apply flex items-center cursor-pointer;
-}
-
-.remember-checkbox {
-  @apply mr-2 rounded border-neutral-300;
-  @apply focus:ring-2 focus:ring-brand-500 focus:border-brand-500;
-}
-
-.remember-text {
-  @apply text-sm text-neutral-700;
-}
-
-.forgot-link {
-  @apply text-sm text-brand-600 hover:text-brand-700;
-  @apply transition-colors duration-200;
-}
-
-.forgot-link--disabled {
-  @apply pointer-events-none opacity-50;
-}
-
-/* Submit Button */
-.login-button {
-  @apply mt-6;
-}
-
-/* Divider */
-.divider {
-  @apply relative;
-}
-
-.divider::before {
-  @apply absolute inset-0 flex items-center;
-  content: '';
-}
-
-.divider::before {
-  @apply border-t border-neutral-300;
-}
-
-.divider-text {
-  @apply relative bg-white px-4 text-sm text-neutral-500;
-  @apply mx-auto w-fit;
-}
-
-/* Social Login */
-.social-login {
-  @apply space-y-3;
-}
-
-.social-button {
-  @apply flex items-center justify-center;
-}
-
-.social-icon {
-  @apply mr-2;
-}
-
-/* Register Section */
-.register-section {
-  @apply text-center pt-4 border-t border-neutral-200;
-}
-
-.register-text {
-  @apply text-sm text-neutral-600;
-}
-
-.register-link {
-  @apply text-brand-600 hover:text-brand-700 font-medium;
-  @apply transition-colors duration-200;
-}
-
-.register-link--disabled {
-  @apply pointer-events-none opacity-50;
-}
-
-/* Footer */
-.login-footer {
-  @apply text-center mt-8 space-y-2;
-}
-
-.footer-text {
-  @apply text-xs text-neutral-500;
-}
-
-.footer-links {
-  @apply flex justify-center space-x-4;
-}
-
-.footer-link {
-  @apply text-xs text-neutral-400 hover:text-neutral-600;
-  @apply transition-colors duration-200;
-}
-
-/* Background */
-.login-background {
-  @apply absolute inset-0;
-}
-
-.bg-pattern {
-  @apply absolute inset-0 opacity-10;
-  background-image: radial-gradient(circle at 1px 1px, theme('colors.brand.400') 1px, transparent 0);
-  background-size: 20px 20px;
-}
-
-.bg-gradient {
-  @apply absolute inset-0;
-  background: linear-gradient(45deg,
-    theme('colors.brand.100') 0%,
-    theme('colors.brand.50') 50%,
-    theme('colors.secondary.50') 100%);
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .login-container {
-    @apply px-4;
-  }
-
-  .login-form {
-    @apply p-6;
-  }
-
-  .brand-logo {
-    @apply text-5xl mb-3;
-  }
-
-  .brand-title {
-    @apply text-2xl;
-  }
-
-  .form-options {
-    @apply flex-col space-y-3 items-start;
-  }
-}
-
-/* Focus states */
-.login-form input:focus {
-  @apply ring-2 ring-brand-500 border-brand-500;
-}
-
-/* Loading state */
-.login-form.loading {
-  @apply pointer-events-none opacity-75;
-}
-
-/* Animations */
-.error-alert,
-.warning-alert {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .login-card {
-    @apply bg-neutral-900/95;
-  }
-
-  .brand-title {
-    @apply text-neutral-100;
-  }
-
-  .brand-subtitle {
-    @apply text-neutral-400;
-  }
-
-  .register-text {
-    @apply text-neutral-400;
-  }
-
-  .footer-text {
-    @apply text-neutral-500;
-  }
-
-  .divider-text {
-    @apply bg-neutral-900 text-neutral-400;
-  }
-
-  .divider::before {
-    @apply border-neutral-700;
-  }
-}
-</style>

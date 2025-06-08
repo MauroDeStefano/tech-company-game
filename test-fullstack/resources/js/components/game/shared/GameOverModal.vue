@@ -1,64 +1,79 @@
 <template>
-  <BaseModal
-    :is-open="isOpen"
-    :persistent="true"
-    variant="danger"
-    size="md"
-    title="Game Over"
-    icon="💀"
-    subtitle="La tua software house è fallita!"
-    @close="$emit('close')"
+  <div
+    v-if="isOpen"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+    @click="$emit('close')"
   >
-    <!-- Game Over Content -->
-    <div class="game-over-content">
-      <div class="game-over-icon">
-        <span class="icon-skull">💀</span>
+    <div
+      class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+      @click.stop
+    >
+      <!-- Header -->
+      <div class="p-6 border-b border-gray-200 bg-red-50 rounded-t-2xl">
+        <div class="text-center">
+          <div class="mb-4">
+            <span class="text-6xl">💀</span>
+          </div>
+          <h2 class="text-2xl font-bold text-red-800 mb-2">Game Over</h2>
+          <p class="text-red-600">La tua software house è fallita!</p>
+        </div>
       </div>
 
-      <div class="game-over-message">
-        <h3 class="message-title">Partita Terminata</h3>
-        <p class="message-text">
-          La tua software house ha esaurito le risorse.
-          Non preoccuparti, puoi sempre ricominciare!
-        </p>
+      <!-- Game Over Content -->
+      <div class="p-6">
+        <div class="text-center mb-6">
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">Partita Terminata</h3>
+          <p class="text-gray-600">
+            La tua software house ha esaurito le risorse.
+            Non preoccuparti, puoi sempre ricominciare!
+          </p>
+        </div>
+
+        <!-- Game Stats -->
+        <div class="space-y-4 mb-6">
+          <div class="bg-gray-50 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700">Progetti Completati</span>
+              <span class="text-lg font-bold text-gray-900">{{ gameStats.projectsCompleted || 0 }}</span>
+            </div>
+          </div>
+          
+          <div class="bg-gray-50 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700">Revenue Totale</span>
+              <span class="text-lg font-bold text-green-600">{{ formatCurrency(gameStats.totalRevenue || 0) }}</span>
+            </div>
+          </div>
+          
+          <div class="bg-gray-50 rounded-lg p-4">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-gray-700">Tempo di Gioco</span>
+              <span class="text-lg font-bold text-gray-900">{{ gameStats.playTime || '0 min' }}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <!-- Game Stats -->
-      <div class="game-stats">
-        <div class="stat-item">
-          <span class="stat-label">Progetti Completati</span>
-          <span class="stat-value">{{ gameStats.projectsCompleted || 0 }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">Revenue Totale</span>
-          <span class="stat-value">{{ formatCurrency(gameStats.totalRevenue || 0) }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">Tempo di Gioco</span>
-          <span class="stat-value">{{ gameStats.playTime || '0 min' }}</span>
+      <!-- Footer Actions -->
+      <div class="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl">
+        <div class="flex items-center gap-3">
+          <button
+            class="flex-1 px-4 py-3 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-colors duration-200"
+            @click="$emit('new-game')"
+          >
+            Nuova Partita
+          </button>
+
+          <button
+            class="flex-1 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors duration-200"
+            @click="$emit('restart')"
+          >
+            Riprova
+          </button>
         </div>
       </div>
     </div>
-
-    <!-- Footer Actions -->
-    <template #footer>
-      <div class="game-over-actions">
-        <BaseButton
-          variant="secondary"
-          @click="$emit('new-game')"
-        >
-          Nuova Partita
-        </BaseButton>
-
-        <BaseButton
-          variant="primary"
-          @click="$emit('restart')"
-        >
-          Riprova
-        </BaseButton>
-      </div>
-    </template>
-  </BaseModal>
+  </div>
 </template>
 
 <script setup>
@@ -89,55 +104,3 @@ const gameStats = computed(() => {
   }
 })
 </script>
-
-<style scoped>
-.game-over-content {
-  @apply text-center space-y-6;
-}
-
-.game-over-icon {
-  @apply flex justify-center;
-}
-
-.icon-skull {
-  @apply text-6xl;
-}
-
-.game-over-message {
-  @apply space-y-2;
-}
-
-.message-title {
-  @apply text-xl font-bold text-neutral-900;
-}
-
-.message-text {
-  @apply text-neutral-600 leading-relaxed;
-}
-
-.game-stats {
-  @apply grid grid-cols-1 gap-3 bg-neutral-50 rounded-lg p-4;
-}
-
-.stat-item {
-  @apply flex justify-between items-center;
-}
-
-.stat-label {
-  @apply text-sm text-neutral-600;
-}
-
-.stat-value {
-  @apply font-semibold text-neutral-900;
-}
-
-.game-over-actions {
-  @apply flex justify-end space-x-3;
-}
-
-@media (max-width: 640px) {
-  .game-over-actions {
-    @apply flex-col space-y-2 space-x-0;
-  }
-}
-</style>

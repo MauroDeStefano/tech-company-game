@@ -26,7 +26,9 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Rate limiting
   const canAttemptLogin = computed(() => {
-    if (loginAttempts.value < 5) return true
+    if (loginAttempts.value < 5000) return true
+    console.log(loginAttempts);
+    
 
     const lastAttempt = lastLoginAttempt.value
     if (!lastAttempt) return true
@@ -217,16 +219,34 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('auth-token')
   }
 
-  function initializeAuth() {
+  async function initializeAuth() {
+    console.log('🔐 Initializing authentication...')
+    
     const savedToken = localStorage.getItem('auth-token')
 
-    if (savedToken) {
+    if (!savedToken) {
+      console.log('📭 No saved token found')
+      return false
+    }
+
+    try {
+      // Set token first so API calls work
       token.value = savedToken
-      // Optionally fetch user data on initialization
-      fetchUser().catch(() => {
-        console.warn('Failed to fetch user on auth initialization')
-        clearAuthData()
-      })
+      
+      console.log('🔍 Verifying saved token...')
+      
+      // Verify token is still valid by fetching user
+      await fetchUser()
+      
+      console.log('✅ Authentication initialized successfully')
+      return true
+      
+    } catch (error) {
+      console.warn('❌ Token verification failed:', error.message)
+      
+      // Clear invalid auth data
+      clearAuthData()
+      return false
     }
   }
 

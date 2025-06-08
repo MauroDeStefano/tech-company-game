@@ -1,95 +1,134 @@
 <!-- src/components/game/dashboard/QuickActionsCard.vue -->
 <template>
-  <BaseCard
-    title="Azioni Rapide"
-    icon="⚡"
-    class="quick-actions-card"
-  >
-    <div class="actions-grid">
-      <!-- Assegna Progetto -->
-      <div class="action-item" :class="{ 'action-item--disabled': !canAssignProject }">
-        <button
-          class="action-button"
-          :disabled="!canAssignProject"
-          @click="assignProject"
-        >
-          <div class="action-icon">🚀</div>
-          <div class="action-content">
-            <div class="action-title">Assegna Progetto</div>
-            <div class="action-description">
-              {{ assignProjectDescription }}
-            </div>
-          </div>
-          <div v-if="pendingProjectsCount > 0" class="action-badge">
-            {{ pendingProjectsCount }}
-          </div>
-        </button>
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">⚡</span>
+        <h3 class="text-lg font-bold text-gray-900">Azioni Rapide</h3>
       </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="quick-stats">
-      <div class="quick-stat">
-        <span class="quick-stat-icon">⏱️</span>
-        <div class="quick-stat-content">
-          <span class="quick-stat-label">Progetti Attivi</span>
-          <span class="quick-stat-value">{{ activeProjectsCount }}</span>
+    <!-- Actions Grid -->
+    <div class="mb-6">
+      <!-- Assegna Progetto -->
+      <button
+        @click="assignProject"
+        :disabled="!canAssignProject"
+        class="w-full flex items-center justify-between p-4 border rounded-xl transition-all duration-200"
+        :class="{
+          'border-blue-200 hover:border-blue-300 hover:bg-blue-50': canAssignProject,
+          'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50': !canAssignProject
+        }"
+      >
+        <div class="flex items-center gap-3">
+          <div class="text-2xl">🚀</div>
+          <div class="text-left">
+            <div class="font-semibold text-gray-900">Assegna Progetto</div>
+            <div class="text-sm text-gray-600">
+              {{ assignProjectDescription }}
+            </div>
+          </div>
         </div>
-      </div>
+        <div v-if="pendingProjectsCount > 0" class="bg-blue-100 text-blue-800 text-sm font-semibold px-2 py-1 rounded-full">
+          {{ pendingProjectsCount }}
+        </div>
+      </button>
+    </div>
 
-      <div class="quick-stat">
-        <span class="quick-stat-icon">👨‍💼</span>
-        <div class="quick-stat-content">
-          <span class="quick-stat-label">Team Disponibile</span>
-          <span class="quick-stat-value">{{ availableTeamCount }}</span>
+    <!-- Quick Stats -->
+    <div class="mb-6">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-gray-50 rounded-lg p-3">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">⏱️</span>
+            <div>
+              <div class="text-xs text-gray-600">Progetti Attivi</div>
+              <div class="text-lg font-bold text-gray-900">{{ activeProjectsCount }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 rounded-lg p-3">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">👨‍💼</span>
+            <div>
+              <div class="text-xs text-gray-600">Team Disponibile</div>
+              <div class="text-lg font-bold text-gray-900">{{ availableTeamCount }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Smart Suggestions -->
-    <div v-if="suggestions.length > 0" class="suggestions-section">
-      <h4 class="suggestions-title">💡 Suggerimenti</h4>
-      <div class="suggestions-list">
-        <div
+    <div v-if="suggestions.length > 0" class="mb-6">
+      <h4 class="text-lg font-semibold text-gray-900 mb-3">💡 Suggerimenti</h4>
+      <div class="space-y-2">
+        <button
           v-for="suggestion in suggestions"
           :key="suggestion.id"
-          class="suggestion-item"
-          :class="`suggestion-item--${suggestion.priority}`"
           @click="handleSuggestion(suggestion)"
+          class="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-all duration-200"
+          :class="{
+            'border-red-200 bg-red-50': suggestion.priority === 'high',
+            'border-yellow-200 bg-yellow-50': suggestion.priority === 'medium',
+            'border-gray-200': suggestion.priority === 'low'
+          }"
         >
-          <span class="suggestion-icon">{{ suggestion.icon }}</span>
-          <div class="suggestion-content">
-            <span class="suggestion-text">{{ suggestion.text }}</span>
-            <span v-if="suggestion.action" class="suggestion-action">{{ suggestion.actionText }}</span>
+          <div class="flex items-center gap-3">
+            <span class="text-lg">{{ suggestion.icon }}</span>
+            <div class="text-left">
+              <div 
+                class="text-sm font-medium"
+                :class="{
+                  'text-red-800': suggestion.priority === 'high',
+                  'text-yellow-800': suggestion.priority === 'medium',
+                  'text-gray-800': suggestion.priority === 'low'
+                }"
+              >
+                {{ suggestion.text }}
+              </div>
+              <div v-if="suggestion.actionText" 
+                class="text-xs"
+                :class="{
+                  'text-red-600': suggestion.priority === 'high',
+                  'text-yellow-600': suggestion.priority === 'medium',
+                  'text-gray-600': suggestion.priority === 'low'
+                }"
+              >
+                {{ suggestion.actionText }}
+              </div>
+            </div>
           </div>
-          <span class="suggestion-arrow">→</span>
-        </div>
+          <span class="text-gray-400">→</span>
+        </button>
       </div>
     </div>
 
     <!-- Hotkeys Info -->
-    <div class="hotkeys-info">
-      <div class="hotkeys-title">⌨️ Scorciatoie</div>
-      <div class="hotkeys-list">
-        <div class="hotkey-item">
-          <kbd class="hotkey">Ctrl+2</kbd>
-          <span class="hotkey-desc">Produzione</span>
+    <div>
+      <div class="text-sm font-semibold text-gray-900 mb-3">⌨️ Scorciatoie</div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="flex items-center justify-between">
+          <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Ctrl+2</kbd>
+          <span class="text-xs text-gray-600">Produzione</span>
         </div>
-        <div class="hotkey-item">
-          <kbd class="hotkey">Ctrl+3</kbd>
-          <span class="hotkey-desc">Sales</span>
+        <div class="flex items-center justify-between">
+          <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Ctrl+3</kbd>
+          <span class="text-xs text-gray-600">Sales</span>
         </div>
-        <div class="hotkey-item">
-          <kbd class="hotkey">Ctrl+4</kbd>
-          <span class="hotkey-desc">HR</span>
+        <div class="flex items-center justify-between">
+          <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Ctrl+4</kbd>
+          <span class="text-xs text-gray-600">HR</span>
         </div>
-        <div class="hotkey-item">
-          <kbd class="hotkey">Ctrl+S</kbd>
-          <span class="hotkey-desc">Salva</span>
+        <div class="flex items-center justify-between">
+          <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-xs font-mono">Ctrl+S</kbd>
+          <span class="text-xs text-gray-600">Salva</span>
         </div>
       </div>
     </div>
-  </BaseCard>
+  </div>
 </template>
 
 <script setup>
@@ -242,245 +281,3 @@ const handleSuggestion = (suggestion) => {
   }
 }
 </script>
-
-<style scoped>
-.quick-actions-card {
-  @apply h-full;
-}
-
-/* Actions Grid */
-.actions-grid {
-  @apply grid grid-cols-1 gap-3 mb-6;
-}
-
-.action-item {
-  @apply transition-all duration-200;
-}
-
-.action-item--disabled {
-  @apply opacity-60;
-}
-
-.action-button {
-  @apply w-full flex items-center p-4 rounded-lg;
-  @apply bg-neutral-50 hover:bg-neutral-100 border border-neutral-200;
-  @apply transition-all duration-200 group;
-  @apply focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
-  @apply disabled:cursor-not-allowed disabled:hover:bg-neutral-50;
-}
-
-.action-button:hover:not(:disabled) {
-  @apply shadow-md transform -translate-y-0.5 border-brand-200;
-}
-
-.action-icon {
-  @apply text-2xl mr-3 flex-shrink-0;
-  @apply transition-transform duration-200 group-hover:scale-110;
-}
-
-.action-content {
-  @apply flex-1 text-left;
-}
-
-.action-title {
-  @apply font-semibold text-neutral-900 mb-1;
-}
-
-.action-description {
-  @apply text-sm text-neutral-600;
-}
-
-.action-badge {
-  @apply ml-2 px-2 py-1 bg-brand-100 text-brand-800;
-  @apply text-xs font-bold rounded-full;
-  @apply flex items-center justify-center min-w-[20px] h-5;
-}
-
-.action-badge--success {
-  @apply bg-success-100 text-success-800;
-}
-
-.action-badge--info {
-  @apply bg-blue-100 text-blue-800;
-}
-
-.badge-icon {
-  @apply font-bold;
-}
-
-.saving-spinner {
-  @apply text-brand-600;
-}
-
-/* Quick Stats */
-.quick-stats {
-  @apply grid grid-cols-2 gap-3 mb-6 p-4 bg-neutral-50 rounded-lg;
-}
-
-.quick-stat {
-  @apply flex items-center space-x-2;
-}
-
-.quick-stat-icon {
-  @apply text-lg;
-}
-
-.quick-stat-content {
-  @apply flex flex-col;
-}
-
-.quick-stat-label {
-  @apply text-xs text-neutral-600;
-}
-
-.quick-stat-value {
-  @apply text-lg font-bold text-neutral-900;
-}
-
-/* Suggestions */
-.suggestions-section {
-  @apply mb-6;
-}
-
-.suggestions-title {
-  @apply text-sm font-semibold text-neutral-700 mb-3;
-}
-
-.suggestions-list {
-  @apply space-y-2;
-}
-
-.suggestion-item {
-  @apply flex items-center p-3 rounded-lg cursor-pointer;
-  @apply transition-all duration-200 hover:shadow-sm;
-}
-
-.suggestion-item--high {
-  @apply bg-danger-50 text-danger-800 hover:bg-danger-100;
-}
-
-.suggestion-item--medium {
-  @apply bg-warning-50 text-warning-800 hover:bg-warning-100;
-}
-
-.suggestion-item--low {
-  @apply bg-blue-50 text-blue-800 hover:bg-blue-100;
-}
-
-.suggestion-icon {
-  @apply mr-2 flex-shrink-0;
-}
-
-.suggestion-content {
-  @apply flex-1;
-}
-
-.suggestion-text {
-  @apply text-sm block;
-}
-
-.suggestion-action {
-  @apply text-xs opacity-75 block mt-0.5;
-}
-
-.suggestion-arrow {
-  @apply ml-2 opacity-50 transition-transform duration-200;
-}
-
-.suggestion-item:hover .suggestion-arrow {
-  @apply transform translate-x-1;
-}
-
-/* Hotkeys */
-.hotkeys-info {
-  @apply border-t border-neutral-200 pt-4;
-}
-
-.hotkeys-title {
-  @apply text-sm font-semibold text-neutral-700 mb-3;
-}
-
-.hotkeys-list {
-  @apply grid grid-cols-2 gap-2;
-}
-
-.hotkey-item {
-  @apply flex items-center justify-between;
-}
-
-.hotkey {
-  @apply px-2 py-1 bg-neutral-200 text-neutral-700 rounded text-xs font-mono;
-}
-
-.hotkey-desc {
-  @apply text-xs text-neutral-600;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .actions-grid {
-    @apply gap-2;
-  }
-
-  .action-button {
-    @apply p-3;
-  }
-
-  .action-icon {
-    @apply text-xl mr-2;
-  }
-
-  .action-title {
-    @apply text-sm;
-  }
-
-  .action-description {
-    @apply text-xs;
-  }
-
-  .quick-stats {
-    @apply grid-cols-1 gap-2 p-3;
-  }
-
-  .hotkeys-list {
-    @apply grid-cols-1;
-  }
-}
-
-/* Animation for new suggestions */
-.suggestion-item {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Focus states */
-.action-button:focus {
-  @apply ring-2 ring-brand-500 ring-offset-2;
-}
-
-.suggestion-item:focus {
-  @apply outline-none ring-2 ring-offset-2;
-}
-
-.suggestion-item--high:focus {
-  @apply ring-danger-500;
-}
-
-.suggestion-item--medium:focus {
-  @apply ring-warning-500;
-}
-
-.suggestion-item--low:focus {
-  @apply ring-blue-500;
-}
-</style>

@@ -70,16 +70,16 @@ export default [
     },
 
     // // Game creation
-    // {
-    //     path: '/new-game',
-    //     name: 'NewGame',
-    //     component: () => import('@/views/game/NewGameView.vue'),
-    //     meta: {
-    //         title: 'Nuova Partita',
-    //         requiresAuth: true,
-    //         layout: 'LayoutDefault'
-    //     }
-    // },
+    {
+        path: '/new-game',
+        name: 'NewGame',
+        component: () => import('@/views/game/NewGameView.vue'),
+        meta: {
+            title: 'Nuova Partita',
+            requiresAuth: true,
+            layout: 'LayoutDefault'
+        }
+    },
 
     // Game statistics and history
     // {

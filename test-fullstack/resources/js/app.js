@@ -11,13 +11,7 @@ import LayoutDefault from './layouts/LayoutDefault.vue'
 import LayoutAuth from './layouts/LayoutAuth.vue'
 import LayoutGame from './layouts/LayoutGame.vue'
 
-// Global base components
-import BaseButton from './components/base/BaseButton.vue'
-import BaseCard from './components/base/BaseCard.vue'
-import BaseInput from './components/base/BaseInput.vue'
-import BaseModal from './components/base/BaseModal.vue'
-import BaseSpinner from './components/base/BaseSpinner.vue'
-
+const baseComponents = import.meta.glob('./components/base/Base*.vue', { eager: true })
 // Create Vue app
 const app = createApp(App)
 
@@ -26,13 +20,11 @@ app.component('LayoutDefault', LayoutDefault)
 app.component('LayoutAuth', LayoutAuth)
 app.component('LayoutGame', LayoutGame)
 
-// Register global base components
-app.component('BaseButton', BaseButton)
-app.component('BaseCard', BaseCard)
-app.component('BaseInput', BaseInput)
-app.component('BaseModal', BaseModal)
-app.component('BaseSpinner', BaseSpinner)
 
+for (const path in baseComponents) {
+  const component = baseComponents[path].default
+  app.component(component.name, component)
+}
 // Setup state management
 const pinia = createPinia()
 app.use(pinia)

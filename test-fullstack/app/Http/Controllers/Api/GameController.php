@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\CreateGameRequest;
-use App\Http\Requests\UpdateGameRequest;
-use App\Http\Requests\PauseGameRequest;
-use App\Http\Requests\ResumeGameRequest;
+use App\Http\Requests\game\CreateGameRequest;
+use App\Http\Requests\game\UpdateGameRequest;
+use App\Http\Requests\game\PauseGameRequest;
+use App\Http\Requests\game\ResumeGameRequest;
 use App\Http\Resources\GameResource;
 use App\Http\Resources\GameCollection;
 use App\Models\Game;
@@ -122,25 +122,20 @@ class GameController extends Controller
      *     )
      * )
      */
-    public function store(CreateGameRequest $request): JsonResponse
+
+    public function store(CreateGameRequest $request)
     {
-        $validatedData = $request->validatedWithDefaults();
+        // Usa il metodo helper che hai creato
+        $gameData = $request->validatedWithDefaults();
         
-        // Se è stato specificato initial_money, usa quello
-        if ($request->has('initial_money')) {
-            $validatedData['money'] = $request->validated()['initial_money'];
-        }
-
-        $game = Game::create($validatedData);
+        $game = Game::create($gameData);
         
-        // Inizializza con team di partenza
-        $game->initializeWithStartingTeam();
-
         return response()->json([
-            'data' => new GameResource($game->fresh()),
-            'message' => 'Partita creata con successo! Buona fortuna!',
-        ], Response::HTTP_CREATED);
-    }
+            'success' => true,
+            'game' => $game,
+            'message' => 'Partita creata con successo!'
+        ], 201);
+    }  
 
     /**
      * @OA\Get(

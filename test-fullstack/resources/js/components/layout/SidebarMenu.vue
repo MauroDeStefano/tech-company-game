@@ -1,29 +1,51 @@
 <template>
   <Teleport to="body">
-    <Transition name="sidebar">
+    <Transition
+      enter-active-class="transition-all duration-300"
+      leave-active-class="transition-all duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
       <div
         v-if="isOpen"
-        class="sidebar-overlay"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-start z-50"
         @click="$emit('close')"
       >
-        <div class="sidebar-menu" @click.stop>
-          <!-- Header -->
-          <div class="sidebar-header">
-            <h3 class="sidebar-title">Menu</h3>
-            <button
-              class="sidebar-close"
-              @click="$emit('close')"
-              aria-label="Chiudi menu"
-            >
-              ✕
-            </button>
-          </div>
+        <Transition
+          enter-active-class="transition-transform duration-300"
+          leave-active-class="transition-transform duration-300"
+          enter-from-class="-translate-x-full"
+          enter-to-class="translate-x-0"
+          leave-from-class="translate-x-0"
+          leave-to-class="-translate-x-full"
+        >
+          <div
+            v-if="isOpen"
+            class="bg-white w-80 h-full shadow-2xl overflow-y-auto"
+            @click.stop
+          >
+            <!-- Header -->
+            <div class="p-6 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h3 class="text-xl font-bold text-gray-900">Menu</h3>
+                <button
+                  @click="$emit('close')"
+                  class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                  aria-label="Chiudi menu"
+                >
+                  <span class="text-lg">✕</span>
+                </button>
+              </div>
+            </div>
 
-          <!-- Content -->
-          <div class="sidebar-content">
-            <p class="sidebar-placeholder">Menu content here</p>
+            <!-- Content -->
+            <div class="p-6">
+              <p class="text-gray-600 text-base">Menu content here</p>
+            </div>
           </div>
-        </div>
+        </Transition>
       </div>
     </Transition>
   </Teleport>
@@ -39,55 +61,3 @@ defineProps({
 
 defineEmits(['close'])
 </script>
-
-<style scoped>
-.sidebar-overlay {
-  @apply fixed inset-0 bg-black bg-opacity-50 z-50;
-}
-
-.sidebar-menu {
-  @apply absolute right-0 top-0 bottom-0 w-80 max-w-full;
-  @apply bg-white shadow-xl;
-}
-
-.sidebar-header {
-  @apply flex items-center justify-between p-4 border-b border-neutral-200;
-}
-
-.sidebar-title {
-  @apply text-lg font-semibold;
-}
-
-.sidebar-close {
-  @apply p-2 hover:bg-neutral-100 rounded;
-}
-
-.sidebar-content {
-  @apply p-4;
-}
-
-.sidebar-placeholder {
-  @apply text-neutral-600;
-}
-
-/* Transitions */
-.sidebar-enter-active,
-.sidebar-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.sidebar-enter-from,
-.sidebar-leave-to {
-  opacity: 0;
-}
-
-.sidebar-enter-active .sidebar-menu,
-.sidebar-leave-active .sidebar-menu {
-  transition: transform 0.3s ease;
-}
-
-.sidebar-enter-from .sidebar-menu,
-.sidebar-leave-to .sidebar-menu {
-  transform: translateX(100%);
-}
-</style>

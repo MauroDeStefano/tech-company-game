@@ -32,12 +32,13 @@ return new class extends Migration
             $table->boolean('is_market_hire')->default(false)->comment('Se è stato assunto dal mercato');
 
             // Costi e caratteristiche economiche
-            $table->decimal('monthly_cost', 8, 2)->default(2000.00)->comment('Costo mensile in euro');
+            $table->decimal('monthly_salary', 8, 2)->default(2000.00)->comment('Costo mensile in euro');
             $table->decimal('hiring_cost', 8, 2)->nullable()->comment('Costo di assunzione (se dal mercato)');
 
             // Statistiche e progressione
             $table->integer('projects_completed')->default(0)->comment('Progetti completati dal developer');
             $table->timestamp('last_project_completed_at')->nullable();
+            $table->timestamp('hire_date')->nullable();
 
             // Metadati aggiuntivi
             $table->json('metadata')->nullable()->comment('Dati aggiuntivi (specializzazioni, bonus, etc)');

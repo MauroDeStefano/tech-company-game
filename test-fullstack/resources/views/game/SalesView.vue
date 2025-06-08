@@ -1,360 +1,432 @@
 <template>
-  <div class="sales-view">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-white">
     <!-- Page Header -->
-    <div class="sales-header">
-      <div class="header-content">
-        <h1 class="page-title">
-          <span class="title-icon">💼</span>
-          Sales
-        </h1>
-        <p class="page-subtitle">
-          Gestisci commerciali e acquisizione clienti
-        </p>
-      </div>
+    <div class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex-1">
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">
+              <span class="text-2xl mr-2">💼</span>
+              Sales
+            </h1>
+            <p class="text-lg text-gray-600 mt-1">
+              Gestisci commerciali e acquisizione clienti
+            </p>
+          </div>
 
-      <div class="header-stats">
-        <div class="stat-item">
-          <span class="stat-icon">👨‍💼</span>
-          <div class="stat-content">
-            <span class="stat-value">{{ availableSales }}</span>
-            <span class="stat-label">Disponibili</span>
-          </div>
-        </div>
-        <div class="stat-item">
-          <span class="stat-icon">⏳</span>
-          <div class="stat-content">
-            <span class="stat-value">{{ activeGenerations }}</span>
-            <span class="stat-label">Generazioni</span>
-          </div>
-        </div>
-        <div class="stat-item">
-          <span class="stat-icon">💰</span>
-          <div class="stat-content">
-            <span class="stat-value">{{ formatCurrency(totalValueGenerated) }}</span>
-            <span class="stat-label">Valore Totale</span>
+          <div class="flex flex-wrap gap-4">
+            <div class="bg-blue-50 rounded-xl p-4 border border-blue-100">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">👨‍💼</span>
+                <div>
+                  <div class="text-2xl font-bold text-blue-600">{{ availableSales }}</div>
+                  <div class="text-sm text-blue-700 font-medium">Disponibili</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-orange-50 rounded-xl p-4 border border-orange-100">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">⏳</span>
+                <div>
+                  <div class="text-2xl font-bold text-orange-600">{{ activeGenerations }}</div>
+                  <div class="text-sm text-orange-700 font-medium">Generazioni</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-green-50 rounded-xl p-4 border border-green-100">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">💰</span>
+                <div>
+                  <div class="text-2xl font-bold text-green-600">{{ formatCurrency(totalValueGenerated) }}</div>
+                  <div class="text-sm text-green-700 font-medium">Valore Totale</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Main Content Grid -->
-    <div class="sales-grid">
-      <!-- Sales People Section -->
-      <section class="sales-section sales-people-section">
-        <BaseCard
-          title="Commerciali"
-          icon="👨‍💼"
-          :loading="loading.salesPeople"
-        >
-          <template #actions>
-            <BaseButton
-              variant="ghost"
-              size="sm"
-              icon="🔄"
-              @click="refreshSalesPeople"
-              :disabled="loading.salesPeople"
-            >
-              Aggiorna
-            </BaseButton>
-          </template>
-
-          <div v-if="salesPeople.length === 0" class="empty-state">
-            <div class="empty-icon">👨‍💼</div>
-            <h3 class="empty-title">Nessun commerciale</h3>
-            <p class="empty-description">
-              Vai alla sezione HR per assumere il tuo primo commerciale
-            </p>
-            <BaseButton variant="primary" @click="goToHR">
-              Assumi Commerciali
-            </BaseButton>
-          </div>
-
-          <div v-else class="sales-people-list">
-            <div
-              v-for="salesPerson in salesPeople"
-              :key="salesPerson.id"
-              class="sales-person-card"
-              :class="{
-                'sales-person-card--busy': salesPerson.status.is_busy,
-                'sales-person-card--available': salesPerson.status.is_available
-              }"
-            >
-              <div class="sales-person-header">
-                <div class="sales-person-info">
-                  <h3 class="sales-person-name">{{ salesPerson.name }}</h3>
-                  <div class="sales-person-experience">
-                    <span class="experience-stars">{{ salesPerson.experience.stars }}</span>
-                    <span class="experience-name">{{ salesPerson.experience.name }}</span>
-                  </div>
-                </div>
-                <StatusBadge
-                  :status="salesPerson.status.is_busy ? 'busy' : 'available'"
-                  size="sm"
-                />
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Sales People Section -->
+        <section class="space-y-6">
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">👨‍💼</span>
+                <h2 class="text-xl font-bold text-gray-900">Commerciali</h2>
               </div>
+              <button
+                @click="refreshSalesPeople"
+                :disabled="loading.salesPeople"
+                class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex items-center gap-2"
+              >
+                <span class="text-lg">🔄</span>
+                Aggiorna
+              </button>
+            </div>
 
-              <div class="sales-person-details">
-                <div class="detail-item">
-                  <span class="detail-label">Specializzazione:</span>
-                  <span class="detail-value">{{ salesPerson.specialization.name || 'Generica' }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Stipendio:</span>
-                  <span class="detail-value">{{ salesPerson.salary.formatted }}/mese</span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Progetti generati:</span>
-                  <span class="detail-value">{{ salesPerson.statistics.projects_generated }}</span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Valore totale:</span>
-                  <span class="detail-value">{{ formatCurrency(salesPerson.statistics.total_value_generated) }}</span>
-                </div>
+            <div v-if="loading.salesPeople" class="flex items-center justify-center py-12">
+              <div class="flex items-center gap-3">
+                <svg class="animate-spin w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-600">Caricamento...</span>
               </div>
+            </div>
 
-              <!-- Generation Capabilities -->
-              <div class="generation-capabilities">
-                <h4 class="capabilities-title">Capacità di Generazione:</h4>
-                <div class="capabilities-grid">
-                  <div class="capability-item">
-                    <span class="capability-label">Tempo stimato:</span>
-                    <span class="capability-value">{{ salesPerson.generation_capabilities.estimated_generation_time }} min</span>
-                  </div>
-                  <div class="capability-item">
-                    <span class="capability-label">Valore stimato:</span>
-                    <span class="capability-value">{{ formatCurrency(salesPerson.generation_capabilities.estimated_project_value) }}</span>
-                  </div>
-                </div>
-              </div>
+            <div v-else-if="salesPeople.length === 0" class="text-center py-12">
+              <div class="text-6xl mb-4">👨‍💼</div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Nessun commerciale</h3>
+              <p class="text-gray-600 mb-6">
+                Vai alla sezione HR per assumere il tuo primo commerciale
+              </p>
+              <button
+                @click="goToHR"
+                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors duration-200"
+              >
+                Assumi Commerciali
+              </button>
+            </div>
 
-              <!-- Current Generation (if any) -->
-              <div v-if="salesPerson.current_generation" class="current-generation">
-                <h4 class="current-generation-title">Generazione in Corso:</h4>
-                <div class="generation-info">
-                  <div class="generation-details">
-                    <div class="detail-item">
-                      <span class="detail-label">Valore stimato:</span>
-                      <span class="detail-value">{{ formatCurrency(salesPerson.current_generation.estimated_value.amount) }}</span>
+            <div v-else class="space-y-6">
+              <div
+                v-for="salesPerson in salesPeople"
+                :key="salesPerson.id"
+                class="bg-gray-50 rounded-xl p-6 border border-gray-200 transition-all duration-200"
+                :class="{
+                  'bg-orange-50 border-orange-200': salesPerson.status.is_busy,
+                  'bg-green-50 border-green-200': salesPerson.status.is_available
+                }"
+              >
+                <div class="flex items-start justify-between mb-4">
+                  <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900">{{ salesPerson.name }}</h3>
+                    <div class="flex items-center gap-2 mt-1">
+                      <span class="text-yellow-500">{{ salesPerson.experience.stars }}</span>
+                      <span class="text-sm text-gray-600">{{ salesPerson.experience.name }}</span>
                     </div>
                   </div>
-                  <div class="generation-progress">
-                    <div class="progress-header">
-                      <span class="progress-label">Progresso</span>
-                      <span class="progress-percentage">
-                        {{ Math.round(salesPerson.current_generation.timing.current_progress) }}%
-                      </span>
-                    </div>
-                    <div class="progress-bar">
-                      <div
-                        class="progress-fill progress-fill--sales"
-                        :style="{ width: `${salesPerson.current_generation.timing.current_progress}%` }"
-                      ></div>
-                    </div>
-                    <div class="progress-time">
-                      <span v-if="salesPerson.current_generation.timing.is_ready_for_completion" class="completion-ready">
-                        ✅ Generazione completata
-                      </span>
-                      <span v-else class="time-remaining">
-                        ⏱️ {{ salesPerson.current_generation.timing.time_remaining_formatted }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div v-if="salesPerson.current_generation.timing.is_ready_for_completion" class="generation-actions">
-                    <BaseButton
-                      variant="success"
-                      size="sm"
-                      :disabled="completingGeneration === salesPerson.current_generation.id"
-                      @click="completeGeneration(salesPerson.current_generation)"
-                    >
-                      <span v-if="completingGeneration === salesPerson.current_generation.id">Completando...</span>
-                      <span v-else>✅ Completa Generazione</span>
-                    </BaseButton>
+                  <div class="px-3 py-1 rounded-lg text-sm font-medium"
+                       :class="{
+                         'bg-orange-100 text-orange-700': salesPerson.status.is_busy,
+                         'bg-green-100 text-green-700': salesPerson.status.is_available
+                       }">
+                    {{ salesPerson.status.is_busy ? 'Occupato' : 'Disponibile' }}
                   </div>
                 </div>
-              </div>
 
-              <!-- Actions -->
-              <div class="sales-person-actions">
-                <BaseButton
-                  v-if="!salesPerson.status.is_busy"
-                  variant="primary"
-                  size="sm"
-                  :disabled="generatingProject === salesPerson.id"
-                  @click="startGeneration(salesPerson)"
-                >
-                  <span v-if="generatingProject === salesPerson.id">Avviando...</span>
-                  <span v-else>🚀 Genera Progetto</span>
-                </BaseButton>
-                <BaseButton
-                  v-else
-                  variant="outline"
-                  size="sm"
-                  @click="openCancelModal(salesPerson)"
-                >
-                  Annulla Generazione
-                </BaseButton>
-              </div>
-            </div>
-          </div>
-        </BaseCard>
-      </section>
-
-      <!-- Generated Projects Section -->
-      <section class="sales-section generated-projects-section">
-        <BaseCard
-          title="Progetti Generati Recentemente"
-          icon="📋"
-          :loading="loading.projects"
-        >
-          <template #actions>
-            <BaseButton
-              variant="ghost"
-              size="sm"
-              icon="🔄"
-              @click="refreshGeneratedProjects"
-              :disabled="loading.projects"
-            >
-              Aggiorna
-            </BaseButton>
-          </template>
-
-          <div v-if="recentProjects.length === 0" class="empty-state">
-            <div class="empty-icon">📋</div>
-            <h3 class="empty-title">Nessun progetto generato</h3>
-            <p class="empty-description">
-              I commerciali non hanno ancora generato progetti
-            </p>
-          </div>
-
-          <div v-else class="generated-projects-list">
-            <div
-              v-for="project in recentProjects"
-              :key="project.id"
-              class="generated-project-card"
-              :class="{
-                'generated-project-card--pending': project.status.code === 'pending',
-                'generated-project-card--assigned': project.status.code === 'in_progress',
-                'generated-project-card--completed': project.status.code === 'completed'
-              }"
-            >
-              <div class="project-header">
-                <div class="project-info">
-                  <h3 class="project-name">{{ project.name }}</h3>
-                  <div class="project-meta">
-                    <span class="project-complexity">{{ project.complexity.stars }} {{ project.complexity.name }}</span>
-                    <StatusBadge :status="project.status.code" size="sm" />
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <span class="text-sm text-gray-500">Specializzazione:</span>
+                    <div class="font-medium text-gray-900">{{ salesPerson.specialization.name || 'Generica' }}</div>
+                  </div>
+                  <div>
+                    <span class="text-sm text-gray-500">Stipendio:</span>
+                    <div class="font-medium text-gray-900">{{ salesPerson.salary.formatted }}/mese</div>
+                  </div>
+                  <div>
+                    <span class="text-sm text-gray-500">Progetti generati:</span>
+                    <div class="font-medium text-gray-900">{{ salesPerson.statistics.projects_generated }}</div>
+                  </div>
+                  <div>
+                    <span class="text-sm text-gray-500">Valore totale:</span>
+                    <div class="font-medium text-gray-900">{{ formatCurrency(salesPerson.statistics.total_value_generated) }}</div>
                   </div>
                 </div>
-                <div class="project-value">
-                  {{ project.value.formatted }}
-                </div>
-              </div>
 
-              <div class="project-details">
-                <div class="detail-item">
-                  <span class="detail-label">Generato da:</span>
-                  <span class="detail-value">{{ project.created_by_sales_person?.name || 'N/A' }}</span>
+                <!-- Generation Capabilities -->
+                <div class="bg-white rounded-lg p-4 mb-4">
+                  <h4 class="font-semibold text-gray-900 mb-3">Capacità di Generazione:</h4>
+                  <div class="grid grid-cols-2 gap-4">
+                    <div>
+                      <span class="text-sm text-gray-500">Tempo stimato:</span>
+                      <div class="font-medium text-gray-900">{{ salesPerson.generation_capabilities.estimated_generation_time }} min</div>
+                    </div>
+                    <div>
+                      <span class="text-sm text-gray-500">Valore stimato:</span>
+                      <div class="font-medium text-gray-900">{{ formatCurrency(salesPerson.generation_capabilities.estimated_project_value) }}</div>
+                    </div>
+                  </div>
                 </div>
-                <div class="detail-item">
-                  <span class="detail-label">Data generazione:</span>
-                  <span class="detail-value">{{ formatDate(project.created_at) }}</span>
-                </div>
-                <div v-if="project.assignment?.developer" class="detail-item">
-                  <span class="detail-label">Assegnato a:</span>
-                  <span class="detail-value">{{ project.assignment.developer.name }}</span>
-                </div>
-                <div v-if="project.timing?.current_progress > 0" class="detail-item">
-                  <span class="detail-label">Progresso:</span>
-                  <span class="detail-value">{{ Math.round(project.timing.current_progress) }}%</span>
-                </div>
-              </div>
 
-              <div v-if="project.status.code === 'pending'" class="project-actions">
-                <BaseButton
-                  variant="primary"
-                  size="sm"
-                  @click="goToProduction"
-                >
-                  Assegna Sviluppatore
-                </BaseButton>
+                <!-- Current Generation (if any) -->
+                <div v-if="salesPerson.current_generation" class="bg-blue-50 rounded-lg p-4 mb-4">
+                  <h4 class="font-semibold text-blue-900 mb-3">Generazione in Corso:</h4>
+                  <div class="space-y-3">
+                    <div>
+                      <span class="text-sm text-blue-600">Valore stimato:</span>
+                      <div class="font-medium text-blue-900">{{ formatCurrency(salesPerson.current_generation.estimated_value.amount) }}</div>
+                    </div>
+                    
+                    <div>
+                      <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-blue-600">Progresso</span>
+                        <span class="text-sm font-medium text-blue-900">
+                          {{ Math.round(salesPerson.current_generation.timing.current_progress) }}%
+                        </span>
+                      </div>
+                      <div class="w-full bg-blue-200 rounded-full h-2">
+                        <div
+                          class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                          :style="{ width: `${salesPerson.current_generation.timing.current_progress}%` }"
+                        ></div>
+                      </div>
+                      <div class="mt-2">
+                        <span v-if="salesPerson.current_generation.timing.is_ready_for_completion" class="text-green-600 text-sm font-medium">
+                          ✅ Generazione completata
+                        </span>
+                        <span v-else class="text-blue-600 text-sm">
+                          ⏱️ {{ salesPerson.current_generation.timing.time_remaining_formatted }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div v-if="salesPerson.current_generation.timing.is_ready_for_completion">
+                      <button
+                        @click="completeGeneration(salesPerson.current_generation)"
+                        :disabled="completingGeneration === salesPerson.current_generation.id"
+                        class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors duration-200"
+                      >
+                        <span v-if="completingGeneration === salesPerson.current_generation.id">Completando...</span>
+                        <span v-else>✅ Completa Generazione</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3">
+                  <button
+                    v-if="!salesPerson.status.is_busy"
+                    @click="startGeneration(salesPerson)"
+                    :disabled="generatingProject === salesPerson.id"
+                    class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors duration-200"
+                  >
+                    <span v-if="generatingProject === salesPerson.id">Avviando...</span>
+                    <span v-else>🚀 Genera Progetto</span>
+                  </button>
+                  <button
+                    v-else
+                    @click="openCancelModal(salesPerson)"
+                    class="flex-1 px-4 py-2 border border-red-300 hover:border-red-400 hover:bg-red-50 text-red-700 font-semibold rounded-lg transition-colors duration-200"
+                  >
+                    Annulla Generazione
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </BaseCard>
+        </section>
 
-        <!-- Sales Statistics -->
-        <BaseCard
-          title="Statistiche Sales"
-          icon="📊"
-          class="mt-6"
-        >
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-icon">📈</span>
-                <span class="stat-label">Conversione Media</span>
+        <!-- Generated Projects Section -->
+        <section class="space-y-6">
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center gap-3">
+                <span class="text-2xl">📋</span>
+                <h2 class="text-xl font-bold text-gray-900">Progetti Generati Recentemente</h2>
               </div>
-              <div class="stat-value">{{ averageConversionRate }}%</div>
-              <div class="stat-description">Progetti completati / generati</div>
+              <button
+                @click="refreshGeneratedProjects"
+                :disabled="loading.projects"
+                class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors duration-200 flex items-center gap-2"
+              >
+                <span class="text-lg">🔄</span>
+                Aggiorna
+              </button>
             </div>
 
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-icon">💰</span>
-                <span class="stat-label">Valore Medio Progetto</span>
+            <div v-if="loading.projects" class="flex items-center justify-center py-12">
+              <div class="flex items-center gap-3">
+                <svg class="animate-spin w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-600">Caricamento...</span>
               </div>
-              <div class="stat-value">{{ formatCurrency(averageProjectValue) }}</div>
-              <div class="stat-description">Media ultimi 10 progetti</div>
             </div>
 
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-icon">⚡</span>
-                <span class="stat-label">Efficienza Team</span>
-              </div>
-              <div class="stat-value">{{ teamEfficiencyRating }}</div>
-              <div class="stat-description">{{ teamEfficiencyDescription }}</div>
+            <div v-else-if="recentProjects.length === 0" class="text-center py-12">
+              <div class="text-6xl mb-4">📋</div>
+              <h3 class="text-xl font-bold text-gray-900 mb-2">Nessun progetto generato</h3>
+              <p class="text-gray-600">
+                I commerciali non hanno ancora generato progetti
+              </p>
             </div>
 
-            <div class="stat-card">
-              <div class="stat-header">
-                <span class="stat-icon">🎯</span>
-                <span class="stat-label">Progetti Questo Mese</span>
+            <div v-else class="space-y-4">
+              <div
+                v-for="project in recentProjects"
+                :key="project.id"
+                class="bg-gray-50 rounded-xl p-4 border border-gray-200 transition-all duration-200"
+                :class="{
+                  'bg-yellow-50 border-yellow-200': project.status.code === 'pending',
+                  'bg-blue-50 border-blue-200': project.status.code === 'in_progress',
+                  'bg-green-50 border-green-200': project.status.code === 'completed'
+                }"
+              >
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex-1">
+                    <h3 class="font-bold text-gray-900">{{ project.name }}</h3>
+                    <div class="flex items-center gap-3 mt-1">
+                      <span class="text-yellow-500 text-sm">{{ project.complexity.stars }} {{ project.complexity.name }}</span>
+                      <div class="px-2 py-1 rounded-lg text-xs font-medium"
+                           :class="{
+                             'bg-yellow-100 text-yellow-700': project.status.code === 'pending',
+                             'bg-blue-100 text-blue-700': project.status.code === 'in_progress',
+                             'bg-green-100 text-green-700': project.status.code === 'completed'
+                           }">
+                        {{ project.status.code === 'pending' ? 'In attesa' : 
+                           project.status.code === 'in_progress' ? 'In corso' : 'Completato' }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-lg font-bold text-gray-900">
+                    {{ project.value.formatted }}
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span class="text-gray-500">Generato da:</span>
+                    <div class="font-medium text-gray-900">{{ project.created_by_sales_person?.name || 'N/A' }}</div>
+                  </div>
+                  <div>
+                    <span class="text-gray-500">Data generazione:</span>
+                    <div class="font-medium text-gray-900">{{ formatDate(project.created_at) }}</div>
+                  </div>
+                  <div v-if="project.assignment?.developer">
+                    <span class="text-gray-500">Assegnato a:</span>
+                    <div class="font-medium text-gray-900">{{ project.assignment.developer.name }}</div>
+                  </div>
+                  <div v-if="project.timing?.current_progress > 0">
+                    <span class="text-gray-500">Progresso:</span>
+                    <div class="font-medium text-gray-900">{{ Math.round(project.timing.current_progress) }}%</div>
+                  </div>
+                </div>
+
+                <div v-if="project.status.code === 'pending'" class="mt-4">
+                  <button
+                    @click="goToProduction"
+                    class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors duration-200"
+                  >
+                    Assegna Sviluppatore
+                  </button>
+                </div>
               </div>
-              <div class="stat-value">{{ projectsThisMonth }}</div>
-              <div class="stat-description">{{ projectsThisMonthTrend }}</div>
             </div>
           </div>
-        </BaseCard>
-      </section>
+
+          <!-- Sales Statistics -->
+          <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <div class="flex items-center gap-3 mb-6">
+              <span class="text-2xl">📊</span>
+              <h2 class="text-xl font-bold text-gray-900">Statistiche Sales</h2>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-4 border border-blue-200">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-xl">📈</span>
+                  <span class="text-sm font-medium text-blue-700">Conversione Media</span>
+                </div>
+                <div class="text-2xl font-bold text-blue-900">{{ averageConversionRate }}%</div>
+                <div class="text-xs text-blue-600">Progetti completati / generati</div>
+              </div>
+
+              <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-xl">💰</span>
+                  <span class="text-sm font-medium text-green-700">Valore Medio Progetto</span>
+                </div>
+                <div class="text-2xl font-bold text-green-900">{{ formatCurrency(averageProjectValue) }}</div>
+                <div class="text-xs text-green-600">Media ultimi 10 progetti</div>
+              </div>
+
+              <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-xl">⚡</span>
+                  <span class="text-sm font-medium text-purple-700">Efficienza Team</span>
+                </div>
+                <div class="text-2xl font-bold text-purple-900">{{ teamEfficiencyRating }}</div>
+                <div class="text-xs text-purple-600">{{ teamEfficiencyDescription }}</div>
+              </div>
+
+              <div class="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-4 border border-orange-200">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="text-xl">🎯</span>
+                  <span class="text-sm font-medium text-orange-700">Progetti Questo Mese</span>
+                </div>
+                <div class="text-2xl font-bold text-orange-900">{{ projectsThisMonth }}</div>
+                <div class="text-xs text-orange-600">{{ projectsThisMonthTrend }}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
 
     <!-- Cancel Generation Modal -->
-    <BaseModal
-      v-model:is-open="modals.cancel"
-      title="Annulla Generazione"
-      icon="⚠️"
-      variant="warning"
+    <div
+      v-if="modals.cancel"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      @click="closeCancelModal"
     >
-      <div v-if="selectedSalesPerson">
-        <p class="cancel-message">
-          Sei sicuro di voler annullare la generazione in corso di <strong>{{ selectedSalesPerson.name }}</strong>?
-        </p>
-        <p class="cancel-warning">
-          Il progresso della generazione andrà perso e il commerciale tornerà disponibile.
-        </p>
-      </div>
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+        @click.stop
+      >
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="text-2xl">⚠️</span>
+              <h3 class="text-xl font-bold text-gray-900">Annulla Generazione</h3>
+            </div>
+            <button
+              @click="closeCancelModal"
+              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+            >
+              <span class="text-lg">✕</span>
+            </button>
+          </div>
+        </div>
 
-      <template #footer>
-        <BaseButton variant="secondary" @click="closeCancelModal">
-          Mantieni Generazione
-        </BaseButton>
-        <BaseButton variant="warning" @click="cancelGeneration">
-          Annulla Generazione
-        </BaseButton>
-      </template>
-    </BaseModal>
+        <!-- Modal Body -->
+        <div class="p-6">
+          <div v-if="selectedSalesPerson">
+            <p class="text-gray-700 mb-4">
+              Sei sicuro di voler annullare la generazione in corso di <strong>{{ selectedSalesPerson.name }}</strong>?
+            </p>
+            <p class="text-amber-600 font-medium">
+              Il progresso della generazione andrà perso e il commerciale tornerà disponibile.
+            </p>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-6 border-t border-gray-200 flex items-center gap-3">
+          <button
+            @click="closeCancelModal"
+            class="flex-1 px-4 py-3 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-colors duration-200"
+          >
+            Mantieni Generazione
+          </button>
+          <button
+            @click="cancelGeneration"
+            class="flex-1 px-4 py-3 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl transition-colors duration-200"
+          >
+            Annulla Generazione
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -365,7 +437,6 @@ import { useGameStore } from '@/js/stores/game'
 import { useNotificationStore } from '@/js/stores/notifications'
 import api from '@/js/services/api'
 import { formatCurrency, formatDate } from '@/js/utils/helpers'
-import StatusBadge from '@/js/components/shared/StatusBadge.vue'
 
 // Stores
 const gameStore = useGameStore()
@@ -480,7 +551,6 @@ const fetchSalesPeople = async () => {
 const fetchGeneratedProjects = async () => {
   loading.value.projects = true
   try {
-    // Fetch recent projects (assuming there's an endpoint for this)
     const response = await api.get(`/games/${gameStore.currentGame.id}/projects`, {
       params: {
         limit: 20,
@@ -512,7 +582,6 @@ const startGeneration = async (salesPerson) => {
 
     notificationStore.success(`${salesPerson.name} ha iniziato a generare un nuovo progetto!`)
 
-    // Refresh data
     await fetchSalesPeople()
   } catch (error) {
     notificationStore.error('Errore nell\'avvio della generazione')
@@ -529,10 +598,7 @@ const completeGeneration = async (generation) => {
 
     notificationStore.success(`Nuovo progetto generato! Valore: ${formatCurrency(generation.estimated_value.amount)}`)
 
-    // Refresh data
     await Promise.all([fetchSalesPeople(), fetchGeneratedProjects()])
-
-    // Update game state
     await gameStore.refreshGameState()
   } catch (error) {
     if (error.response?.status === 400) {
@@ -565,7 +631,6 @@ const cancelGeneration = async () => {
     notificationStore.success('Generazione annullata')
     closeCancelModal()
 
-    // Refresh data
     await fetchSalesPeople()
   } catch (error) {
     notificationStore.error('Errore nell\'annullamento della generazione')
@@ -601,464 +666,3 @@ onUnmounted(() => {
   }
 })
 </script>
-
-<style scoped>
-.sales-view {
-  @apply min-h-full;
-}
-
-/* Page Header */
-.sales-header {
-  @apply flex flex-col lg:flex-row lg:items-center lg:justify-between;
-  @apply mb-6 lg:mb-8;
-}
-
-.header-content {
-  @apply mb-4 lg:mb-0;
-}
-
-.page-title {
-  @apply text-2xl lg:text-3xl font-bold text-neutral-900;
-  @apply flex items-center;
-}
-
-.title-icon {
-  @apply text-3xl lg:text-4xl mr-3;
-}
-
-.page-subtitle {
-  @apply text-neutral-600 mt-1;
-}
-
-.header-stats {
-  @apply flex space-x-4;
-}
-
-.stat-item {
-  @apply flex items-center space-x-2 bg-white rounded-lg px-3 py-2;
-  @apply border border-neutral-200;
-}
-
-.stat-icon {
-  @apply text-lg;
-}
-
-.stat-content {
-  @apply flex flex-col;
-}
-
-.stat-value {
-  @apply text-lg font-bold text-neutral-900;
-}
-
-.stat-label {
-  @apply text-xs text-neutral-500;
-}
-
-/* Sales Grid */
-.sales-grid {
-  @apply grid gap-6;
-  @apply grid-cols-1 xl:grid-cols-12;
-}
-
-.sales-people-section {
-  @apply xl:col-span-7;
-}
-
-.generated-projects-section {
-  @apply xl:col-span-5;
-}
-
-/* Sales People List */
-.sales-people-list {
-  @apply space-y-4;
-}
-
-.sales-person-card {
-  @apply bg-neutral-50 rounded-lg p-4 border;
-  @apply transition-all duration-200;
-}
-
-.sales-person-card--available {
-  @apply border-success-200 bg-success-50;
-}
-
-.sales-person-card--busy {
-  @apply border-warning-200 bg-warning-50;
-}
-
-.sales-person-header {
-  @apply flex items-start justify-between mb-3;
-}
-
-.sales-person-info {
-  @apply flex-1;
-}
-
-.sales-person-name {
-  @apply font-semibold text-neutral-900 mb-1;
-}
-
-.sales-person-experience {
-  @apply flex items-center space-x-2;
-}
-
-.experience-stars {
-  @apply text-blue-500;
-}
-
-.experience-name {
-  @apply text-sm text-neutral-600;
-}
-
-.sales-person-details {
-  @apply space-y-1 mb-3;
-}
-
-.detail-item {
-  @apply flex justify-between text-sm;
-}
-
-.detail-label {
-  @apply text-neutral-600;
-}
-
-.detail-value {
-  @apply text-neutral-900 font-medium;
-}
-
-.generation-capabilities {
-  @apply bg-white rounded-md p-3 border border-neutral-200 mb-3;
-}
-
-.capabilities-title {
-  @apply text-sm font-medium text-neutral-700 mb-2;
-}
-
-.capabilities-grid {
-  @apply grid grid-cols-2 gap-2;
-}
-
-.capability-item {
-  @apply flex flex-col;
-}
-
-.capability-label {
-  @apply text-xs text-neutral-600;
-}
-
-.capability-value {
-  @apply text-sm font-medium text-neutral-900;
-}
-
-.current-generation {
-  @apply bg-blue-50 rounded-md p-3 border border-blue-200 mb-3;
-}
-
-.current-generation-title {
-  @apply text-sm font-medium text-blue-700 mb-2;
-}
-
-.generation-info {
-  @apply space-y-3;
-}
-
-.generation-details {
-  @apply space-y-1;
-}
-
-.generation-progress {
-  @apply space-y-2;
-}
-
-.progress-header {
-  @apply flex items-center justify-between;
-}
-
-.progress-label {
-  @apply text-sm font-medium text-neutral-700;
-}
-
-.progress-percentage {
-  @apply text-sm font-bold text-blue-600;
-}
-
-.progress-bar {
-  @apply w-full h-2 bg-neutral-200 rounded-full overflow-hidden;
-}
-
-.progress-fill {
-  @apply h-full transition-all duration-500 ease-out;
-}
-
-.progress-fill--sales {
-  @apply bg-blue-500;
-}
-
-.progress-time {
-  @apply text-sm;
-}
-
-.completion-ready {
-  @apply text-success-600 font-medium;
-}
-
-.time-remaining {
-  @apply text-neutral-600;
-}
-
-.generation-actions {
-  @apply mt-2;
-}
-
-.sales-person-actions {
-  @apply flex space-x-2;
-}
-
-/* Generated Projects List */
-.generated-projects-list {
-  @apply space-y-4;
-}
-
-.generated-project-card {
-  @apply bg-white rounded-lg p-4 border;
-  @apply transition-all duration-200;
-}
-
-.generated-project-card--pending {
-  @apply border-neutral-200 hover:border-brand-300;
-}
-
-.generated-project-card--assigned {
-  @apply border-blue-200 bg-blue-50;
-}
-
-.generated-project-card--completed {
-  @apply border-success-200 bg-success-50;
-}
-
-.project-header {
-  @apply flex items-start justify-between mb-3;
-}
-
-.project-info {
-  @apply flex-1;
-}
-
-.project-name {
-  @apply font-semibold text-neutral-900 mb-1;
-}
-
-.project-meta {
-  @apply flex items-center space-x-2;
-}
-
-.project-complexity {
-  @apply text-sm text-neutral-600;
-}
-
-.project-value {
-  @apply text-lg font-bold text-success-600;
-}
-
-.project-details {
-  @apply space-y-1 mb-3;
-}
-
-.project-actions {
-  @apply flex space-x-2;
-}
-
-/* Statistics Grid */
-.stats-grid {
-  @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
-}
-
-.stat-card {
-  @apply bg-neutral-50 rounded-lg p-4 border border-neutral-200;
-}
-
-.stat-header {
-  @apply flex items-center mb-2;
-}
-
-.stat-card .stat-icon {
-  @apply text-lg mr-2;
-}
-
-.stat-card .stat-label {
-  @apply text-sm font-medium text-neutral-600;
-}
-
-.stat-card .stat-value {
-  @apply text-xl font-bold text-neutral-900 mb-1;
-}
-
-.stat-description {
-  @apply text-xs text-neutral-500;
-}
-
-/* Empty States */
-.empty-state {
-  @apply text-center py-8;
-}
-
-.empty-icon {
-  @apply text-4xl mb-4;
-}
-
-.empty-title {
-  @apply text-lg font-semibold text-neutral-900 mb-2;
-}
-
-.empty-description {
-  @apply text-neutral-600 mb-4;
-}
-
-/* Modal Content */
-.cancel-message {
-  @apply mb-3;
-}
-
-.cancel-warning {
-  @apply text-sm text-warning-600 bg-warning-50 rounded p-3;
-}
-
-/* Responsive */
-@media (max-width: 1279px) {
-  .sales-grid {
-    @apply grid-cols-1 gap-4;
-  }
-}
-
-@media (max-width: 640px) {
-  .sales-header {
-    @apply mb-4;
-  }
-
-  .page-title {
-    @apply text-xl;
-  }
-
-  .title-icon {
-    @apply text-2xl mr-2;
-  }
-
-  .header-stats {
-    @apply grid grid-cols-3 gap-2;
-  }
-
-  .stat-item {
-    @apply px-2 py-1;
-  }
-
-  .stat-value {
-    @apply text-base;
-  }
-
-  .sales-people-list,
-  .generated-projects-list {
-    @apply space-y-3;
-  }
-
-  .sales-person-card,
-  .generated-project-card {
-    @apply p-3;
-  }
-
-  .capabilities-grid {
-    @apply grid-cols-1 gap-1;
-  }
-
-  .stats-grid {
-    @apply grid-cols-1 gap-3;
-  }
-
-  .sales-person-actions,
-  .project-actions {
-    @apply flex-col space-y-2 space-x-0;
-  }
-}
-
-/* Animations */
-.sales-person-card,
-.generated-project-card {
-  animation: fadeInUp 0.3s ease-out;
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.progress-fill--sales {
-  animation: progressGrow 1s ease-out;
-}
-
-@keyframes progressGrow {
-  from {
-    width: 0%;
-  }
-}
-
-/* Hover effects */
-.generated-project-card:hover {
-  @apply shadow-md transform -translate-y-0.5;
-}
-
-.stat-card:hover {
-  @apply shadow-sm;
-}
-
-/* Loading states */
-.loading .sales-person-card,
-.loading .generated-project-card,
-.loading .stat-card {
-  @apply animate-pulse;
-}
-
-/* Focus states */
-.sales-person-card:focus-within,
-.generated-project-card:focus-within {
-  @apply ring-2 ring-brand-500 ring-offset-2;
-}
-
-/* Status-specific styling */
-.sales-person-card--available .sales-person-actions button {
-  @apply shadow-md hover:shadow-lg;
-}
-
-.sales-person-card--busy .current-generation {
-  animation: pulseGlow 2s ease-in-out infinite;
-}
-
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(59, 130, 246, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-  }
-}
-
-/* Accessibility improvements */
-.sales-person-card[role="button"]:focus,
-.generated-project-card[role="button"]:focus {
-  @apply outline-none ring-2 ring-brand-500 ring-offset-2;
-}
-
-/* Print styles */
-@media print {
-  .sales-person-actions,
-  .project-actions,
-  .generation-actions {
-    @apply hidden;
-  }
-}
-</style>

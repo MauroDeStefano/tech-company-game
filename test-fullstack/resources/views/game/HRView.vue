@@ -1,350 +1,363 @@
 <template>
-  <div class="hr-view">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-white">
     <!-- Page Header -->
-    <div class="page-header">
-      <div class="header-content">
-        <h1 class="page-title">
-          <span class="title-icon">🧑‍💼</span>
-          Risorse Umane
-        </h1>
-        <p class="page-subtitle">
-          Assumi nuovo personale per far crescere la tua software house
-        </p>
-      </div>
-
-      <div class="header-stats">
-        <div class="header-stat">
-          <span class="stat-icon">💰</span>
-          <div class="stat-content">
-            <span class="stat-value" :class="moneyColorClass">
-              {{ formatCurrency(gameStore.currentGame?.money || 0) }}
-            </span>
-            <span class="stat-label">Budget Disponibile</span>
+    <div class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div>
+            <h1 class="text-4xl font-bold text-gray-900 tracking-tight mb-2">
+              <span class="text-2xl">🧑‍💼</span>
+              Risorse Umane
+            </h1>
+            <p class="text-xl text-gray-600">
+              Assumi nuovo personale per far crescere la tua software house
+            </p>
           </div>
-        </div>
 
-        <div class="header-stat">
-          <span class="stat-icon">👥</span>
-          <div class="stat-content">
-            <span class="stat-value">{{ currentTeamSize }}</span>
-            <span class="stat-label">Team Attuale</span>
-          </div>
-        </div>
+          <div class="grid grid-cols-3 gap-4">
+            <div class="bg-gray-50 rounded-lg p-3 text-center">
+              <span class="text-2xl block mb-1">💰</span>
+              <div 
+                class="text-lg font-bold"
+                :class="{
+                  'text-red-600': (gameStore.currentGame?.money || 0) < 0,
+                  'text-yellow-600': (gameStore.currentGame?.money || 0) >= 0 && (gameStore.currentGame?.money || 0) < 2000,
+                  'text-green-600': (gameStore.currentGame?.money || 0) >= 2000
+                }"
+              >
+                {{ formatCurrency(gameStore.currentGame?.money || 0) }}
+              </div>
+              <div class="text-xs text-gray-600">Budget Disponibile</div>
+            </div>
 
-        <div class="header-stat">
-          <span class="stat-icon">📊</span>
-          <div class="stat-content">
-            <span class="stat-value">{{ formatCurrency(monthlyCosts) }}</span>
-            <span class="stat-label">Costi Mensili</span>
+            <div class="bg-gray-50 rounded-lg p-3 text-center">
+              <span class="text-2xl block mb-1">👥</span>
+              <div class="text-lg font-bold text-gray-900">{{ currentTeamSize }}</div>
+              <div class="text-xs text-gray-600">Team Attuale</div>
+            </div>
+
+            <div class="bg-gray-50 rounded-lg p-3 text-center">
+              <span class="text-2xl block mb-1">📊</span>
+              <div class="text-lg font-bold text-gray-900">{{ formatCurrency(monthlyCosts) }}</div>
+              <div class="text-xs text-gray-600">Costi Mensili</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Current Team Overview -->
-    <div class="current-team-section">
-      <BaseCard
-        title="Il Tuo Team Attuale"
-        icon="👥"
-        class="team-overview-card"
-      >
-        <div class="team-grid">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <!-- Current Team Overview -->
+      <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+        <div class="flex items-center gap-2 mb-6">
+          <span class="text-2xl">👥</span>
+          <h3 class="text-lg font-bold text-gray-900">Il Tuo Team Attuale</h3>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Developers -->
-          <div class="team-category">
-            <h3 class="category-title">
-              <span class="category-icon">👨‍💻</span>
+          <div>
+            <h3 class="flex items-center gap-2 font-semibold text-gray-900 mb-4">
+              <span class="text-lg">👨‍💻</span>
               Sviluppatori ({{ currentDevelopers.length }})
             </h3>
-            <div v-if="currentDevelopers.length === 0" class="empty-category">
-              <p class="empty-text">Nessuno sviluppatore nel team</p>
+            
+            <div v-if="currentDevelopers.length === 0" class="text-center py-8 text-gray-500">
+              <p>Nessuno sviluppatore nel team</p>
             </div>
-            <div v-else class="team-members">
+            
+            <div v-else class="space-y-3">
               <div
                 v-for="developer in currentDevelopers"
                 :key="developer.id"
-                class="team-member"
+                class="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
               >
-                <div class="member-info">
-                  <span class="member-name">{{ developer.name }}</span>
-                  <div class="member-details">
-                    <span class="member-seniority">
-                      {{ getSeniorityText(developer.seniority) }}
-                    </span>
-                    <span class="member-salary">
-                      {{ formatCurrency(developer.monthly_salary) }}/mese
-                    </span>
+                <div class="flex-1">
+                  <div class="font-medium text-gray-900">{{ developer.name }}</div>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-sm text-gray-600">{{ getSeniorityText(developer.seniority) }}</span>
+                    <span class="text-sm text-gray-600">{{ formatCurrency(developer.monthly_salary) }}/mese</span>
                   </div>
                 </div>
-                <StatusBadge
-                  :status="developer.is_busy ? 'busy' : 'available'"
-                  size="sm"
-                />
+                <span 
+                  class="text-xs px-2 py-1 rounded-full"
+                  :class="{
+                    'bg-red-100 text-red-700': developer.is_busy,
+                    'bg-green-100 text-green-700': !developer.is_busy
+                  }"
+                >
+                  {{ developer.is_busy ? 'Occupato' : 'Disponibile' }}
+                </span>
               </div>
             </div>
           </div>
 
           <!-- Sales People -->
-          <div class="team-category">
-            <h3 class="category-title">
-              <span class="category-icon">💼</span>
+          <div>
+            <h3 class="flex items-center gap-2 font-semibold text-gray-900 mb-4">
+              <span class="text-lg">💼</span>
               Commerciali ({{ currentSalesPeople.length }})
             </h3>
-            <div v-if="currentSalesPeople.length === 0" class="empty-category">
-              <p class="empty-text">Nessun commerciale nel team</p>
+            
+            <div v-if="currentSalesPeople.length === 0" class="text-center py-8 text-gray-500">
+              <p>Nessun commerciale nel team</p>
             </div>
-            <div v-else class="team-members">
+            
+            <div v-else class="space-y-3">
               <div
                 v-for="salesPerson in currentSalesPeople"
                 :key="salesPerson.id"
-                class="team-member"
+                class="flex items-center justify-between p-3 border border-gray-200 rounded-lg"
               >
-                <div class="member-info">
-                  <span class="member-name">{{ salesPerson.name }}</span>
-                  <div class="member-details">
-                    <span class="member-experience">
-                      {{ getExperienceText(salesPerson.experience) }}
-                    </span>
-                    <span class="member-salary">
-                      {{ formatCurrency(salesPerson.monthly_salary) }}/mese
-                    </span>
+                <div class="flex-1">
+                  <div class="font-medium text-gray-900">{{ salesPerson.name }}</div>
+                  <div class="flex items-center gap-2 mt-1">
+                    <span class="text-sm text-gray-600">{{ getExperienceText(salesPerson.experience) }}</span>
+                    <span class="text-sm text-gray-600">{{ formatCurrency(salesPerson.monthly_salary) }}/mese</span>
                   </div>
                 </div>
-                <StatusBadge
-                  :status="salesPerson.is_busy ? 'busy' : 'available'"
-                  size="sm"
-                />
+                <span 
+                  class="text-xs px-2 py-1 rounded-full"
+                  :class="{
+                    'bg-red-100 text-red-700': salesPerson.is_busy,
+                    'bg-green-100 text-green-700': !salesPerson.is_busy
+                  }"
+                >
+                  {{ salesPerson.is_busy ? 'Occupato' : 'Disponibile' }}
+                </span>
               </div>
             </div>
           </div>
         </div>
-      </BaseCard>
-    </div>
+      </div>
 
-    <!-- Market Sections -->
-    <div class="market-sections">
       <!-- Developers Market -->
-      <section class="market-section">
-        <div class="section-header">
-          <h2 class="section-title">
-            <span class="section-icon">👨‍💻</span>
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="flex items-center gap-2 text-2xl font-bold text-gray-900">
+            <span>👨‍💻</span>
             Sviluppatori Disponibili
           </h2>
-          <div class="section-filters">
-            <select v-model="developerFilter" class="filter-select">
-              <option value="all">Tutti i livelli</option>
-              <option value="1">Junior</option>
-              <option value="2">Junior-Mid</option>
-              <option value="3">Mid</option>
-              <option value="4">Senior</option>
-              <option value="5">Lead</option>
-            </select>
-          </div>
+          <select 
+            v-model="developerFilter" 
+            class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">Tutti i livelli</option>
+            <option value="1">Junior</option>
+            <option value="2">Junior-Mid</option>
+            <option value="3">Mid</option>
+            <option value="4">Senior</option>
+            <option value="5">Lead</option>
+          </select>
         </div>
 
-        <div v-if="loadingDevelopers" class="loading-grid">
-          <div v-for="i in 4" :key="i" class="candidate-card-skeleton">
-            <div class="skeleton-header"></div>
-            <div class="skeleton-content">
-              <div class="skeleton-line"></div>
-              <div class="skeleton-line short"></div>
+        <div v-if="loadingDevelopers" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div v-for="i in 4" :key="i" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
+            <div class="h-4 bg-gray-200 rounded mb-4"></div>
+            <div class="space-y-3">
+              <div class="h-3 bg-gray-200 rounded"></div>
+              <div class="h-3 bg-gray-200 rounded w-2/3"></div>
             </div>
           </div>
         </div>
 
-        <div v-else-if="filteredDevelopers.length === 0" class="empty-market">
-          <div class="empty-icon">😔</div>
-          <p class="empty-text">Nessuno sviluppatore disponibile</p>
+        <div v-else-if="filteredDevelopers.length === 0" class="text-center py-12">
+          <div class="text-6xl mb-4">😔</div>
+          <p class="text-gray-600">Nessuno sviluppatore disponibile</p>
         </div>
 
-        <div v-else class="candidates-grid">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div
             v-for="developer in filteredDevelopers"
             :key="developer.id || developer.name"
-            class="candidate-card"
-            :class="{ 'candidate-card--disabled': !canAfford(developer.hiring_cost) }"
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+            :class="{ 'opacity-50': !canAfford(developer.hiring_cost) }"
           >
-            <div class="candidate-header">
-              <h3 class="candidate-name">{{ developer.name }}</h3>
-              <div class="candidate-level">
-                <span class="level-stars">{{ '⭐'.repeat(developer.seniority) }}</span>
-                <span class="level-text">{{ getSeniorityText(developer.seniority) }}</span>
+            <div class="mb-4">
+              <h3 class="font-semibold text-gray-900 mb-2">{{ developer.name }}</h3>
+              <div class="flex items-center gap-2">
+                <span class="text-sm">{{ '⭐'.repeat(developer.seniority) }}</span>
+                <span class="text-sm text-gray-600">{{ getSeniorityText(developer.seniority) }}</span>
               </div>
             </div>
 
-            <div class="candidate-info">
-              <div v-if="developer.specialization" class="candidate-specialization">
-                <span class="spec-icon">🎯</span>
-                <span class="spec-text">{{ getSpecializationText(developer.specialization) }}</span>
+            <div class="space-y-3 mb-4">
+              <div v-if="developer.specialization" class="flex items-center gap-2">
+                <span>🎯</span>
+                <span class="text-sm text-gray-600">{{ getSpecializationText(developer.specialization) }}</span>
               </div>
 
-              <div class="candidate-costs">
-                <div class="cost-item">
-                  <span class="cost-label">Costo Assunzione</span>
-                  <span class="cost-value" :class="{ 'cost-value--expensive': !canAfford(developer.hiring_cost) }">
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Costo Assunzione</span>
+                  <span 
+                    class="text-sm font-medium"
+                    :class="{ 'text-red-600': !canAfford(developer.hiring_cost), 'text-gray-900': canAfford(developer.hiring_cost) }"
+                  >
                     {{ formatCurrency(developer.hiring_cost) }}
                   </span>
                 </div>
-                <div class="cost-item">
-                  <span class="cost-label">Stipendio Mensile</span>
-                  <span class="cost-value">{{ formatCurrency(developer.monthly_salary) }}</span>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Stipendio Mensile</span>
+                  <span class="text-sm font-medium text-gray-900">{{ formatCurrency(developer.monthly_salary) }}</span>
                 </div>
               </div>
 
-              <div v-if="developer.skills && developer.skills.length > 0" class="candidate-skills">
-                <span class="skills-label">Competenze:</span>
-                <div class="skills-list">
+              <div v-if="developer.skills && developer.skills.length > 0">
+                <div class="text-sm text-gray-600 mb-1">Competenze:</div>
+                <div class="flex flex-wrap gap-1">
                   <span
                     v-for="skill in developer.skills.slice(0, 3)"
                     :key="skill"
-                    class="skill-tag"
+                    class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
                   >
                     {{ skill }}
                   </span>
-                  <span v-if="developer.skills.length > 3" class="skill-more">
+                  <span v-if="developer.skills.length > 3" class="text-xs text-gray-500">
                     +{{ developer.skills.length - 3 }}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div class="candidate-actions">
-              <BaseButton
-                v-if="canAfford(developer.hiring_cost)"
-                variant="primary"
-                size="sm"
-                @click="hireDeveloper(developer)"
-                :loading="hiringId === `dev-${developer.id || developer.name}`"
-                class="hire-btn"
-              >
-                Assumi
-              </BaseButton>
-              <BaseButton
-                v-else
-                variant="secondary"
-                size="sm"
-                disabled
-                class="hire-btn"
-              >
-                Budget Insufficiente
-              </BaseButton>
-            </div>
+            <button
+              v-if="canAfford(developer.hiring_cost)"
+              @click="hireDeveloper(developer)"
+              :disabled="hiringId === `dev-${developer.id || developer.name}`"
+              class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200"
+            >
+              <span v-if="hiringId === `dev-${developer.id || developer.name}`">
+                Assunzione...
+              </span>
+              <span v-else>Assumi</span>
+            </button>
+            <button
+              v-else
+              disabled
+              class="w-full px-4 py-2 bg-gray-300 text-gray-500 font-medium rounded-lg cursor-not-allowed"
+            >
+              Budget Insufficiente
+            </button>
           </div>
         </div>
       </section>
 
       <!-- Sales People Market -->
-      <section class="market-section">
-        <div class="section-header">
-          <h2 class="section-title">
-            <span class="section-icon">💼</span>
+      <section>
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="flex items-center gap-2 text-2xl font-bold text-gray-900">
+            <span>💼</span>
             Commerciali Disponibili
           </h2>
-          <div class="section-filters">
-            <select v-model="salesFilter" class="filter-select">
-              <option value="all">Tutti i livelli</option>
-              <option value="1">Trainee</option>
-              <option value="2">Junior</option>
-              <option value="3">Mid</option>
-              <option value="4">Senior</option>
-              <option value="5">Manager</option>
-            </select>
-          </div>
+          <select 
+            v-model="salesFilter" 
+            class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          >
+            <option value="all">Tutti i livelli</option>
+            <option value="1">Trainee</option>
+            <option value="2">Junior</option>
+            <option value="3">Mid</option>
+            <option value="4">Senior</option>
+            <option value="5">Manager</option>
+          </select>
         </div>
 
-        <div v-if="loadingSalesPeople" class="loading-grid">
-          <div v-for="i in 4" :key="i" class="candidate-card-skeleton">
-            <div class="skeleton-header"></div>
-            <div class="skeleton-content">
-              <div class="skeleton-line"></div>
-              <div class="skeleton-line short"></div>
+        <div v-if="loadingSalesPeople" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div v-for="i in 4" :key="i" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 animate-pulse">
+            <div class="h-4 bg-gray-200 rounded mb-4"></div>
+            <div class="space-y-3">
+              <div class="h-3 bg-gray-200 rounded"></div>
+              <div class="h-3 bg-gray-200 rounded w-2/3"></div>
             </div>
           </div>
         </div>
 
-        <div v-else-if="filteredSalesPeople.length === 0" class="empty-market">
-          <div class="empty-icon">😔</div>
-          <p class="empty-text">Nessun commerciale disponibile</p>
+        <div v-else-if="filteredSalesPeople.length === 0" class="text-center py-12">
+          <div class="text-6xl mb-4">😔</div>
+          <p class="text-gray-600">Nessun commerciale disponibile</p>
         </div>
 
-        <div v-else class="candidates-grid">
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           <div
             v-for="salesPerson in filteredSalesPeople"
             :key="salesPerson.id || salesPerson.name"
-            class="candidate-card"
-            :class="{ 'candidate-card--disabled': !canAfford(salesPerson.hiring_cost) }"
+            class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
+            :class="{ 'opacity-50': !canAfford(salesPerson.hiring_cost) }"
           >
-            <div class="candidate-header">
-              <h3 class="candidate-name">{{ salesPerson.name }}</h3>
-              <div class="candidate-level">
-                <span class="level-stars">{{ '⭐'.repeat(salesPerson.experience) }}</span>
-                <span class="level-text">{{ getExperienceText(salesPerson.experience) }}</span>
+            <div class="mb-4">
+              <h3 class="font-semibold text-gray-900 mb-2">{{ salesPerson.name }}</h3>
+              <div class="flex items-center gap-2">
+                <span class="text-sm">{{ '⭐'.repeat(salesPerson.experience) }}</span>
+                <span class="text-sm text-gray-600">{{ getExperienceText(salesPerson.experience) }}</span>
               </div>
             </div>
 
-            <div class="candidate-info">
-              <div v-if="salesPerson.specialization" class="candidate-specialization">
-                <span class="spec-icon">🎯</span>
-                <span class="spec-text">{{ getSalesSpecializationText(salesPerson.specialization) }}</span>
+            <div class="space-y-3 mb-4">
+              <div v-if="salesPerson.specialization" class="flex items-center gap-2">
+                <span>🎯</span>
+                <span class="text-sm text-gray-600">{{ getSalesSpecializationText(salesPerson.specialization) }}</span>
               </div>
 
-              <div class="candidate-costs">
-                <div class="cost-item">
-                  <span class="cost-label">Costo Assunzione</span>
-                  <span class="cost-value" :class="{ 'cost-value--expensive': !canAfford(salesPerson.hiring_cost) }">
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Costo Assunzione</span>
+                  <span 
+                    class="text-sm font-medium"
+                    :class="{ 'text-red-600': !canAfford(salesPerson.hiring_cost), 'text-gray-900': canAfford(salesPerson.hiring_cost) }"
+                  >
                     {{ formatCurrency(salesPerson.hiring_cost) }}
                   </span>
                 </div>
-                <div class="cost-item">
-                  <span class="cost-label">Stipendio Mensile</span>
-                  <span class="cost-value">{{ formatCurrency(salesPerson.monthly_salary) }}</span>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Stipendio Mensile</span>
+                  <span class="text-sm font-medium text-gray-900">{{ formatCurrency(salesPerson.monthly_salary) }}</span>
                 </div>
               </div>
 
-              <div class="candidate-performance">
-                <div class="performance-item">
-                  <span class="perf-label">Tempo Generazione</span>
-                  <span class="perf-value">{{ salesPerson.estimated_generation_time }}min</span>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Tempo Generazione</span>
+                  <span class="text-sm font-medium text-gray-900">{{ salesPerson.estimated_generation_time }}min</span>
                 </div>
-                <div class="performance-item">
-                  <span class="perf-label">Valore Progetti</span>
-                  <span class="perf-value">{{ formatCurrency(salesPerson.estimated_project_value) }}</span>
+                <div class="flex justify-between">
+                  <span class="text-sm text-gray-600">Valore Progetti</span>
+                  <span class="text-sm font-medium text-gray-900">{{ formatCurrency(salesPerson.estimated_project_value) }}</span>
                 </div>
               </div>
             </div>
 
-            <div class="candidate-actions">
-              <BaseButton
-                v-if="canAfford(salesPerson.hiring_cost)"
-                variant="success"
-                size="sm"
-                @click="hireSalesPerson(salesPerson)"
-                :loading="hiringId === `sales-${salesPerson.id || salesPerson.name}`"
-                class="hire-btn"
-              >
-                Assumi
-              </BaseButton>
-              <BaseButton
-                v-else
-                variant="secondary"
-                size="sm"
-                disabled
-                class="hire-btn"
-              >
-                Budget Insufficiente
-              </BaseButton>
-            </div>
+            <button
+              v-if="canAfford(salesPerson.hiring_cost)"
+              @click="hireSalesPerson(salesPerson)"
+              :disabled="hiringId === `sales-${salesPerson.id || salesPerson.name}`"
+              class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200"
+            >
+              <span v-if="hiringId === `sales-${salesPerson.id || salesPerson.name}`">
+                Assunzione...
+              </span>
+              <span v-else>Assumi</span>
+            </button>
+            <button
+              v-else
+              disabled
+              class="w-full px-4 py-2 bg-gray-300 text-gray-500 font-medium rounded-lg cursor-not-allowed"
+            >
+              Budget Insufficiente
+            </button>
           </div>
         </div>
       </section>
-    </div>
 
-    <!-- Budget Warning -->
-    <div v-if="isLowBudget" class="budget-warning">
-      <div class="warning-content">
-        <span class="warning-icon">⚠️</span>
-        <div class="warning-text">
-          <strong>Budget limitato!</strong>
-          Completa progetti per aumentare il patrimonio e assumere nuovo personale.
+      <!-- Budget Warning -->
+      <div v-if="isLowBudget" class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+        <div class="flex items-center gap-3">
+          <span class="text-2xl">⚠️</span>
+          <div>
+            <div class="font-semibold text-yellow-800">Budget limitato!</div>
+            <div class="text-yellow-700 text-sm">
+              Completa progetti per aumentare il patrimonio e assumere nuovo personale.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -356,7 +369,6 @@ import { ref, computed, onMounted } from 'vue'
 import { useGameStore } from '@/js/stores/game'
 import { useNotificationStore } from '@/js/stores/notifications'
 import { formatCurrency } from '@/js/utils/helpers'
-import StatusBadge from '@/js/components/shared/StatusBadge.vue'
 
 // Stores
 const gameStore = useGameStore()
@@ -386,13 +398,6 @@ const currentTeamSize = computed(() => {
 
 const monthlyCosts = computed(() => {
   return gameStore.currentGame?.monthly_costs || 0
-})
-
-const moneyColorClass = computed(() => {
-  const money = gameStore.currentGame?.money || 0
-  if (money < 0) return 'text-danger-600'
-  if (money < 2000) return 'text-warning-600'
-  return 'text-success-600'
 })
 
 const isLowBudget = computed(() => {
@@ -625,382 +630,3 @@ onMounted(() => {
   loadMarketSalesPeople()
 })
 </script>
-
-<style scoped>
-.hr-view {
-  @apply space-y-8;
-}
-
-/* Page Header */
-.page-header {
-  @apply flex flex-col lg:flex-row lg:items-start lg:justify-between;
-  @apply mb-8;
-}
-
-.header-content {
-  @apply mb-6 lg:mb-0;
-}
-
-.page-title {
-  @apply text-2xl sm:text-3xl font-bold text-neutral-900;
-  @apply flex items-center;
-}
-
-.title-icon {
-  @apply text-3xl sm:text-4xl mr-3;
-}
-
-.page-subtitle {
-  @apply text-neutral-600 mt-1;
-}
-
-.header-stats {
-  @apply grid grid-cols-1 sm:grid-cols-3 gap-4;
-}
-
-.header-stat {
-  @apply bg-white rounded-lg border border-neutral-200 p-4;
-  @apply flex items-center space-x-3;
-}
-
-.stat-icon {
-  @apply text-2xl;
-}
-
-.stat-content {
-  @apply flex flex-col;
-}
-
-.stat-value {
-  @apply text-lg font-bold text-neutral-900;
-}
-
-.stat-label {
-  @apply text-sm text-neutral-600;
-}
-
-/* Current Team */
-.current-team-section {
-  @apply mb-8;
-}
-
-.team-grid {
-  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
-}
-
-.team-category {
-  @apply space-y-4;
-}
-
-.category-title {
-  @apply text-lg font-semibold text-neutral-900;
-  @apply flex items-center;
-}
-
-.category-icon {
-  @apply text-xl mr-2;
-}
-
-.empty-category {
-  @apply text-center py-6 bg-neutral-50 rounded-lg;
-}
-
-.empty-text {
-  @apply text-neutral-500;
-}
-
-.team-members {
-  @apply space-y-3;
-}
-
-.team-member {
-  @apply flex items-center justify-between p-3;
-  @apply bg-neutral-50 rounded-lg border border-neutral-200;
-}
-
-.member-info {
-  @apply flex-1;
-}
-
-.member-name {
-  @apply font-medium text-neutral-900 block;
-}
-
-.member-details {
-  @apply flex items-center space-x-4 mt-1;
-}
-
-.member-seniority,
-.member-experience {
-  @apply text-sm text-neutral-600;
-}
-
-.member-salary {
-  @apply text-sm text-neutral-500;
-}
-
-/* Market Sections */
-.market-sections {
-  @apply space-y-8;
-}
-
-.market-section {
-  @apply bg-white rounded-lg border border-neutral-200 p-6;
-}
-
-.section-header {
-  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between;
-  @apply mb-6;
-}
-
-.section-title {
-  @apply text-xl font-semibold text-neutral-900;
-  @apply flex items-center mb-4 sm:mb-0;
-}
-
-.section-icon {
-  @apply text-2xl mr-2;
-}
-
-.section-filters {
-  @apply flex items-center space-x-3;
-}
-
-.filter-select {
-  @apply px-3 py-2 border border-neutral-300 rounded-md;
-  @apply bg-white text-neutral-900;
-  @apply focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500;
-}
-
-/* Loading and Empty States */
-.loading-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
-}
-
-.candidate-card-skeleton {
-  @apply bg-neutral-50 rounded-lg border border-neutral-200 p-4;
-  @apply animate-pulse;
-}
-
-.skeleton-header {
-  @apply h-4 bg-neutral-300 rounded mb-3;
-}
-
-.skeleton-content {
-  @apply space-y-2;
-}
-
-.skeleton-line {
-  @apply h-3 bg-neutral-200 rounded;
-}
-
-.skeleton-line.short {
-  @apply w-2/3;
-}
-
-.empty-market {
-  @apply text-center py-12;
-}
-
-.empty-icon {
-  @apply text-4xl mb-3;
-}
-
-/* Candidates Grid */
-.candidates-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
-}
-
-.candidate-card {
-  @apply bg-white rounded-lg border border-neutral-200 p-4;
-  @apply transition-all duration-200 hover:shadow-md hover:border-brand-300;
-}
-
-.candidate-card--disabled {
-  @apply opacity-60 hover:shadow-none hover:border-neutral-200;
-}
-
-.candidate-header {
-  @apply mb-4;
-}
-
-.candidate-name {
-  @apply font-semibold text-neutral-900 mb-2;
-}
-
-.candidate-level {
-  @apply flex items-center space-x-2;
-}
-
-.level-stars {
-  @apply text-yellow-500;
-}
-
-.level-text {
-  @apply text-sm text-neutral-600 font-medium;
-}
-
-.candidate-info {
-  @apply space-y-3 mb-4;
-}
-
-.candidate-specialization {
-  @apply flex items-center space-x-2;
-  @apply bg-brand-50 text-brand-700 px-2 py-1 rounded;
-}
-
-.spec-icon {
-  @apply text-sm;
-}
-
-.spec-text {
-  @apply text-sm font-medium;
-}
-
-.candidate-costs,
-.candidate-performance {
-  @apply space-y-2;
-}
-
-.cost-item,
-.performance-item {
-  @apply flex items-center justify-between;
-}
-
-.cost-label,
-.perf-label {
-  @apply text-sm text-neutral-600;
-}
-
-.cost-value,
-.perf-value {
-  @apply text-sm font-medium text-neutral-900;
-}
-
-.cost-value--expensive {
-  @apply text-danger-600;
-}
-
-.candidate-skills {
-  @apply space-y-1;
-}
-
-.skills-label {
-  @apply text-sm font-medium text-neutral-700;
-}
-
-.skills-list {
-  @apply flex flex-wrap gap-1;
-}
-
-.skill-tag {
-  @apply text-xs bg-neutral-100 text-neutral-700 px-2 py-1 rounded;
-}
-
-.skill-more {
-  @apply text-xs text-neutral-500;
-}
-
-.candidate-actions {
-  @apply pt-3 border-t border-neutral-200;
-}
-
-.hire-btn {
-  @apply w-full;
-}
-
-/* Budget Warning */
-.budget-warning {
-  @apply bg-warning-50 border border-warning-200 rounded-lg p-4;
-}
-
-.warning-content {
-  @apply flex items-start space-x-3;
-}
-
-.warning-icon {
-  @apply text-xl text-warning-600 flex-shrink-0;
-}
-
-.warning-text {
-  @apply text-warning-800;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .page-title {
-    @apply text-xl;
-  }
-
-  .title-icon {
-    @apply text-2xl mr-2;
-  }
-
-  .header-stats {
-    @apply grid-cols-1 gap-3;
-  }
-
-  .team-grid {
-    @apply grid-cols-1;
-  }
-
-  .candidates-grid {
-    @apply grid-cols-1 gap-3;
-  }
-
-  .section-header {
-    @apply flex-col;
-  }
-}
-
-/* Animations */
-.candidate-card {
-  animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Loading animation for skeletons */
-.candidate-card-skeleton .skeleton-header,
-.candidate-card-skeleton .skeleton-line {
-  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-/* Focus states for accessibility */
-.candidate-card:focus {
-  @apply outline-none ring-2 ring-brand-500 ring-offset-2;
-}
-
-.filter-select:focus {
-  @apply outline-none ring-2 ring-brand-500 ring-offset-2;
-}
-
-/* Hover effects */
-.team-member:hover {
-  @apply bg-neutral-100;
-}
-
-.candidate-card:not(.candidate-card--disabled):hover {
-  @apply transform -translate-y-1;
-}
-</style>

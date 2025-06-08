@@ -34,13 +34,14 @@ return new class extends Migration
             $table->boolean('is_market_hire')->default(false)->comment('Se è stato assunto dal mercato');
 
             // Costi e caratteristiche economiche
-            $table->decimal('monthly_cost', 8, 2)->default(1500.00)->comment('Costo mensile in euro');
+            $table->decimal('monthly_salary', 8, 2)->default(1500.00)->comment('Costo mensile in euro');
             $table->decimal('hiring_cost', 8, 2)->nullable()->comment('Costo di assunzione (se dal mercato)');
 
             // Statistiche e performance
             $table->integer('projects_generated')->default(0)->comment('Progetti generati dal commerciale');
             $table->decimal('total_value_generated', 12, 2)->default(0)->comment('Valore totale progetti generati');
             $table->timestamp('last_project_generated_at')->nullable();
+            $table->timestamp('hire_date')->nullable();
 
             // Moltiplicatori e bonus
             $table->decimal('value_multiplier', 4, 2)->default(1.0)->comment('Moltiplicatore valore progetti');

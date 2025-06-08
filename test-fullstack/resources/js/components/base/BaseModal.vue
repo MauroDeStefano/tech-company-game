@@ -1,7 +1,12 @@
 <template>
   <Teleport to="body">
     <Transition
-      name="modal"
+      enter-active-class="transition-all duration-300"
+      leave-active-class="transition-all duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
       @before-enter="beforeEnter"
       @after-enter="afterEnter"
       @before-leave="beforeLeave"
@@ -9,124 +14,145 @@
     >
       <div
         v-if="isOpen"
-        class="modal-overlay"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50"
         :class="overlayClasses"
         @click="handleOverlayClick"
       >
         <!-- Modal Container -->
-        <div
-          ref="modalRef"
-          class="modal-container"
-          :class="containerClasses"
-          role="dialog"
-          :aria-modal="true"
-          :aria-labelledby="headerId"
-          :aria-describedby="bodyId"
-          @click.stop
+        <Transition
+          enter-active-class="transition-all duration-300"
+          leave-active-class="transition-all duration-300"
+          enter-from-class="opacity-0 scale-95 translate-y-4"
+          enter-to-class="opacity-100 scale-100 translate-y-0"
+          leave-from-class="opacity-100 scale-100 translate-y-0"
+          leave-to-class="opacity-0 scale-95 translate-y-4"
         >
-          <!-- Modal Header -->
-          <header v-if="showHeader" class="modal-header" :class="headerClasses">
-            <div class="modal-header-content">
-              <!-- Title Section -->
-              <div class="modal-title-section">
-                <!-- Icon -->
-                <div v-if="icon" class="modal-icon" :class="iconClasses">
-                  {{ icon }}
-                </div>
-
-                <!-- Title -->
-                <h3 v-if="title" :id="headerId" class="modal-title">
-                  {{ title }}
-                </h3>
-                <slot v-else name="title" />
-
-                <!-- Subtitle -->
-                <p v-if="subtitle" class="modal-subtitle">
-                  {{ subtitle }}
-                </p>
-                <slot v-else name="subtitle" />
-              </div>
-
-              <!-- Header Actions -->
-              <div class="modal-header-actions">
-                <slot name="headerActions" />
-
-                <!-- Close Button -->
-                <button
-                  v-if="showCloseButton"
-                  type="button"
-                  class="modal-close-btn"
-                  @click="handleClose"
-                  :disabled="loading"
-                  aria-label="Chiudi modale"
-                >
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </header>
-
-          <!-- Modal Body -->
-          <main
-            :id="bodyId"
-            class="modal-body"
-            :class="bodyClasses"
+          <div
+            v-if="isOpen"
+            ref="modalRef"
+            class="bg-white rounded-2xl shadow-2xl transform transition-all duration-300"
+            :class="containerClasses"
+            role="dialog"
+            :aria-modal="true"
+            :aria-labelledby="headerId"
+            :aria-describedby="bodyId"
+            @click.stop
           >
-            <!-- Loading State -->
-            <div v-if="loading" class="modal-loading">
-              <div class="loading-spinner">
-                <svg class="animate-spin h-8 w-8 text-brand-600" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                </svg>
+            <!-- Modal Header -->
+            <header v-if="showHeader" class="border-b border-gray-200" :class="headerClasses">
+              <div class="p-6">
+                <!-- Title Section -->
+                <div class="flex items-start gap-4">
+                  <!-- Icon -->
+                  <div v-if="icon" class="flex-shrink-0 text-3xl" :class="iconClasses">
+                    {{ icon }}
+                  </div>
+
+                  <div class="flex-1 min-w-0">
+                    <!-- Title -->
+                    <h3 v-if="title" :id="headerId" class="text-xl font-bold text-gray-900 mb-1">
+                      {{ title }}
+                    </h3>
+                    <slot v-else name="title" />
+
+                    <!-- Subtitle -->
+                    <p v-if="subtitle" class="text-gray-600">
+                      {{ subtitle }}
+                    </p>
+                    <slot v-else name="subtitle" />
+                  </div>
+
+                  <!-- Header Actions -->
+                  <div class="flex items-center gap-2">
+                    <slot name="headerActions" />
+
+                    <!-- Close Button -->
+                    <button
+                      v-if="showCloseButton"
+                      type="button"
+                      class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                      @click="handleClose"
+                      :disabled="loading"
+                      aria-label="Chiudi modale"
+                    >
+                      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <p class="loading-text">{{ loadingText }}</p>
-            </div>
+            </header>
 
-            <!-- Main Content -->
-            <div v-else class="modal-content">
-              <slot />
-            </div>
-          </main>
-
-          <!-- Modal Footer -->
-          <footer v-if="showFooter" class="modal-footer" :class="footerClasses">
-            <slot name="footer">
-              <div class="modal-footer-actions">
-                <!-- Cancel Button -->
-                <BaseButton
-                  v-if="showCancelButton"
-                  variant="secondary"
-                  :disabled="loading"
-                  @click="handleCancel"
-                >
-                  {{ cancelText }}
-                </BaseButton>
-
-                <!-- Confirm Button -->
-                <BaseButton
-                  v-if="showConfirmButton"
-                  :variant="confirmVariant"
-                  :loading="loading"
-                  @click="handleConfirm"
-                >
-                  {{ confirmText }}
-                </BaseButton>
+            <!-- Modal Body -->
+            <main
+              :id="bodyId"
+              class="p-6"
+              :class="bodyClasses"
+            >
+              <!-- Loading State -->
+              <div v-if="loading" class="flex flex-col items-center justify-center py-8">
+                <div class="mb-4">
+                  <svg class="animate-spin h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                </div>
+                <p class="text-gray-600">{{ loadingText }}</p>
               </div>
-            </slot>
-          </footer>
-        </div>
+
+              <!-- Main Content -->
+              <div v-else>
+                <slot />
+              </div>
+            </main>
+
+            <!-- Modal Footer -->
+            <footer v-if="showFooter" class="border-t border-gray-200 bg-gray-50 rounded-b-2xl" :class="footerClasses">
+              <div class="p-6">
+                <slot name="footer">
+                  <div class="flex items-center gap-3">
+                    <!-- Cancel Button -->
+                    <button
+                      v-if="showCancelButton"
+                      class="flex-1 px-4 py-3 border border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-semibold rounded-xl transition-colors duration-200"
+                      :disabled="loading"
+                      @click="handleCancel"
+                    >
+                      {{ cancelText }}
+                    </button>
+
+                    <!-- Confirm Button -->
+                    <button
+                      v-if="showConfirmButton"
+                      class="flex-1 px-4 py-3 font-semibold rounded-xl transition-colors duration-200"
+                      :class="confirmButtonClasses"
+                      :disabled="loading"
+                      @click="handleConfirm"
+                    >
+                      <span v-if="loading" class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                        </svg>
+                        Caricamento...
+                      </span>
+                      <span v-else>{{ confirmText }}</span>
+                    </button>
+                  </div>
+                </slot>
+              </div>
+            </footer>
+          </div>
+        </Transition>
       </div>
     </Transition>
   </Teleport>
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, nextTick, onUnmounted } from 'vue'
 import { generateId } from '@/js/utils/helpers'
-import BaseButton from './BaseButton.vue'
 
 // Props
 const props = defineProps({
@@ -243,46 +269,79 @@ const headerId = computed(() => generateId('modal-title'))
 const bodyId = computed(() => generateId('modal-body'))
 
 const overlayClasses = computed(() => {
-  const classes = ['modal-overlay--base']
-  if (props.centered) classes.push('modal-overlay--centered')
-  return classes.join(' ')
+  return props.centered 
+    ? 'flex items-center justify-center p-4' 
+    : 'flex items-start justify-center p-4 pt-16'
 })
 
 const containerClasses = computed(() => {
-  const classes = [
-    'modal-container--base',
-    `modal-container--${props.size}`,
-    `modal-container--${props.variant}`
-  ]
+  const sizeClasses = {
+    xs: 'max-w-xs w-full',
+    sm: 'max-w-sm w-full',
+    md: 'max-w-md w-full',
+    lg: 'max-w-lg w-full',
+    xl: 'max-w-2xl w-full',
+    full: 'max-w-[95vw] w-full h-[95vh]'
+  }
 
-  if (props.scrollable) classes.push('modal-container--scrollable')
+  const classes = [sizeClasses[props.size]]
+  
+  if (props.scrollable) {
+    classes.push('max-h-[90vh] overflow-hidden flex flex-col')
+  } else {
+    classes.push('max-h-[90vh]')
+  }
+
   return classes.join(' ')
 })
 
 const headerClasses = computed(() => {
-  const classes = [`modal-header--${props.variant}`]
-  return classes.join(' ')
+  const variantClasses = {
+    default: 'bg-white',
+    success: 'bg-green-50',
+    warning: 'bg-yellow-50',
+    danger: 'bg-red-50'
+  }
+  return variantClasses[props.variant] || variantClasses.default
 })
 
 const bodyClasses = computed(() => {
-  const classes = ['modal-body--base']
-  if (props.scrollable) classes.push('modal-body--scrollable')
+  const classes = []
+  
+  if (props.scrollable) {
+    classes.push('flex-1 overflow-y-auto')
+  }
+
   return classes.join(' ')
 })
 
 const footerClasses = computed(() => {
-  const classes = [`modal-footer--${props.variant}`]
-  return classes.join(' ')
+  return 'bg-gray-50'
 })
 
 const iconClasses = computed(() => {
   const variantMap = {
-    default: 'text-neutral-500',
-    success: 'text-success-500',
-    warning: 'text-warning-500',
-    danger: 'text-danger-500'
+    default: 'text-gray-500',
+    success: 'text-green-500',
+    warning: 'text-yellow-500',
+    danger: 'text-red-500'
   }
   return variantMap[props.variant] || variantMap.default
+})
+
+const confirmButtonClasses = computed(() => {
+  const variantClasses = {
+    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
+    success: 'bg-green-600 hover:bg-green-700 text-white',
+    warning: 'bg-yellow-600 hover:bg-yellow-700 text-white',
+    danger: 'bg-red-600 hover:bg-red-700 text-white'
+  }
+  
+  if (props.loading) {
+    return variantClasses[props.confirmVariant]?.replace('hover:bg-', 'bg-') || variantClasses.primary
+  }
+  
+  return variantClasses[props.confirmVariant] || variantClasses.primary
 })
 
 // Methods
@@ -322,7 +381,6 @@ const handleEscape = (event) => {
 const focusFirstElement = () => {
   nextTick(() => {
     if (modalRef.value) {
-      // Prima prova con elementi focusable nel modal
       const focusableElements = modalRef.value.querySelectorAll(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
       )
@@ -330,7 +388,6 @@ const focusFirstElement = () => {
       if (focusableElements.length > 0) {
         focusableElements[0].focus()
       } else {
-        // Fallback: focus sul container del modal
         modalRef.value.focus()
       }
     }
@@ -342,7 +399,6 @@ const restoreFocus = () => {
     try {
       previousFocus.value.focus()
     } catch (error) {
-      // Fallback se l'elemento non è più focusable
       document.body.focus()
     }
   }
@@ -361,13 +417,11 @@ const trapFocus = (event) => {
 
   if (event.key === 'Tab') {
     if (event.shiftKey) {
-      // Shift + Tab
       if (document.activeElement === firstElement) {
         event.preventDefault()
         lastElement.focus()
       }
     } else {
-      // Tab
       if (document.activeElement === lastElement) {
         event.preventDefault()
         firstElement.focus()
@@ -378,39 +432,27 @@ const trapFocus = (event) => {
 
 // Lifecycle hooks for transitions
 const beforeEnter = () => {
-  // Save currently focused element
   previousFocus.value = document.activeElement
-
-  // Prevent body scroll
   document.body.style.overflow = 'hidden'
   document.body.style.paddingRight = getScrollbarWidth() + 'px'
 }
 
 const afterEnter = () => {
-  // Focus management
   focusFirstElement()
-
-  // Add keyboard listeners
   document.addEventListener('keydown', handleEscape)
   document.addEventListener('keydown', trapFocus)
-
   emit('opened')
 }
 
 const beforeLeave = () => {
-  // Remove keyboard listeners
   document.removeEventListener('keydown', handleEscape)
   document.removeEventListener('keydown', trapFocus)
 }
 
 const afterLeave = () => {
-  // Restore body scroll
   document.body.style.overflow = ''
   document.body.style.paddingRight = ''
-
-  // Restore focus
   restoreFocus()
-
   emit('closed')
 }
 
@@ -427,7 +469,6 @@ const getScrollbarWidth = () => {
 // Watch for prop changes
 watch(() => props.isOpen, (newValue) => {
   if (newValue) {
-    // Modal is opening
     nextTick(() => {
       if (modalRef.value) {
         modalRef.value.scrollTop = 0
@@ -441,204 +482,9 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleEscape)
   document.removeEventListener('keydown', trapFocus)
 
-  // Restore body styles if component is destroyed while modal is open
   if (props.isOpen) {
     document.body.style.overflow = ''
     document.body.style.paddingRight = ''
   }
 })
 </script>
-
-<style scoped>
-/* === MODAL OVERLAY === */
-.modal-overlay {
-  @apply fixed inset-0 z-50 flex;
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal-overlay--base {
-  @apply items-end justify-center p-4;
-}
-
-.modal-overlay--centered {
-  @apply items-center;
-}
-
-/* === MODAL CONTAINER === */
-.modal-container--base {
-  @apply relative w-full rounded-lg bg-white shadow-xl;
-  max-height: calc(100vh - 2rem);
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-container--scrollable {
-  @apply overflow-hidden;
-}
-
-/* Container sizes */
-.modal-container--xs { @apply max-w-xs; }
-.modal-container--sm { @apply max-w-sm; }
-.modal-container--md { @apply max-w-md; }
-.modal-container--lg { @apply max-w-lg; }
-.modal-container--xl { @apply max-w-xl; }
-.modal-container--full {
-  @apply max-w-none w-full h-full;
-  max-height: none;
-  border-radius: 0;
-}
-
-/* Container variants */
-.modal-container--default {
-  @apply border border-neutral-200;
-}
-
-.modal-container--success {
-  @apply border-l-4 border-l-success-500;
-}
-
-.modal-container--warning {
-  @apply border-l-4 border-l-warning-500;
-}
-
-.modal-container--danger {
-  @apply border-l-4 border-l-danger-500;
-}
-
-/* === MODAL HEADER === */
-.modal-header {
-  @apply px-6 py-4 border-b border-neutral-200;
-  flex-shrink: 0;
-}
-
-.modal-header-content {
-  @apply flex items-start justify-between;
-}
-
-.modal-title-section {
-  @apply flex-1 min-w-0;
-}
-
-.modal-icon {
-  @apply text-2xl mb-2;
-}
-
-.modal-title {
-  @apply text-lg font-semibold text-neutral-900 mb-1;
-}
-
-.modal-subtitle {
-  @apply text-sm text-neutral-600;
-}
-
-.modal-header-actions {
-  @apply flex items-center gap-2 ml-4;
-  flex-shrink: 0;
-}
-
-.modal-close-btn {
-  @apply p-1 rounded-md text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-/* Header variants */
-.modal-header--success {
-  @apply bg-success-50 border-success-200;
-}
-
-.modal-header--warning {
-  @apply bg-warning-50 border-warning-200;
-}
-
-.modal-header--danger {
-  @apply bg-danger-50 border-danger-200;
-}
-
-/* === MODAL BODY === */
-.modal-body--base {
-  @apply px-6 py-4;
-  flex: 1;
-  min-height: 0;
-}
-
-.modal-body--scrollable {
-  @apply overflow-y-auto;
-}
-
-.modal-content {
-  @apply w-full h-full;
-}
-
-/* Loading state */
-.modal-loading {
-  @apply flex flex-col items-center justify-center py-8;
-}
-
-.loading-spinner {
-  @apply mb-4;
-}
-
-.loading-text {
-  @apply text-sm text-neutral-600;
-}
-
-/* === MODAL FOOTER === */
-.modal-footer {
-  @apply px-6 py-4 border-t border-neutral-200;
-  flex-shrink: 0;
-}
-
-.modal-footer-actions {
-  @apply flex items-center justify-end gap-3;
-}
-
-/* Footer variants */
-.modal-footer--success {
-  @apply bg-success-50 border-success-200;
-}
-
-.modal-footer--warning {
-  @apply bg-warning-50 border-warning-200;
-}
-
-.modal-footer--danger {
-  @apply bg-danger-50 border-danger-200;
-}
-
-/* === TRANSITIONS === */
-.modal-enter-active,
-.modal-leave-active {
-  transition: all 0.3s ease;
-}
-
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-
-.modal-enter-from .modal-container,
-.modal-leave-to .modal-container {
-  transform: scale(0.9) translateY(20px);
-}
-
-/* === RESPONSIVE === */
-@media (max-width: 640px) {
-  .modal-overlay--base {
-    @apply p-0;
-  }
-
-  .modal-container--base {
-    @apply rounded-none;
-    max-height: 100vh;
-  }
-
-  .modal-container--xs,
-  .modal-container--sm,
-  .modal-container--md,
-  .modal-container--lg,
-  .modal-container--xl {
-    @apply w-full max-w-none;
-  }
-}
-</style>

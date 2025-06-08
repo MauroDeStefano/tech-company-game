@@ -1,78 +1,113 @@
 <!-- src/components/game/dashboard/FinancialSummaryCard.vue -->
 <template>
-  <BaseCard
-    title="Situazione Finanziaria"
-    icon="💰"
-    :loading="loading"
-    class="financial-summary-card"
-  >
-    <!-- Current Balance -->
-    <div class="current-balance">
-      <div class="balance-header">
-        <h3 class="balance-title">Patrimonio Attuale</h3>
-        <span class="balance-trend" :class="balanceTrendClass">
-          {{ balanceTrendIcon }}
-        </span>
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">💰</span>
+        <h3 class="text-lg font-bold text-gray-900">Situazione Finanziaria</h3>
+        <div v-if="loading" class="ml-2">
+          <svg class="animate-spin w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
       </div>
-      <div class="balance-amount" :class="balanceColorClass">
+    </div>
+
+    <!-- Current Balance -->
+    <div class="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-semibold text-gray-900">Patrimonio Attuale</h3>
+        <span class="text-xl">{{ balanceTrendIcon }}</span>
+      </div>
+      <div 
+        class="text-3xl font-bold mb-2"
+        :class="{
+          'text-red-600': currentBalance < 0,
+          'text-yellow-600': currentBalance >= 0 && currentBalance < 1000,
+          'text-green-600': currentBalance >= 1000
+        }"
+      >
         {{ formatCurrency(currentBalance) }}
       </div>
-      <div class="balance-change" :class="balanceChangeClass">
-        <span class="change-label">{{ balanceChangeText }}</span>
+      <div 
+        class="text-sm"
+        :class="{
+          'text-green-600': currentBalance - previousBalance > 0,
+          'text-red-600': currentBalance - previousBalance < 0,
+          'text-gray-600': currentBalance - previousBalance === 0
+        }"
+      >
+        {{ balanceChangeText }}
       </div>
     </div>
 
     <!-- Financial Metrics -->
-    <div class="financial-metrics">
-      <div class="metrics-grid">
+    <div class="mb-6">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- Monthly Revenue -->
-        <div class="metric-item metric-item--revenue">
-          <div class="metric-header">
-            <span class="metric-icon">📈</span>
-            <span class="metric-label">Ricavi Mese</span>
+        <div class="bg-green-50 border border-green-200 rounded-lg p-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">📈</span>
+            <span class="text-sm font-medium text-gray-700">Ricavi Mese</span>
           </div>
-          <div class="metric-value">{{ formatCurrency(monthlyRevenue) }}</div>
-          <div class="metric-description">
+          <div class="text-xl font-bold text-gray-900">{{ formatCurrency(monthlyRevenue) }}</div>
+          <div class="text-xs text-gray-600 mt-1">
             Da {{ completedProjectsThisMonth }} progetti
           </div>
         </div>
 
         <!-- Monthly Costs -->
-        <div class="metric-item metric-item--costs">
-          <div class="metric-header">
-            <span class="metric-icon">📉</span>
-            <span class="metric-label">Costi Mese</span>
+        <div class="bg-red-50 border border-red-200 rounded-lg p-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">📉</span>
+            <span class="text-sm font-medium text-gray-700">Costi Mese</span>
           </div>
-          <div class="metric-value">{{ formatCurrency(monthlyCosts) }}</div>
-          <div class="metric-description">
+          <div class="text-xl font-bold text-gray-900">{{ formatCurrency(monthlyCosts) }}</div>
+          <div class="text-xs text-gray-600 mt-1">
             {{ totalTeamSize }} membri del team
           </div>
         </div>
 
         <!-- Net Profit -->
-        <div class="metric-item metric-item--profit">
-          <div class="metric-header">
-            <span class="metric-icon">💎</span>
-            <span class="metric-label">Profitto Netto</span>
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">💎</span>
+            <span class="text-sm font-medium text-gray-700">Profitto Netto</span>
           </div>
-          <div class="metric-value" :class="profitColorClass">
+          <div 
+            class="text-xl font-bold"
+            :class="{
+              'text-red-600': monthlyProfit < 0,
+              'text-gray-600': monthlyProfit === 0,
+              'text-green-600': monthlyProfit > 0
+            }"
+          >
             {{ formatCurrency(monthlyProfit) }}
           </div>
-          <div class="metric-description">
+          <div class="text-xs text-gray-600 mt-1">
             {{ profitMargin }}% margine
           </div>
         </div>
 
         <!-- Runway -->
-        <div class="metric-item metric-item--runway">
-          <div class="metric-header">
-            <span class="metric-icon">⏱️</span>
-            <span class="metric-label">Runway</span>
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="text-lg">⏱️</span>
+            <span class="text-sm font-medium text-gray-700">Runway</span>
           </div>
-          <div class="metric-value" :class="runwayColorClass">
+          <div 
+            class="text-xl font-bold"
+            :class="{
+              'text-green-600': runway === Infinity || runway > 3,
+              'text-yellow-600': runway > 1 && runway <= 3,
+              'text-red-600': runway <= 1
+            }"
+          >
             {{ runwayText }}
           </div>
-          <div class="metric-description">
+          <div class="text-xs text-gray-600 mt-1">
             Con i costi attuali
           </div>
         </div>
@@ -80,125 +115,156 @@
     </div>
 
     <!-- Cash Flow Chart -->
-    <div class="cash-flow-section">
-      <h4 class="cash-flow-title">Flusso di Cassa (Ultimi 7 Giorni)</h4>
-      <div class="cash-flow-chart">
-        <div class="chart-container">
+    <div class="mb-6">
+      <h4 class="text-lg font-semibold text-gray-900 mb-4">Flusso di Cassa (Ultimi 7 Giorni)</h4>
+      <div class="bg-gray-50 rounded-lg p-4">
+        <div class="flex items-end justify-between gap-2 h-32 mb-4">
           <div
             v-for="(day, index) in cashFlowData"
             :key="index"
-            class="chart-bar-container"
+            class="flex-1 flex flex-col items-center"
           >
-            <div class="chart-bar-wrapper">
+            <div class="flex flex-col items-center justify-end h-24 mb-2 relative">
               <!-- Positive bar (revenue) -->
               <div
                 v-if="day.revenue > 0"
-                class="chart-bar chart-bar--positive"
-                :style="{ height: `${(day.revenue / maxDayValue) * 100}%` }"
+                class="w-full bg-green-500 rounded-t-sm"
+                :style="{ height: `${(day.revenue / maxDayValue) * 80}px` }"
                 :title="`Ricavi: ${formatCurrency(day.revenue)}`"
               ></div>
 
               <!-- Negative bar (costs) -->
               <div
                 v-if="day.costs > 0"
-                class="chart-bar chart-bar--negative"
-                :style="{ height: `${(day.costs / maxDayValue) * 100}%` }"
+                class="w-full bg-red-500 rounded-b-sm"
+                :style="{ height: `${(day.costs / maxDayValue) * 80}px` }"
                 :title="`Costi: ${formatCurrency(day.costs)}`"
               ></div>
             </div>
 
-            <div class="chart-label">
+            <div class="text-xs text-gray-600 text-center mb-1">
               {{ day.label }}
             </div>
 
-            <div class="chart-value" :class="{
-              'chart-value--positive': day.net > 0,
-              'chart-value--negative': day.net < 0,
-              'chart-value--neutral': day.net === 0
-            }">
+            <div 
+              class="text-xs font-medium text-center"
+              :class="{
+                'text-green-600': day.net > 0,
+                'text-red-600': day.net < 0,
+                'text-gray-600': day.net === 0
+              }"
+            >
               {{ day.net > 0 ? '+' : '' }}{{ formatCurrency(day.net) }}
             </div>
           </div>
         </div>
 
         <!-- Chart Legend -->
-        <div class="chart-legend">
-          <div class="legend-item">
-            <div class="legend-color legend-color--positive"></div>
-            <span class="legend-label">Ricavi</span>
+        <div class="flex items-center justify-center gap-6">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 bg-green-500 rounded"></div>
+            <span class="text-sm text-gray-700">Ricavi</span>
           </div>
-          <div class="legend-item">
-            <div class="legend-color legend-color--negative"></div>
-            <span class="legend-label">Costi</span>
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 bg-red-500 rounded"></div>
+            <span class="text-sm text-gray-700">Costi</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Financial Insights -->
-    <div class="financial-insights">
-      <h4 class="insights-title">💡 Analisi Finanziaria</h4>
-      <div class="insights-list">
+    <div v-if="financialInsights.length > 0" class="mb-6">
+      <h4 class="text-lg font-semibold text-gray-900 mb-3">💡 Analisi Finanziaria</h4>
+      <div class="space-y-3">
         <div
           v-for="insight in financialInsights"
           :key="insight.id"
-          class="insight-item"
-          :class="`insight-item--${insight.type}`"
+          class="flex items-start gap-3 p-3 rounded-lg border"
+          :class="{
+            'bg-red-50 border-red-200': insight.type === 'danger',
+            'bg-yellow-50 border-yellow-200': insight.type === 'warning',
+            'bg-green-50 border-green-200': insight.type === 'success'
+          }"
         >
-          <span class="insight-icon">{{ insight.icon }}</span>
-          <div class="insight-content">
-            <span class="insight-text">{{ insight.text }}</span>
-            <span v-if="insight.action" class="insight-action" @click="handleInsightAction(insight)">
-              {{ insight.actionText }}
+          <span class="text-lg">{{ insight.icon }}</span>
+          <div class="flex-1">
+            <span 
+              class="text-sm"
+              :class="{
+                'text-red-800': insight.type === 'danger',
+                'text-yellow-800': insight.type === 'warning',
+                'text-green-800': insight.type === 'success'
+              }"
+            >
+              {{ insight.text }}
             </span>
+            <button
+              v-if="insight.action"
+              @click="handleInsightAction(insight)"
+              class="ml-2 text-sm font-medium underline hover:no-underline transition-all duration-200"
+              :class="{
+                'text-red-600 hover:text-red-700': insight.type === 'danger',
+                'text-yellow-600 hover:text-yellow-700': insight.type === 'warning',
+                'text-green-600 hover:text-green-700': insight.type === 'success'
+              }"
+            >
+              {{ insight.actionText }}
+            </button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Quick Financial Actions -->
-    <div class="financial-actions">
-      <h4 class="actions-title">Azioni Rapide</h4>
-      <div class="actions-grid">
+    <div>
+      <h4 class="text-lg font-semibold text-gray-900 mb-4">Azioni Rapide</h4>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
         <button
-          class="action-button"
-          :class="{ 'action-button--disabled': !canHire }"
           @click="expandTeam"
           :disabled="!canHire"
+          class="flex items-center gap-3 p-3 border rounded-lg transition-all duration-200"
+          :class="{
+            'border-gray-200 hover:border-gray-300 hover:bg-gray-50': canHire,
+            'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50': !canHire
+          }"
         >
-          <span class="action-icon">👥</span>
-          <div class="action-content">
-            <span class="action-label">Espandi Team</span>
-            <span class="action-description">{{ expandTeamDescription }}</span>
+          <span class="text-xl">👥</span>
+          <div class="text-left">
+            <div class="font-medium text-gray-900">Espandi Team</div>
+            <div class="text-sm text-gray-600">{{ expandTeamDescription }}</div>
           </div>
         </button>
 
         <button
-          class="action-button"
-          :class="{ 'action-button--disabled': totalTeamSize <= 2 }"
           @click="optimizeCosts"
           :disabled="totalTeamSize <= 2"
+          class="flex items-center gap-3 p-3 border rounded-lg transition-all duration-200"
+          :class="{
+            'border-gray-200 hover:border-gray-300 hover:bg-gray-50': totalTeamSize > 2,
+            'border-gray-200 bg-gray-50 cursor-not-allowed opacity-50': totalTeamSize <= 2
+          }"
         >
-          <span class="action-icon">⚡</span>
-          <div class="action-content">
-            <span class="action-label">Ottimizza Costi</span>
-            <span class="action-description">{{ optimizeCostsDescription }}</span>
+          <span class="text-xl">⚡</span>
+          <div class="text-left">
+            <div class="font-medium text-gray-900">Ottimizza Costi</div>
+            <div class="text-sm text-gray-600">{{ optimizeCostsDescription }}</div>
           </div>
         </button>
 
         <button
-          class="action-button"
           @click="viewDetailedReport"
+          class="flex items-center gap-3 p-3 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 rounded-lg transition-all duration-200"
         >
-          <span class="action-icon">📊</span>
-          <div class="action-content">
-            <span class="action-label">Report Dettagliato</span>
-            <span class="action-description">Analisi completa</span>
+          <span class="text-xl">📊</span>
+          <div class="text-left">
+            <div class="font-medium text-gray-900">Report Dettagliato</div>
+            <div class="text-sm text-gray-600">Analisi completa</div>
           </div>
         </button>
       </div>
     </div>
-  </BaseCard>
+  </div>
 </template>
 
 <script setup>
@@ -277,20 +343,6 @@ const runwayText = computed(() => {
   return `${runway.value} mesi`
 })
 
-const balanceColorClass = computed(() => {
-  const balance = currentBalance.value
-  if (balance < 0) return 'balance-amount--danger'
-  if (balance < 1000) return 'balance-amount--warning'
-  return 'balance-amount--success'
-})
-
-const balanceTrendClass = computed(() => {
-  const change = currentBalance.value - previousBalance.value
-  if (change > 0) return 'balance-trend--positive'
-  if (change < 0) return 'balance-trend--negative'
-  return 'balance-trend--neutral'
-})
-
 const balanceTrendIcon = computed(() => {
   const change = currentBalance.value - previousBalance.value
   if (change > 0) return '📈'
@@ -298,33 +350,11 @@ const balanceTrendIcon = computed(() => {
   return '➡️'
 })
 
-const balanceChangeClass = computed(() => {
-  const change = currentBalance.value - previousBalance.value
-  if (change > 0) return 'balance-change--positive'
-  if (change < 0) return 'balance-change--negative'
-  return 'balance-change--neutral'
-})
-
 const balanceChangeText = computed(() => {
   const change = currentBalance.value - previousBalance.value
   if (change === 0) return 'Nessuna variazione'
   const sign = change > 0 ? '+' : ''
   return `${sign}${formatCurrency(change)} dall'ultimo aggiornamento`
-})
-
-const profitColorClass = computed(() => {
-  const profit = monthlyProfit.value
-  if (profit < 0) return 'metric-value--danger'
-  if (profit === 0) return 'metric-value--neutral'
-  return 'metric-value--success'
-})
-
-const runwayColorClass = computed(() => {
-  const months = runway.value
-  if (months === Infinity) return 'metric-value--success'
-  if (months <= 1) return 'metric-value--danger'
-  if (months <= 3) return 'metric-value--warning'
-  return 'metric-value--success'
 })
 
 const canHire = computed(() => {
@@ -469,352 +499,3 @@ setInterval(() => {
   }
 }, 5000)
 </script>
-
-<style scoped>
-.financial-summary-card {
-  @apply h-full;
-}
-
-/* Current Balance */
-.current-balance {
-  @apply mb-6 p-4 bg-gradient-to-r from-brand-50 to-brand-100 rounded-lg border border-brand-200;
-}
-
-.balance-header {
-  @apply flex items-center justify-between mb-2;
-}
-
-.balance-title {
-  @apply text-lg font-semibold text-neutral-800;
-}
-
-.balance-trend {
-  @apply text-xl;
-}
-
-.balance-trend--positive {
-  @apply text-success-600;
-}
-
-.balance-trend--negative {
-  @apply text-danger-600;
-}
-
-.balance-trend--neutral {
-  @apply text-neutral-500;
-}
-
-.balance-amount {
-  @apply text-3xl font-bold mb-1;
-}
-
-.balance-amount--success {
-  @apply text-success-600;
-}
-
-.balance-amount--warning {
-  @apply text-warning-600;
-}
-
-.balance-amount--danger {
-  @apply text-danger-600;
-}
-
-.balance-change {
-  @apply text-sm;
-}
-
-.balance-change--positive {
-  @apply text-success-600;
-}
-
-.balance-change--negative {
-  @apply text-danger-600;
-}
-
-.balance-change--neutral {
-  @apply text-neutral-500;
-}
-
-/* Financial Metrics */
-.financial-metrics {
-  @apply mb-6;
-}
-
-.metrics-grid {
-  @apply grid grid-cols-2 lg:grid-cols-4 gap-4;
-}
-
-.metric-item {
-  @apply bg-neutral-50 rounded-lg p-3 border border-neutral-200;
-}
-
-.metric-header {
-  @apply flex items-center mb-2;
-}
-
-.metric-icon {
-  @apply text-lg mr-2;
-}
-
-.metric-label {
-  @apply text-sm font-medium text-neutral-600;
-}
-
-.metric-value {
-  @apply text-lg font-bold text-neutral-900 mb-1;
-}
-
-.metric-value--success {
-  @apply text-success-600;
-}
-
-.metric-value--warning {
-  @apply text-warning-600;
-}
-
-.metric-value--danger {
-  @apply text-danger-600;
-}
-
-.metric-value--neutral {
-  @apply text-neutral-500;
-}
-
-.metric-description {
-  @apply text-xs text-neutral-500;
-}
-
-/* Cash Flow Chart */
-.cash-flow-section {
-  @apply mb-6;
-}
-
-.cash-flow-title {
-  @apply text-lg font-semibold text-neutral-900 mb-4;
-}
-
-.cash-flow-chart {
-  @apply bg-neutral-50 rounded-lg p-4;
-}
-
-.chart-container {
-  @apply flex items-end justify-between h-32 mb-4;
-}
-
-.chart-bar-container {
-  @apply flex-1 flex flex-col items-center;
-}
-
-.chart-bar-wrapper {
-  @apply relative w-8 h-full flex items-end justify-center;
-}
-
-.chart-bar {
-  @apply w-full transition-all duration-500 ease-out;
-  @apply border-t-2 border-l border-r;
-}
-
-.chart-bar--positive {
-  @apply bg-success-500 border-success-600;
-}
-
-.chart-bar--negative {
-  @apply bg-danger-500 border-danger-600;
-  @apply absolute bottom-0;
-}
-
-.chart-label {
-  @apply text-xs text-neutral-600 mt-2;
-}
-
-.chart-value {
-  @apply text-xs font-medium mt-1;
-}
-
-.chart-value--positive {
-  @apply text-success-600;
-}
-
-.chart-value--negative {
-  @apply text-danger-600;
-}
-
-.chart-value--neutral {
-  @apply text-neutral-500;
-}
-
-.chart-legend {
-  @apply flex items-center justify-center space-x-4;
-}
-
-.legend-item {
-  @apply flex items-center;
-}
-
-.legend-color {
-  @apply w-3 h-3 rounded mr-2;
-}
-
-.legend-color--positive {
-  @apply bg-success-500;
-}
-
-.legend-color--negative {
-  @apply bg-danger-500;
-}
-
-.legend-label {
-  @apply text-sm text-neutral-600;
-}
-
-/* Financial Insights */
-.financial-insights {
-  @apply mb-6;
-}
-
-.insights-title {
-  @apply text-lg font-semibold text-neutral-900 mb-3;
-}
-
-.insights-list {
-  @apply space-y-2;
-}
-
-.insight-item {
-  @apply flex items-start p-3 rounded-lg;
-  @apply transition-colors duration-200;
-}
-
-.insight-item--success {
-  @apply bg-success-50 text-success-800;
-}
-
-.insight-item--warning {
-  @apply bg-warning-50 text-warning-800;
-}
-
-.insight-item--danger {
-  @apply bg-danger-50 text-danger-800;
-}
-
-.insight-icon {
-  @apply mr-2 mt-0.5 flex-shrink-0;
-}
-
-.insight-content {
-  @apply flex-1;
-}
-
-.insight-text {
-  @apply text-sm block;
-}
-
-.insight-action {
-  @apply text-xs opacity-75 block mt-0.5 cursor-pointer hover:opacity-100;
-  @apply transition-opacity duration-200;
-}
-
-/* Financial Actions */
-.financial-actions {
-  @apply border-t border-neutral-200 pt-4;
-}
-
-.actions-title {
-  @apply text-lg font-semibold text-neutral-900 mb-3;
-}
-
-.actions-grid {
-  @apply space-y-3;
-}
-
-.action-button {
-  @apply w-full flex items-center p-3 rounded-lg;
-  @apply bg-neutral-50 hover:bg-neutral-100 border border-neutral-200;
-  @apply transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.action-button:hover:not(:disabled) {
-  @apply shadow-sm transform -translate-y-0.5;
-}
-
-.action-button--disabled {
-  @apply opacity-50 cursor-not-allowed;
-}
-
-.action-icon {
-  @apply text-xl mr-3;
-}
-
-.action-content {
-  @apply flex-1 text-left;
-}
-
-.action-label {
-  @apply block font-medium text-neutral-900;
-}
-
-.action-description {
-  @apply text-sm text-neutral-600;
-}
-
-/* Responsive */
-@media (max-width: 1023px) {
-  .metrics-grid {
-    @apply grid-cols-2 gap-3;
-  }
-
-  .balance-amount {
-    @apply text-2xl;
-  }
-}
-
-@media (max-width: 640px) {
-  .metrics-grid {
-    @apply grid-cols-1 gap-2;
-  }
-
-  .balance-amount {
-    @apply text-xl;
-  }
-
-  .chart-container {
-    @apply h-24;
-  }
-
-  .chart-bar-wrapper {
-    @apply w-6;
-  }
-}
-
-/* Animations */
-.chart-bar {
-  animation: barGrow 1s ease-out;
-}
-
-@keyframes barGrow {
-  from {
-    height: 0%;
-  }
-}
-
-.balance-amount {
-  @apply transition-all duration-300;
-}
-
-.insight-item {
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>

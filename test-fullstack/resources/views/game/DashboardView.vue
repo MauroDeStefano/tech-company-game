@@ -1,74 +1,85 @@
 <template>
-  <div class="dashboard-view">
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-white">
     <!-- Page Header -->
-    <div class="dashboard-header">
-      <div class="header-content">
-        <h1 class="page-title">
-          <span class="title-icon">🏠</span>
-          Dashboard
-        </h1>
-        <p class="page-subtitle">
-          Panoramica della tua software house
-        </p>
-      </div>
+    <div class="bg-white shadow-sm border-b border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 class="text-4xl font-bold text-gray-900 tracking-tight mb-2">
+              <span class="text-2xl">🏠</span>
+              Dashboard
+            </h1>
+            <p class="text-xl text-gray-600">
+              Panoramica della tua software house
+            </p>
+          </div>
 
-      <div class="header-actions">
-        <BaseButton
-          variant="primary"
-          icon="🚀"
-          @click="goToProduction"
-        >
-          Nuova Assegnazione
-        </BaseButton>
+          <div>
+            <button
+              @click="goToProduction"
+              class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors duration-200"
+            >
+              <span>🚀</span>
+              Nuova Assegnazione
+            </button>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Main Dashboard Grid -->
-    <div class="dashboard-grid">
-      <!-- Stats Overview -->
-      <section class="dashboard-section dashboard-section--stats">
-        <GameStatsOverview />
-      </section>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Stats Overview -->
+        <section class="lg:col-span-8">
+          <GameStatsOverview />
+        </section>
 
-      <!-- Quick Actions -->
-      <section class="dashboard-section dashboard-section--actions">
-        <QuickActionsCard />
-      </section>
+        <!-- Quick Actions -->
+        <section class="lg:col-span-4">
+          <QuickActionsCard />
+        </section>
 
-      <!-- Active Projects -->
-      <section class="dashboard-section dashboard-section--projects">
-        <ActiveProjectsCard />
-      </section>
+        <!-- Active Projects -->
+        <section class="lg:col-span-8">
+          <ActiveProjectsCard />
+        </section>
 
-      <!-- Team Status -->
-      <section class="dashboard-section dashboard-section--team">
-        <TeamStatusCard />
-      </section>
+        <!-- Team Status -->
+        <section class="lg:col-span-4">
+          <TeamStatusCard />
+        </section>
 
-      <!-- Recent Activity -->
-      <section class="dashboard-section dashboard-section--activity">
-        <RecentActivityCard />
-      </section>
+        <!-- Recent Activity -->
+        <section class="lg:col-span-6">
+          <RecentActivityCard />
+        </section>
 
-      <!-- Financial Summary -->
-      <section class="dashboard-section dashboard-section--financial">
-        <FinancialSummaryCard />
-      </section>
+        <!-- Financial Summary -->
+        <section class="lg:col-span-6">
+          <FinancialSummaryCard />
+        </section>
+      </div>
     </div>
 
     <!-- Mobile Quick Actions -->
-    <div class="mobile-quick-actions">
-      <BaseButton
-        v-for="action in mobileQuickActions"
-        :key="action.name"
-        :variant="action.variant"
-        :icon="action.icon"
-        size="sm"
-        @click="action.action"
-        class="quick-action-btn"
-      >
-        {{ action.label }}
-      </BaseButton>
+    <div class="fixed bottom-4 left-4 right-4 lg:hidden">
+      <div class="flex justify-center gap-3">
+        <button
+          v-for="action in mobileQuickActions"
+          :key="action.name"
+          @click="action.action"
+          class="flex items-center gap-2 px-4 py-2 rounded-xl font-medium text-sm transition-colors duration-200"
+          :class="{
+            'bg-blue-600 hover:bg-blue-700 text-white': action.variant === 'primary',
+            'bg-gray-600 hover:bg-gray-700 text-white': action.variant === 'secondary',
+            'bg-green-600 hover:bg-green-700 text-white': action.variant === 'success'
+          }"
+        >
+          <span>{{ action.icon }}</span>
+          {{ action.label }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -130,134 +141,3 @@ const goToSales = () => {
   router.push({ name: 'Sales' })
 }
 </script>
-
-<style scoped>
-.dashboard-view {
-  @apply min-h-full;
-}
-
-/* Page Header */
-.dashboard-header {
-  @apply flex flex-col sm:flex-row sm:items-center sm:justify-between;
-  @apply mb-6 sm:mb-8;
-}
-
-.header-content {
-  @apply mb-4 sm:mb-0;
-}
-
-.page-title {
-  @apply text-2xl sm:text-3xl font-bold text-neutral-900;
-  @apply flex items-center;
-}
-
-.title-icon {
-  @apply text-3xl sm:text-4xl mr-3;
-}
-
-.page-subtitle {
-  @apply text-neutral-600 mt-1;
-}
-
-.header-actions {
-  @apply flex items-center space-x-3;
-}
-
-/* Dashboard Grid */
-.dashboard-grid {
-  @apply grid gap-6;
-  @apply grid-cols-1 lg:grid-cols-12;
-  @apply auto-rows-min;
-}
-
-.dashboard-section {
-  @apply min-h-0; /* Prevent grid items from stretching */
-}
-
-/* Grid Layout */
-.dashboard-section--stats {
-  @apply lg:col-span-8;
-}
-
-.dashboard-section--actions {
-  @apply lg:col-span-4;
-}
-
-.dashboard-section--projects {
-  @apply lg:col-span-8;
-}
-
-.dashboard-section--team {
-  @apply lg:col-span-4;
-}
-
-.dashboard-section--activity {
-  @apply lg:col-span-6;
-}
-
-.dashboard-section--financial {
-  @apply lg:col-span-6;
-}
-
-/* Mobile Quick Actions */
-.mobile-quick-actions {
-  @apply fixed bottom-20 left-4 right-4 z-20;
-  @apply flex space-x-2 lg:hidden;
-}
-
-.quick-action-btn {
-  @apply flex-1;
-}
-
-/* Responsive adjustments */
-@media (max-width: 1023px) {
-  .dashboard-grid {
-    @apply grid-cols-1 gap-4;
-  }
-
-  .dashboard-section {
-    @apply col-span-1;
-  }
-}
-
-@media (max-width: 640px) {
-  .dashboard-header {
-    @apply mb-4;
-  }
-
-  .page-title {
-    @apply text-xl;
-  }
-
-  .title-icon {
-    @apply text-2xl mr-2;
-  }
-
-  .header-actions {
-    @apply flex-col space-y-2 space-x-0;
-  }
-
-  .dashboard-grid {
-    @apply gap-3;
-  }
-}
-
-/* Loading states */
-.dashboard-section.loading {
-  @apply animate-pulse;
-}
-
-/* Smooth transitions for layout changes */
-.dashboard-grid {
-  @apply transition-all duration-300 ease-in-out;
-}
-
-/* Focus management */
-.dashboard-view:focus-within .dashboard-section {
-  @apply transition-opacity duration-200;
-}
-
-.dashboard-view:focus-within .dashboard-section:not(:focus-within) {
-  @apply opacity-75;
-}
-</style>

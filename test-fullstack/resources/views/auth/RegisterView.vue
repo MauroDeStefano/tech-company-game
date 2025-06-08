@@ -1,178 +1,272 @@
 <template>
-  <div class="register-view">
-    <!-- Page Header -->
-    <div class="register-header">
-      <div class="brand-section">
-        <h1 class="brand-title">
-          <span class="brand-icon">🏢</span>
-          Tech Company Game
-        </h1>
-        <p class="brand-subtitle">Crea il tuo account e inizia a gestire la tua software house</p>
-      </div>
+  <div class="min-h-screen bg-gradient-to-br from-emerald-50 via-sky-50 to-white relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
     </div>
 
-    <!-- Registration Form -->
-    <div class="register-form-container">
-      <BaseCard class="register-card" padding="lg">
-        <template #title>
-          <span class="register-form-title">Registrazione</span>
-        </template>
+    <!-- Floating Background Elements -->
+    <div class="absolute inset-0 pointer-events-none">
+      <div class="absolute top-20 left-10 text-6xl opacity-10 animate-bounce delay-1000">💼</div>
+      <div class="absolute top-40 right-20 text-5xl opacity-10 animate-pulse delay-2000">🚀</div>
+      <div class="absolute bottom-40 left-20 text-4xl opacity-10 animate-bounce delay-3000">💰</div>
+      <div class="absolute bottom-20 right-10 text-5xl opacity-10 animate-pulse delay-4000">📊</div>
+    </div>
 
-        <!-- Success Message -->
-        <div v-if="successMessage" class="success-message">
-          <div class="success-content">
-            <span class="success-icon">✅</span>
-            <span class="success-text">{{ successMessage }}</span>
-          </div>
+    <div class="relative z-10 py-12 px-4 sm:px-6 lg:px-8">
+      <!-- Header Section -->
+      <div class="text-center mb-8">
+        <div class="flex items-center justify-center gap-3 mb-4">
+          <span class="text-5xl">🏢</span>
+          <h1 class="text-4xl font-bold text-gray-900 tracking-tight">
+            Tech Company Game
+          </h1>
         </div>
+        <p class="text-xl text-gray-600 max-w-md mx-auto">
+          Crea il tuo account e inizia a gestire la tua software house
+        </p>
+      </div>
 
-        <!-- Error Messages -->
-        <div v-if="generalError" class="error-message">
-          <div class="error-content">
-            <span class="error-icon">⚠️</span>
-            <span class="error-text">{{ generalError }}</span>
+      <!-- Registration Form Container -->
+      <div class="max-w-md mx-auto">
+        <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8">
+          <!-- Card Header -->
+          <div class="text-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">Registrazione</h2>
           </div>
-        </div>
 
-        <!-- Registration Form -->
-        <form @submit.prevent="handleRegister" class="register-form">
-          <div class="form-fields">
-            <!-- Nome -->
-            <BaseInput
-              v-model="form.name"
-              type="text"
-              label="Nome completo"
-              placeholder="Inserisci il tuo nome completo"
-              leftIcon="👤"
-              :errorMessage="validationErrors.name?.[0]"
-              required
-              autocomplete="name"
-              :disabled="isLoading"
-            />
+          <!-- Success Message -->
+          <div 
+            v-if="successMessage" 
+            class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3"
+          >
+            <span class="text-green-500 text-xl flex-shrink-0">✅</span>
+            <span class="text-green-800 font-medium text-sm">{{ successMessage }}</span>
+          </div>
+
+          <!-- Error Message -->
+          <div 
+            v-if="generalError" 
+            class="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3"
+          >
+            <span class="text-red-500 text-xl flex-shrink-0 mt-0.5">⚠️</span>
+            <span class="text-red-800 font-medium text-sm">{{ generalError }}</span>
+          </div>
+
+          <!-- Registration Form -->
+          <form @submit.prevent="handleRegister" class="space-y-6">
+            <!-- Nome completo -->
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-700">
+                Nome completo
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 text-lg">👤</span>
+                </div>
+                <input
+                  v-model="form.name"
+                  type="text"
+                  placeholder="Inserisci il tuo nome completo"
+                  :disabled="isLoading"
+                  required
+                  autocomplete="name"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed transition-all duration-200"
+                  :class="{
+                    'border-red-300 focus:ring-red-500 focus:border-red-500': validationErrors.name,
+                    'border-gray-300': !validationErrors.name
+                  }"
+                />
+              </div>
+              <p v-if="validationErrors.name?.[0]" class="text-red-600 text-sm font-medium">
+                {{ validationErrors.name[0] }}
+              </p>
+            </div>
 
             <!-- Email -->
-            <BaseInput
-              v-model="form.email"
-              type="email"
-              label="Indirizzo email"
-              placeholder="esempio@email.com"
-              leftIcon="📧"
-              :errorMessage="validationErrors.email?.[0]"
-              required
-              autocomplete="email"
-              :disabled="isLoading"
-            />
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-700">
+                Indirizzo email
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 text-lg">📧</span>
+                </div>
+                <input
+                  v-model="form.email"
+                  type="email"
+                  placeholder="esempio@email.com"
+                  :disabled="isLoading"
+                  required
+                  autocomplete="email"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed transition-all duration-200"
+                  :class="{
+                    'border-red-300 focus:ring-red-500 focus:border-red-500': validationErrors.email,
+                    'border-gray-300': !validationErrors.email
+                  }"
+                />
+              </div>
+              <p v-if="validationErrors.email?.[0]" class="text-red-600 text-sm font-medium">
+                {{ validationErrors.email[0] }}
+              </p>
+            </div>
 
             <!-- Password -->
-            <BaseInput
-              v-model="form.password"
-              type="password"
-              label="Password"
-              placeholder="Scegli una password sicura"
-              leftIcon="🔒"
-              :errorMessage="validationErrors.password?.[0]"
-              required
-              autocomplete="new-password"
-              :disabled="isLoading"
-              helperText="Minimo 8 caratteri"
-            />
-
-            <!-- Conferma Password -->
-            <BaseInput
-              v-model="form.password_confirmation"
-              type="password"
-              label="Conferma password"
-              placeholder="Ripeti la password"
-              leftIcon="🔒"
-              :errorMessage="validationErrors.password_confirmation?.[0]"
-              required
-              autocomplete="new-password"
-              :disabled="isLoading"
-            />
-          </div>
-
-          <!-- Password Strength Indicator -->
-          <div v-if="form.password" class="password-strength">
-            <div class="strength-label">Sicurezza password:</div>
-            <div class="strength-bar">
-              <div
-                class="strength-fill"
-                :class="`strength-fill--${passwordStrength.level}`"
-                :style="{ width: `${passwordStrength.percentage}%` }"
-              ></div>
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-700">
+                Password
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 text-lg">🔒</span>
+                </div>
+                <input
+                  v-model="form.password"
+                  type="password"
+                  placeholder="Scegli una password sicura"
+                  :disabled="isLoading"
+                  required
+                  autocomplete="new-password"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed transition-all duration-200"
+                  :class="{
+                    'border-red-300 focus:ring-red-500 focus:border-red-500': validationErrors.password,
+                    'border-gray-300': !validationErrors.password
+                  }"
+                />
+              </div>
+              <p class="text-gray-500 text-xs">Minimo 8 caratteri</p>
+              <p v-if="validationErrors.password?.[0]" class="text-red-600 text-sm font-medium">
+                {{ validationErrors.password[0] }}
+              </p>
             </div>
-            <div class="strength-text" :class="`strength-text--${passwordStrength.level}`">
-              {{ passwordStrength.label }}
-            </div>
-          </div>
 
-          <!-- Terms and Conditions -->
-          <div class="terms-section">
-            <label class="terms-checkbox">
-              <input
-                type="checkbox"
-                v-model="form.acceptTerms"
-                :disabled="isLoading"
-                required
-              />
-              <span class="checkmark"></span>
-              <span class="terms-text">
-                Accetto i
-                <router-link to="/terms" class="terms-link">Termini e Condizioni</router-link>
-                e la
-                <router-link to="/privacy" class="terms-link">Privacy Policy</router-link>
+            <!-- Password Confirmation -->
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-700">
+                Conferma password
+              </label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span class="text-gray-400 text-lg">🔒</span>
+                </div>
+                <input
+                  v-model="form.password_confirmation"
+                  type="password"
+                  placeholder="Ripeti la password"
+                  :disabled="isLoading"
+                  required
+                  autocomplete="new-password"
+                  class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl bg-white text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed transition-all duration-200"
+                  :class="{
+                    'border-red-300 focus:ring-red-500 focus:border-red-500': validationErrors.password_confirmation,
+                    'border-gray-300': !validationErrors.password_confirmation
+                  }"
+                />
+              </div>
+              <p v-if="validationErrors.password_confirmation?.[0]" class="text-red-600 text-sm font-medium">
+                {{ validationErrors.password_confirmation[0] }}
+              </p>
+            </div>
+
+            <!-- Password Strength Indicator -->
+            <div v-if="form.password" class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-sm font-medium text-gray-700">Sicurezza password:</span>
+                <span 
+                  class="text-xs font-semibold"
+                  :class="{
+                    'text-red-600': passwordStrength.level === 'very-weak' || passwordStrength.level === 'weak',
+                    'text-yellow-600': passwordStrength.level === 'medium',
+                    'text-green-600': passwordStrength.level === 'strong' || passwordStrength.level === 'very-strong'
+                  }"
+                >
+                  {{ passwordStrength.label }}
+                </span>
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-2">
+                <div 
+                  class="h-2 rounded-full transition-all duration-300 ease-out"
+                  :class="{
+                    'bg-red-500': passwordStrength.level === 'very-weak' || passwordStrength.level === 'weak',
+                    'bg-yellow-500': passwordStrength.level === 'medium',
+                    'bg-green-500': passwordStrength.level === 'strong' || passwordStrength.level === 'very-strong'
+                  }"
+                  :style="{ width: `${passwordStrength.percentage}%` }"
+                ></div>
+              </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="space-y-3">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  v-model="form.acceptTerms"
+                  :disabled="isLoading"
+                  required
+                  class="w-4 h-4 text-emerald-600 bg-gray-100 border-gray-300 rounded focus:ring-emerald-500 focus:ring-2 disabled:bg-gray-50 disabled:cursor-not-allowed mt-0.5"
+                />
+                <span class="text-sm text-gray-700 leading-relaxed">
+                  Accetto i
+                  <router-link to="/terms" class="text-emerald-600 hover:text-emerald-800 font-semibold transition-colors duration-200">
+                    Termini e Condizioni
+                  </router-link>
+                  e la
+                  <router-link to="/privacy" class="text-emerald-600 hover:text-emerald-800 font-semibold transition-colors duration-200">
+                    Privacy Policy
+                  </router-link>
+                </span>
+              </label>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              :disabled="!isFormValid || isLoading"
+              class="w-full py-3 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-bold rounded-xl transition-all duration-200 transform hover:scale-105 disabled:hover:scale-100 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shadow-lg"
+            >
+              <span v-if="!isLoading" class="flex items-center justify-center gap-2">
+                <span class="text-xl">🚀</span>
+                Crea Account
               </span>
-            </label>
+              <span v-else class="flex items-center justify-center gap-2">
+                <svg class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Creazione account...
+              </span>
+            </button>
+          </form>
+
+          <!-- Login Link -->
+          <div class="text-center mt-6 pt-6 border-t border-gray-200">
+            <p class="text-gray-600 text-sm">
+              Hai già un account?
+              <router-link
+                to="/login"
+                class="text-emerald-600 hover:text-emerald-800 font-semibold transition-colors duration-200 ml-1"
+              >
+                Accedi qui
+              </router-link>
+            </p>
           </div>
 
-          <!-- Submit Button -->
-          <BaseButton
-            type="submit"
-            variant="primary"
-            size="lg"
-            block
-            :loading="isLoading"
-            :disabled="!isFormValid || isLoading"
-            class="register-button"
-          >
-            <template v-if="!isLoading">
-              <span class="button-icon">🚀</span>
-              Crea Account
-            </template>
-            <template v-else>
-              Creazione account...
-            </template>
-          </BaseButton>
-        </form>
-
-        <!-- Login Link -->
-        <div class="login-link-section">
-          <p class="login-text">
-            Hai già un account?
-            <router-link to="/login" class="login-link">
-              Accedi qui
-            </router-link>
-          </p>
+          <!-- Development Info -->
+          <div v-if="isDevelopment" class="mt-6 pt-6 border-t border-gray-200">
+            <details class="group">
+              <summary class="flex cursor-pointer items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors duration-200">
+                <span>🛠️ Info Sviluppo</span>
+                <svg class="w-4 h-4 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </summary>
+              <div class="mt-3 p-3 bg-gray-50 rounded-lg border">
+                <pre class="text-xs text-gray-600 whitespace-pre-wrap overflow-x-auto">{{ JSON.stringify({ form, validationErrors, passwordStrength }, null, 2) }}</pre>
+              </div>
+            </details>
+          </div>
         </div>
-
-        <!-- Development Info -->
-        <div v-if="isDevelopment" class="dev-info">
-          <details class="dev-details">
-            <summary class="dev-summary">🛠️ Info Sviluppo</summary>
-            <div class="dev-content">
-              <pre>{{ JSON.stringify({ form, validationErrors, passwordStrength }, null, 2) }}</pre>
-            </div>
-          </details>
-        </div>
-      </BaseCard>
-    </div>
-
-    <!-- Background Elements -->
-    <div class="background-elements">
-      <div class="bg-element bg-element--1">💼</div>
-      <div class="bg-element bg-element--2">🚀</div>
-      <div class="bg-element bg-element--3">💰</div>
-      <div class="bg-element bg-element--4">📊</div>
+      </div>
     </div>
   </div>
 </template>
@@ -330,334 +424,3 @@ onUnmounted(() => {
   resetForm()
 })
 </script>
-
-<style scoped>
-.register-view {
-  @apply min-h-screen bg-gradient-to-br from-brand-50 to-brand-100;
-  @apply flex flex-col justify-center items-center;
-  @apply px-4 py-8 relative overflow-hidden;
-}
-
-/* Page Header */
-.register-header {
-  @apply text-center mb-8;
-}
-
-.brand-section {
-  @apply space-y-2;
-}
-
-.brand-title {
-  @apply text-3xl md:text-4xl font-bold text-neutral-900;
-  @apply flex items-center justify-center;
-}
-
-.brand-icon {
-  @apply text-4xl md:text-5xl mr-3;
-}
-
-.brand-subtitle {
-  @apply text-neutral-600 text-lg max-w-md mx-auto;
-}
-
-/* Form Container */
-.register-form-container {
-  @apply w-full max-w-md;
-}
-
-.register-card {
-  @apply shadow-xl border-0 bg-white/95 backdrop-blur-sm;
-}
-
-.register-form-title {
-  @apply text-xl font-semibold text-neutral-900;
-}
-
-/* Messages */
-.success-message,
-.error-message {
-  @apply mb-6 p-4 rounded-lg;
-}
-
-.success-message {
-  @apply bg-success-50 border border-success-200;
-}
-
-.error-message {
-  @apply bg-danger-50 border border-danger-200;
-}
-
-.success-content,
-.error-content {
-  @apply flex items-center;
-}
-
-.success-icon,
-.error-icon {
-  @apply mr-2 text-lg;
-}
-
-.success-text {
-  @apply text-success-800 text-sm font-medium;
-}
-
-.error-text {
-  @apply text-danger-800 text-sm font-medium;
-}
-
-/* Form */
-.register-form {
-  @apply space-y-6;
-}
-
-.form-fields {
-  @apply space-y-4;
-}
-
-/* Password Strength */
-.password-strength {
-  @apply space-y-2;
-}
-
-.strength-label {
-  @apply text-sm font-medium text-neutral-700;
-}
-
-.strength-bar {
-  @apply w-full h-2 bg-neutral-200 rounded-full overflow-hidden;
-}
-
-.strength-fill {
-  @apply h-full transition-all duration-300 ease-out;
-}
-
-.strength-fill--very-weak {
-  @apply bg-danger-500;
-}
-
-.strength-fill--weak {
-  @apply bg-warning-500;
-}
-
-.strength-fill--medium {
-  @apply bg-yellow-500;
-}
-
-.strength-fill--strong {
-  @apply bg-success-500;
-}
-
-.strength-fill--very-strong {
-  @apply bg-success-600;
-}
-
-.strength-text {
-  @apply text-xs font-medium;
-}
-
-.strength-text--very-weak {
-  @apply text-danger-600;
-}
-
-.strength-text--weak {
-  @apply text-warning-600;
-}
-
-.strength-text--medium {
-  @apply text-yellow-600;
-}
-
-.strength-text--strong {
-  @apply text-success-600;
-}
-
-.strength-text--very-strong {
-  @apply text-success-700;
-}
-
-/* Terms and Conditions */
-.terms-section {
-  @apply pt-2;
-}
-
-.terms-checkbox {
-  @apply flex items-start cursor-pointer;
-}
-
-.terms-checkbox input[type="checkbox"] {
-  @apply sr-only;
-}
-
-.checkmark {
-  @apply w-5 h-5 border-2 border-neutral-300 rounded mr-3 mt-0.5;
-  @apply flex items-center justify-center flex-shrink-0;
-  @apply transition-all duration-200;
-}
-
-.terms-checkbox input[type="checkbox"]:checked + .checkmark {
-  @apply bg-brand-600 border-brand-600;
-}
-
-.terms-checkbox input[type="checkbox"]:checked + .checkmark::after {
-  content: '✓';
-  @apply text-white text-sm font-bold;
-}
-
-.terms-text {
-  @apply text-sm text-neutral-700 leading-relaxed;
-}
-
-.terms-link {
-  @apply text-brand-600 hover:text-brand-700 font-medium;
-  @apply transition-colors duration-200;
-}
-
-/* Submit Button */
-.register-button {
-  @apply mt-6;
-}
-
-.button-icon {
-  @apply mr-2;
-}
-
-/* Login Link */
-.login-link-section {
-  @apply mt-6 pt-6 border-t border-neutral-200 text-center;
-}
-
-.login-text {
-  @apply text-neutral-600 text-sm;
-}
-
-.login-link {
-  @apply text-brand-600 hover:text-brand-700 font-medium ml-1;
-  @apply transition-colors duration-200;
-}
-
-/* Development Info */
-.dev-info {
-  @apply mt-6 pt-4 border-t border-neutral-200;
-}
-
-.dev-details {
-  @apply bg-neutral-50 rounded p-3;
-}
-
-.dev-summary {
-  @apply cursor-pointer text-xs font-mono text-neutral-600;
-  @apply hover:text-neutral-800 transition-colors;
-}
-
-.dev-content {
-  @apply mt-2;
-}
-
-.dev-content pre {
-  @apply text-xs font-mono text-neutral-700;
-  @apply max-h-40 overflow-auto;
-}
-
-/* Background Elements */
-.background-elements {
-  @apply absolute inset-0 pointer-events-none overflow-hidden;
-}
-
-.bg-element {
-  @apply absolute text-6xl opacity-10 text-brand-600;
-  @apply animate-pulse;
-}
-
-.bg-element--1 {
-  @apply top-20 left-10;
-  animation-delay: 0s;
-}
-
-.bg-element--2 {
-  @apply top-40 right-16;
-  animation-delay: 1s;
-}
-
-.bg-element--3 {
-  @apply bottom-32 left-20;
-  animation-delay: 2s;
-}
-
-.bg-element--4 {
-  @apply bottom-20 right-12;
-  animation-delay: 3s;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
-  .register-view {
-    @apply px-3 py-6;
-  }
-
-  .brand-title {
-    @apply text-2xl;
-  }
-
-  .brand-icon {
-    @apply text-3xl mr-2;
-  }
-
-  .brand-subtitle {
-    @apply text-base;
-  }
-
-  .register-form-container {
-    @apply max-w-sm;
-  }
-
-  .bg-element {
-    @apply text-4xl;
-  }
-}
-
-/* Focus states for accessibility */
-.terms-checkbox:focus-within .checkmark {
-  @apply ring-2 ring-brand-500 ring-offset-2;
-}
-
-.register-form :deep(.input-field):focus {
-  @apply ring-2 ring-brand-500 ring-offset-1;
-}
-
-/* Animation for success message */
-.success-message {
-  animation: slideInDown 0.5s ease-out;
-}
-
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Error shake animation */
-.error-message {
-  animation: shake 0.5s ease-in-out;
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
-}
-
-/* Loading state */
-.register-card.loading {
-  @apply pointer-events-none opacity-75;
-}
-
-/* Smooth transitions */
-.register-form * {
-  @apply transition-colors duration-200;
-}
-</style>
