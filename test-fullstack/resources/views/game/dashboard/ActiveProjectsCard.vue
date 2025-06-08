@@ -292,6 +292,6 @@ const viewProjectDetails = (project) => {
 }
 
 const goToProduction = () => {
-  router.push({ name: 'Production' })
+  router.push('/game/production')
 }
 </script>

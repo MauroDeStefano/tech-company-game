@@ -1,327 +1,435 @@
 <template>
-  <!-- Header fisso con z-index alto -->
-  <header class="fixed top-0 left-0 right-0 bg-white shadow-sm border-b border-gray-200 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-      <!-- Logo e titolo gioco -->
-      <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3">
-          <div class="text-2xl">🏢</div>
-          <div>
-            <h1 class="text-xl font-bold text-gray-900">{{ gameStore.currentGame?.name || 'Tech Company' }}</h1>
-            <p class="text-sm text-gray-600">Software House Manager</p>
-          </div>
-        </div>
-
-        <!-- Stats principali -->
-        <div class="hidden lg:flex items-center gap-6">
-          <!-- Patrimonio -->
-          <div class="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
-            <div class="text-lg">💰</div>
-            <div>
-              <span class="block text-xs text-gray-600">Patrimonio</span>
-              <span class="block text-sm font-semibold" :class="moneyColorClass">
-                {{ formatCurrency(gameStore.currentGame?.money || 0) }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Costi mensili -->
-          <div class="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
-            <div class="text-lg">📊</div>
-            <div>
-              <span class="block text-xs text-gray-600">Costi/Mese</span>
-              <span class="block text-sm font-semibold text-gray-900">
-                {{ formatCurrency(monthlyCosts) }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Team size -->
-          <div class="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
-            <div class="text-lg">👥</div>
-            <div>
-              <span class="block text-xs text-gray-600">Team</span>
-              <span class="block text-sm font-semibold text-gray-900">
-                {{ totalTeamSize }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Progetti attivi -->
-          <div class="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg">
-            <div class="text-lg">🚀</div>
-            <div>
-              <span class="block text-xs text-gray-600">Progetti</span>
-              <span class="block text-sm font-semibold text-gray-900">
-                {{ activeProjects }}/{{ totalProjects }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Azioni rapide -->
-        <div class="flex items-center gap-4">
-          <!-- Status del gioco -->
-          <div>
-            <StatusBadge
-              :status="gameStore.currentGame?.status"
-              :show-icon="true"
-            />
-          </div>
-
-          <!-- Salvataggio automatico -->
-          <div class="flex items-center gap-2 text-sm text-gray-600" :class="{ 'text-blue-600': isSaving }">
-            <svg v-if="isSaving" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-            </svg>
-            <span v-else>💾</span>
-            <span class="hidden sm:inline">
-              {{ isSaving ? 'Salvando...' : 'Salvato' }}
-            </span>
-          </div>
-
-          <!-- Menu azioni -->
-          <div class="relative action-menu">
-            <button
-              class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
-              @click="showGameMenu = !showGameMenu"
-              aria-label="Menu gioco"
+  <nav class="relative">
+    <!-- Desktop Sidebar - Aggiornato per header fisso -->
+    <div class="hidden lg:flex lg:w-64 lg:flex-col lg:fixed lg:inset-y-0 lg:bg-white lg:border-r lg:border-gray-200 lg:z-40">
+      <!-- Spacer per l'header fisso -->
+      <div class="h-20 flex-shrink-0 bg-gray-50 border-b border-gray-200"></div>
+      
+      <!-- Navigation Links -->
+      <div class="flex-1 overflow-y-auto pt-5 pb-4">
+        <ul class="space-y-1 px-3">
+          <li v-for="route in navigationRoutes" :key="route.name">
+            <router-link
+              :to="{ name: route.name }"
+              class="group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-colors duration-200"
+              :class="isActiveRoute(route.name) 
+                ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600' 
+                : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'"
+              :aria-current="isActiveRoute(route.name) ? 'page' : undefined"
             >
-              ⚙️
-            </button>
+              <div class="flex items-center justify-between w-full">
+                <div class="flex items-center gap-3">
+                  <span class="text-lg">{{ route.icon }}</span>
+                  <div>
+                    <span class="block">{{ route.title }}</span>
+                    <span v-if="route.description" class="text-xs text-gray-500 block">
+                      {{ route.description }}
+                    </span>
+                  </div>
+                </div>
 
-            <!-- Dropdown menu -->
-            <div v-if="showGameMenu" class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-60" @click.stop>
-              <button class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" @click="saveGame">
-                <span>💾</span>
-                Salva Gioco
-              </button>
-              <button class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" @click="pauseGame">
-                <span>⏸️</span>
-                Metti in Pausa
-              </button>
-              <div class="my-2 border-t border-gray-100"></div>
-              <button class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" @click="goToGameList">
-                <span>📋</span>
-                Lista Partite
-              </button>
-              <button class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200" @click="confirmEndGame">
-                <span>🚪</span>
-                Termina Partita
-              </button>
-            </div>
-          </div>
-
-          <!-- User menu -->
-          <div class="relative user-menu">
-            <button class="w-8 h-8 rounded-full overflow-hidden ring-2 ring-gray-200 hover:ring-gray-300 transition-all duration-200" @click="showUserMenu = !showUserMenu">
-              <img
-                v-if="authStore.user?.avatar_url"
-                :src="authStore.user.avatar_url"
-                :alt="authStore.user.name"
-                class="w-full h-full object-cover"
-              />
-              <div v-else class="w-full h-full bg-gray-300 flex items-center justify-center text-sm font-medium text-gray-700">
-                {{ authStore.userInitials }}
+                <!-- Badge per notifiche -->
+                <span
+                  v-if="route.badge"
+                  class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full"
+                  :class="route.badgeVariant === 'warning' 
+                    ? 'bg-yellow-100 text-yellow-800' 
+                    : route.badgeVariant === 'success' 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-blue-100 text-blue-800'"
+                >
+                  {{ route.badge }}
+                </span>
               </div>
-            </button>
+            </router-link>
+          </li>
+        </ul>
+      </div>
 
-            <!-- User dropdown -->
-            <div v-if="showUserMenu" class="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-60" @click.stop>
-              <div class="px-4 py-3 border-b border-gray-100">
-                <p class="text-sm font-medium text-gray-900">{{ authStore.user?.name }}</p>
-                <p class="text-xs text-gray-600">{{ authStore.user?.email }}</p>
-              </div>
-              <button class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" @click="goToProfile">
-                <span>👤</span>
-                Profilo
-              </button>
-              <button class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" @click="goToSettings">
-                <span>⚙️</span>
-                Impostazioni
-              </button>
-              <div class="my-2 border-t border-gray-100"></div>
-              <button class="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-200" @click="logout">
-                <span>🚪</span>
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
+      <!-- Shortcuts Info -->
+      <div class="border-t border-gray-200 p-4">
+        <h4 class="text-sm font-medium text-gray-900 mb-3 flex items-center gap-2">
+          ⌨️ Shortcuts
+        </h4>
+        <ul class="space-y-2">
+          <li v-for="shortcut in keyboardShortcuts" :key="shortcut.key" class="flex items-center justify-between text-xs">
+            <kbd class="px-2 py-1 bg-gray-100 border border-gray-300 rounded text-gray-700 font-mono">
+              {{ shortcut.key }}
+            </kbd>
+            <span class="text-gray-600">{{ shortcut.label }}</span>
+          </li>
+        </ul>
       </div>
     </div>
 
-    <!-- Game Over Warning -->
-    <div v-if="isNearBankruptcy" class="bg-red-50 border-t border-red-200">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
-            <span class="text-red-500">⚠️</span>
-            <span class="text-sm text-red-800">
-              Attenzione! Il patrimonio è in rosso. Completa progetti o riduci i costi per evitare il fallimento.
+    <!-- Mobile Bottom Navigation - Aggiornato z-index -->
+    <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40">
+      <div class="flex items-center justify-around px-2 py-2">
+        <router-link
+          v-for="route in mobileRoutes"
+          :key="route.name"
+          :to="{ name: route.name }"
+          class="flex flex-col items-center px-3 py-2 relative"
+          :class="isActiveRoute(route.name) 
+            ? 'text-blue-600' 
+            : 'text-gray-600'"
+        >
+          <div class="relative">
+            <span class="text-lg">{{ route.icon }}</span>
+            <!-- Badge mobile -->
+            <span
+              v-if="route.badge"
+              class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
+            >
+              {{ route.badge }}
             </span>
           </div>
-          <button
-            class="px-3 py-1 text-xs font-medium text-red-800 bg-red-100 hover:bg-red-200 rounded-lg transition-colors duration-200"
-            @click="dismissWarning"
+          <span class="text-xs mt-1">{{ route.title }}</span>
+        </router-link>
+
+        <!-- Hamburger Menu Button -->
+        <button
+          class="flex flex-col items-center px-3 py-2 text-gray-600"
+          @click="toggleMobileMenu"
+          :aria-expanded="isMobileMenuOpen"
+          aria-label="Menu"
+        >
+          <div class="relative w-6 h-6 flex flex-col justify-center items-center">
+            <span class="block w-5 h-0.5 bg-current transition-all duration-300"
+                  :class="isMobileMenuOpen ? 'rotate-45 translate-y-0.5' : ''"></span>
+            <span class="block w-5 h-0.5 bg-current mt-1 transition-all duration-300"
+                  :class="isMobileMenuOpen ? 'opacity-0' : ''"></span>
+            <span class="block w-5 h-0.5 bg-current mt-1 transition-all duration-300"
+                  :class="isMobileMenuOpen ? '-rotate-45 -translate-y-0.5' : ''"></span>
+          </div>
+          <span class="text-xs mt-1">Menu</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Overlay Menu - Aggiornato z-index e posizione -->
+    <transition
+      enter-active-class="transition-all duration-300"
+      leave-active-class="transition-all duration-300"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="isMobileMenuOpen"
+        class="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-45"
+        @click="closeMobileMenu"
+      >
+        <transition
+          enter-active-class="transition-transform duration-300"
+          leave-active-class="transition-transform duration-300"
+          enter-from-class="translate-y-full"
+          enter-to-class="translate-y-0"
+          leave-from-class="translate-y-0"
+          leave-to-class="translate-y-full"
+        >
+          <div
+            v-if="isMobileMenuOpen"
+            class="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto"
+            @click.stop
           >
-            Chiudi
-          </button>
+            <div class="p-4 border-b border-gray-200">
+              <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Menu Gioco</h3>
+                <button
+                  class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors duration-200"
+                  @click="closeMobileMenu"
+                  aria-label="Chiudi menu"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div class="p-4">
+              <!-- Game Stats (Mobile) -->
+              <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-gray-50 rounded-lg p-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">💰</span>
+                    <div>
+                      <span class="block text-xs text-gray-600">Patrimonio</span>
+                      <span class="block text-sm font-semibold" :class="moneyColorClass">
+                        {{ formatCurrency(gameStore.currentGameMoney) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-lg p-3">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">👥</span>
+                    <div>
+                      <span class="block text-xs text-gray-600">Team</span>
+                      <span class="block text-sm font-semibold text-gray-900">{{ totalTeamSize }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Navigation Links (Mobile) -->
+              <ul class="space-y-2 mb-6">
+                <li v-for="route in allNavigationRoutes" :key="route.name">
+                  <router-link
+                    :to="{ name: route.name }"
+                    class="flex items-center justify-between p-3 rounded-lg transition-colors duration-200"
+                    :class="isActiveRoute(route.name) 
+                      ? 'bg-blue-50 text-blue-700' 
+                      : 'text-gray-700 hover:bg-gray-50'"
+                    @click="closeMobileMenu"
+                  >
+                    <div class="flex items-center gap-3">
+                      <span class="text-lg">{{ route.icon }}</span>
+                      <div>
+                        <span class="block font-medium">{{ route.title }}</span>
+                        <span v-if="route.description" class="text-sm text-gray-500">{{ route.description }}</span>
+                      </div>
+                    </div>
+                    <span v-if="route.badge" class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-red-100 text-red-800 rounded-full">
+                      {{ route.badge }}
+                    </span>
+                  </router-link>
+                </li>
+              </ul>
+
+              <!-- Quick Actions (Mobile) -->
+              <div class="grid grid-cols-2 gap-3">
+                <button 
+                  class="flex items-center justify-center gap-2 p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+                  @click="quickSave"
+                >
+                  <span class="text-lg">💾</span>
+                  <span class="font-medium">Salva</span>
+                </button>
+
+                <button 
+                  class="flex items-center justify-center gap-2 p-3 bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+                  @click="quickPause"
+                >
+                  <span class="text-lg">⏸️</span>
+                  <span class="font-medium">Pausa</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </div>
+    </transition>
+
+    <!-- Progress Indicator (Global) - Aggiornato per header fisso -->
+    <div v-if="hasActiveProjects" class="fixed top-20 left-0 right-0 lg:left-64 bg-blue-50 border-b border-blue-200 z-30">
+      <div class="px-4 py-2">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2 text-sm text-blue-800">
+            <span>⚡</span>
+            <span>{{ activeProjectsCount }} progetti in corso</span>
+          </div>
+          <span class="text-xs text-blue-600">{{ Math.round(overallProgress) }}%</span>
+        </div>
+        <div class="w-full bg-blue-200 rounded-full h-1">
+          <div
+            class="bg-blue-600 h-1 rounded-full transition-all duration-300"
+            :style="{ width: `${overallProgress}%` }"
+          ></div>
         </div>
       </div>
     </div>
-  </header>
+  </nav>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, inject, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useGameStore } from '@/js/stores/game'
-import { useAuthStore } from '@/js/stores/auth'
 import { useNotificationStore } from '@/js/stores/notifications'
 import { formatCurrency } from '@/js/utils/helpers'
-import StatusBadge from '@/js/components/shared/StatusBadge.vue'
 
 // Stores
 const gameStore = useGameStore()
-const authStore = useAuthStore()
 const notificationStore = useNotificationStore()
+const route = useRoute()
 const router = useRouter()
 
+// Injected navigation state
+const navigation = inject('navigation', {
+  isSidebarOpen: ref(false),
+  toggleSidebar: () => {}
+})
+
 // Reactive state
-const showGameMenu = ref(false)
-const showUserMenu = ref(false)
-const isSaving = ref(false)
-const showBankruptcyWarning = ref(true)
+const isMobileMenuOpen = ref(false)
 
-// Computed properties
-const monthlyCosts = computed(() => {
-  if (!gameStore.currentGame) return 0
-  return gameStore.currentGame.monthly_costs || 0
-})
-
+// 🎯 CORREZIONE: Computed properties che usano i getters dello store
 const totalTeamSize = computed(() => {
-  if (!gameStore.currentGame) return 0
-  const developers = gameStore.currentGame.developers?.length || 0
-  const salesPeople = gameStore.currentGame.sales_people?.length || 0
-  return developers + salesPeople
-})
-
-const activeProjects = computed(() => {
-  if (!gameStore.currentGame?.projects) return 0
-  return gameStore.currentGame.projects.filter(p => p.status === 'in_progress').length
-})
-
-const totalProjects = computed(() => {
-  return gameStore.currentGame?.projects?.length || 0
-})
-
-const isNearBankruptcy = computed(() => {
-  if (!gameStore.currentGame) return false
-  return gameStore.currentGame.money < 1000 && showBankruptcyWarning.value
+  return gameStore.currentGameTeamSize
 })
 
 const moneyColorClass = computed(() => {
-  const money = gameStore.currentGame?.money || 0
+  const money = gameStore.currentGameMoney
   if (money < 0) return 'text-red-600'
   if (money < 1000) return 'text-yellow-600'
   return 'text-green-600'
 })
 
+// 🎯 CORREZIONE: Usa i getters dello store invece di chiamare progetti come funzione
+const pendingProjectsCount = computed(() => {
+  // Usa direttamente i dati dal GameResource (più efficiente)
+  return gameStore.currentGamePendingProjects
+})
+
+// 🎯 CORREZIONE: Usa i getters dello store per sales people disponibili
+const availableSalesCount = computed(() => {
+  // Usa il getter che simula Laravel Collection
+  return gameStore.salesPeople.available().length
+})
+
+const activeProjectsCount = computed(() => {
+  // Usa direttamente i dati dal GameResource (più efficiente)
+  return gameStore.currentGameActiveProjects
+})
+
+const hasActiveProjects = computed(() => activeProjectsCount.value > 0)
+
+// 🎯 CORREZIONE: Calcola progress usando i getters dello store
+const overallProgress = computed(() => {
+  // Se usi il getter projects che simula Laravel Collection
+  const activeProjects = gameStore.projects.filter(p => p.status === 'in_progress')
+  
+  if (activeProjects.length === 0) return 0
+
+  const totalProgress = activeProjects.reduce((sum, project) => {
+    return sum + (project.progress_percentage || 0)
+  }, 0)
+
+  return totalProgress / activeProjects.length
+})
+
+// Navigation routes configuration
+const navigationRoutes = computed(() => [
+  {
+    name: 'GameDashboard',
+    title: 'Dashboard',
+    icon: '🏠',
+    description: 'Panoramica generale del gioco'
+  },
+  {
+    name: 'Production',
+    title: 'Produzione',
+    icon: '🏗️',
+    description: 'Gestisci sviluppatori e progetti',
+    badge: pendingProjectsCount.value > 0 ? pendingProjectsCount.value : null,
+    badgeVariant: 'warning'
+  },
+  {
+    name: 'Sales',
+    title: 'Sales',
+    icon: '💼',
+    description: 'Gestisci commerciali e vendite',
+    badge: availableSalesCount.value > 0 ? availableSalesCount.value : null,
+    badgeVariant: 'success'
+  },
+  {
+    name: 'HR',
+    title: 'Risorse Umane',
+    icon: '🧑‍💼',
+    description: 'Assumi nuovo personale'
+  }
+])
+
+// Mobile routes (subset for bottom nav)
+const mobileRoutes = computed(() =>
+  navigationRoutes.value.slice(0, 3) // Mostra solo i primi 3 su mobile
+)
+
+const allNavigationRoutes = computed(() => navigationRoutes.value)
+
+// Keyboard shortcuts
+const keyboardShortcuts = [
+  { key: 'Ctrl+1', label: 'Dashboard' },
+  { key: 'Ctrl+2', label: 'Produzione' },
+  { key: 'Ctrl+3', label: 'Sales' },
+  { key: 'Ctrl+4', label: 'HR' },
+  { key: 'Ctrl+S', label: 'Salva' }
+]
+
 // Methods
-const saveGame = async () => {
-  isSaving.value = true
+const isActiveRoute = (routeName) => {
+  return route.name === routeName
+}
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false
+}
+
+const quickSave = async () => {
   try {
     await gameStore.saveGame()
-    notificationStore.success('Gioco salvato con successo!')
+    notificationStore.success('Gioco salvato!')
+    closeMobileMenu()
   } catch (error) {
     notificationStore.error('Errore nel salvataggio')
-  } finally {
-    isSaving.value = false
-    showGameMenu.value = false
   }
 }
 
-const pauseGame = async () => {
+const quickPause = async () => {
   try {
     await gameStore.pauseGame()
-    notificationStore.info('Gioco messo in pausa')
+    notificationStore.info('Gioco in pausa')
+    closeMobileMenu()
   } catch (error) {
-    notificationStore.error('Errore nella pausa del gioco')
-  }
-  showGameMenu.value = false
-}
-
-const goToGameList = () => {
-  router.push({ name: 'GameList' })
-  showGameMenu.value = false
-}
-
-const confirmEndGame = () => {
-  if (confirm('Sei sicuro di voler terminare questa partita? I progressi verranno salvati.')) {
-    router.push({ name: 'GameList' })
-  }
-  showGameMenu.value = false
-}
-
-const goToProfile = () => {
-  router.push({ name: 'Profile' })
-  showUserMenu.value = false
-}
-
-const goToSettings = () => {
-  router.push({ name: 'Settings' })
-  showUserMenu.value = false
-}
-
-const logout = async () => {
-  if (confirm('Sei sicuro di voler fare logout? Il gioco verrà salvato automaticamente.')) {
-    await saveGame()
-    await authStore.logout()
-    router.push({ name: 'Login' })
-  }
-  showUserMenu.value = false
-}
-
-const dismissWarning = () => {
-  showBankruptcyWarning.value = false
-}
-
-// Close dropdowns when clicking outside
-const handleClickOutside = (event) => {
-  if (!event.target.closest('.action-menu')) {
-    showGameMenu.value = false
-  }
-  if (!event.target.closest('.user-menu')) {
-    showUserMenu.value = false
+    notificationStore.error('Errore nella pausa')
   }
 }
 
-// Auto-save functionality
-let autoSaveInterval = null
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-
-  // Auto-save ogni 30 secondi
-  autoSaveInterval = setInterval(async () => {
-    if (gameStore.currentGame?.status === 'active') {
-      isSaving.value = true
-      try {
-        await gameStore.saveGame()
-      } catch (error) {
-        console.error('Auto-save failed:', error)
-      } finally {
-        isSaving.value = false
-      }
+// Keyboard shortcuts handler
+const handleKeydown = (event) => {
+  if (event.ctrlKey || event.metaKey) {
+    switch (event.key) {
+      case '1':
+        event.preventDefault()
+        router.push('/game/dashboard')
+        break
+      case '2':
+        event.preventDefault()
+        router.push('/game/production')
+        break
+      case '3':
+        event.preventDefault()
+        router.push('/game/sales')
+        break
+      case '4':
+        event.preventDefault()
+        router.push('/game/hr')
+        break
+      case 's':
+        event.preventDefault()
+        quickSave()
+        break
     }
-  }, 30000)
+  }
+
+  // ESC per chiudere menu mobile
+  if (event.key === 'Escape' && isMobileMenuOpen.value) {
+    closeMobileMenu()
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-  if (autoSaveInterval) {
-    clearInterval(autoSaveInterval)
-  }
+  document.removeEventListener('keydown', handleKeydown)
 })
 </script>

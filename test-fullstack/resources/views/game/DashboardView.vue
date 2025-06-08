@@ -130,14 +130,14 @@ const mobileQuickActions = computed(() => [
 
 // Methods
 const goToProduction = () => {
-  router.push({ name: 'Production' })
+  router.push('/game/production')
 }
 
 const goToHR = () => {
-  router.push({ name: 'HR' })
+  router.push('/game/hr')
 }
 
 const goToSales = () => {
-  router.push({ name: 'Sales' })
+  router.push('/game/sales')
 }
 </script>

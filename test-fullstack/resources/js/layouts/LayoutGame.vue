@@ -166,19 +166,19 @@ const handleKeydown = (event) => {
     switch (event.key) {
       case '1':
         event.preventDefault()
-        router.push({ name: 'GameDashboard' })
+        router.push('/game/dashboard')
         break
       case '2':
         event.preventDefault()
-        router.push({ name: 'Production' })
+        router.push('/game/production')
         break
       case '3':
         event.preventDefault()
-        router.push({ name: 'Sales' })
+        router.push('/game/sales')
         break
       case '4':
         event.preventDefault()
-        router.push({ name: 'HR' })
+        router.push('/game/hr')
         break
       case 's':
         event.preventDefault()

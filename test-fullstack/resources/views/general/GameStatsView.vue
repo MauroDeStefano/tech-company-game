@@ -836,7 +836,7 @@ const recommendations = computed(() => {
       icon: '🚨',
       priority: 'high',
       priorityLabel: 'Urgente',
-      action: () => router.push({ name: 'Production' }),
+      action: () => router.push('/game/production'),
       actionText: 'Vai alla Produzione',
       actionVariant: 'danger'
     })
@@ -850,7 +850,7 @@ const recommendations = computed(() => {
       icon: '⚡',
       priority: 'medium',
       priorityLabel: 'Importante',
-      action: () => router.push({ name: 'Production' }),
+      action: () => router.push('/game/production'),
       actionText: 'Ottimizza Assegnazioni',
       actionVariant: 'warning'
     })
@@ -864,7 +864,7 @@ const recommendations = computed(() => {
       icon: '💼',
       priority: 'medium',
       priorityLabel: 'Consigliato',
-      action: () => router.push({ name: 'Sales' }),
+      action: () => router.push('/game/sales'),
       actionText: 'Vai ai Sales',
       actionVariant: 'primary'
     })
@@ -878,7 +878,7 @@ const recommendations = computed(() => {
       icon: '📈',
       priority: 'low',
       priorityLabel: 'Opportunità',
-      action: () => router.push({ name: 'HR' }),
+      action: () => router.push('/game/hr'),
       actionText: 'Assumi Personale',
       actionVariant: 'success'
     })

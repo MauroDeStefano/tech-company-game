@@ -599,9 +599,20 @@ const handleSubmit = async () => {
     const result = await gameStore.createGame(gameData)
     
     createdGame.value = result
-    showSuccessModal.value = true
+    
+    // 🎯 CORREZIONE 1: Carica immediatamente il game nello store
+    await gameStore.loadGame(result.id)
     
     notificationStore.success('Partita creata con successo! 🎉')
+    
+    // 🎯 CORREZIONE 2: Opzioni di navigazione
+    if (form.showTutorial) {
+      // Se tutorial attivo, mostra modal poi naviga
+      showSuccessModal.value = true
+    } else {
+      // Se no tutorial, naviga direttamente
+      router.push('/game/dashboard')
+    }
     
   } catch (error) {
     console.error('Error creating game:', error)
@@ -625,11 +636,22 @@ const handleSubmit = async () => {
   }
 }
 
-const startGame = () => {
+const startGame = async () => {
   closeSuccessModal()
-  router.push({ name: 'GameDashboard' })
+  
+  // Assicurati che il game sia caricato nello store
+  if (createdGame.value?.id && !gameStore.currentGame?.id) {
+    try {
+      await gameStore.loadGame(createdGame.value.id)
+    } catch (error) {
+      console.error('Error loading game:', error)
+      notificationStore.error('Errore nel caricamento della partita')
+      return
+    }
+  }
+  
+  router.push('/game/dashboard')
 }
-
 const closeSuccessModal = () => {
   showSuccessModal.value = false
   createdGame.value = null

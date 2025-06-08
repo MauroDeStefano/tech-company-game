@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\GameController;
+use App\Http\Controllers\Api\ProductionController;
 
 Route::middleware('auth:sanctum')->prefix('games')->group(function () {
     Route::get('/', [GameController::class, 'index']);
@@ -22,7 +23,7 @@ Route::middleware('auth:sanctum')->prefix('games')->group(function () {
         });
 
         Route::get('/{game}/developers', [GameController::class, 'developers']);
-        Route::get('/{game}/projects/pending', [GameController::class, 'pendingProjects']);
+        Route::get('/{game}/projects/pending', [ProductionController::class, 'pendingProjects']);
         Route::get('/{game}/sales-people', [GameController::class, 'salesPeople']);
         Route::get('/{game}/market/developers', [GameController::class, 'marketDevelopers']);
         Route::get('/{game}/market/sales-people', [GameController::class, 'marketSalesPeople']);

@@ -156,7 +156,7 @@
                     <div>
                       <span class="block text-xs text-gray-600">Patrimonio</span>
                       <span class="block text-sm font-semibold" :class="moneyColorClass">
-                        {{ formatCurrency(gameStore.currentGame?.money || 0) }}
+                        {{ formatCurrency(gameStore.currentGameMoney) }}
                       </span>
                     </div>
                   </div>
@@ -265,6 +265,68 @@ const navigation = inject('navigation', {
 // Reactive state
 const isMobileMenuOpen = ref(false)
 
+// Keyboard shortcuts
+const keyboardShortcuts = [
+  { key: 'Ctrl+1', label: 'Dashboard' },
+  { key: 'Ctrl+2', label: 'Produzione' },
+  { key: 'Ctrl+3', label: 'Sales' },
+  { key: 'Ctrl+4', label: 'HR' },
+  { key: 'Ctrl+S', label: 'Salva' }
+]
+
+// 🎯 CORREZIONE COMPLETA: Tutte le computed properties che usano i getters dello store
+const totalTeamSize = computed(() => {
+  return gameStore.currentGameTeamSize || 0
+})
+
+const moneyColorClass = computed(() => {
+  const money = gameStore.currentGameMoney
+  if (money < 0) return 'text-red-600'
+  if (money < 1000) return 'text-yellow-600'
+  return 'text-green-600'
+})
+
+// 🎯 OPZIONE 1: Usa i dati dal GameResource (più efficiente - raccomandato)
+const pendingProjectsCount = computed(() => {
+  return gameStore.currentGamePendingProjects || 0
+})
+
+const activeProjectsCount = computed(() => {
+  return gameStore.currentGameActiveProjects || 0
+})
+
+// 🎯 OPZIONE 2: Usa i getters che simulano Laravel Collection (se hai bisogno di logica più complessa)
+const availableSalesCount = computed(() => {
+  try {
+    return gameStore.salesPeople.available().length
+  } catch (error) {
+    // Fallback se il getter non è ancora pronto
+    console.warn('SalesPeople getter not ready, using fallback')
+    return 0
+  }
+})
+
+const overallProgress = computed(() => {
+  try {
+    // Usa il getter che simula Laravel Collection
+    const activeProjects = gameStore.projects.filter(p => p.status === 'in_progress')
+    
+    if (activeProjects.length === 0) return 0
+
+    const totalProgress = activeProjects.reduce((sum, project) => {
+      return sum + (project.progress_percentage || 0)
+    }, 0)
+
+    return totalProgress / activeProjects.length
+  } catch (error) {
+    // Fallback se i getters non sono pronti
+    console.warn('Projects getter not ready, using fallback')
+    return 0
+  }
+})
+
+const hasActiveProjects = computed(() => activeProjectsCount.value > 0)
+
 // Navigation routes configuration
 const navigationRoutes = computed(() => [
   {
@@ -303,59 +365,6 @@ const mobileRoutes = computed(() =>
 )
 
 const allNavigationRoutes = computed(() => navigationRoutes.value)
-
-// Keyboard shortcuts
-const keyboardShortcuts = [
-  { key: 'Ctrl+1', label: 'Dashboard' },
-  { key: 'Ctrl+2', label: 'Produzione' },
-  { key: 'Ctrl+3', label: 'Sales' },
-  { key: 'Ctrl+4', label: 'HR' },
-  { key: 'Ctrl+S', label: 'Salva' }
-]
-
-// Computed properties
-const totalTeamSize = computed(() => {
-  if (!gameStore.currentGame) return 0
-  const developers = gameStore.currentGame.developers?.length || 0
-  const salesPeople = gameStore.currentGame.sales_people?.length || 0
-  return developers + salesPeople
-})
-
-const moneyColorClass = computed(() => {
-  const money = gameStore.currentGame?.money || 0
-  if (money < 0) return 'text-red-600'
-  if (money < 1000) return 'text-yellow-600'
-  return 'text-green-600'
-})
-
-const pendingProjectsCount = computed(() => {
-  if (!gameStore.currentGame?.projects) return 0
-  return gameStore.currentGame.projects.filter(p => p.status === 'pending').length
-})
-
-const availableSalesCount = computed(() => {
-  if (!gameStore.currentGame?.sales_people) return 0
-  return gameStore.currentGame.sales_people.filter(s => !s.is_busy).length
-})
-
-const activeProjectsCount = computed(() => {
-  if (!gameStore.currentGame?.projects) return 0
-  return gameStore.currentGame.projects.filter(p => p.status === 'in_progress').length
-})
-
-const hasActiveProjects = computed(() => activeProjectsCount.value > 0)
-
-const overallProgress = computed(() => {
-  if (!gameStore.currentGame?.projects) return 0
-  const activeProjects = gameStore.currentGame.projects.filter(p => p.status === 'in_progress')
-  if (activeProjects.length === 0) return 0
-
-  const totalProgress = activeProjects.reduce((sum, project) => {
-    return sum + (project.progress_percentage || 0)
-  }, 0)
-
-  return totalProgress / activeProjects.length
-})
 
 // Methods
 const isActiveRoute = (routeName) => {
@@ -396,19 +405,19 @@ const handleKeydown = (event) => {
     switch (event.key) {
       case '1':
         event.preventDefault()
-        router.push({ name: 'GameDashboard' })
+        router.push('/game/dashboard')
         break
       case '2':
         event.preventDefault()
-        router.push({ name: 'Production' })
+        router.push('/game/production')
         break
       case '3':
         event.preventDefault()
-        router.push({ name: 'Sales' })
+        router.push('/game/sales')
         break
       case '4':
         event.preventDefault()
-        router.push({ name: 'HR' })
+        router.push('/game/hr')
         break
       case 's':
         event.preventDefault()
@@ -426,6 +435,12 @@ const handleKeydown = (event) => {
 // Lifecycle
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  
+  // 🎯 DEBUG: Per verificare che i getters funzionino
+  console.log('Navigation mounted - Store getters:')
+  console.log('Projects getter:', gameStore.projects)
+  console.log('SalesPeople getter:', gameStore.salesPeople)
+  console.log('Developers getter:', gameStore.developers)
 })
 
 onUnmounted(() => {

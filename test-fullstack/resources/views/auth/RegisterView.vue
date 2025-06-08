@@ -371,7 +371,7 @@ const handleRegister = async () => {
 
     // Breve pausa per mostrare il messaggio, poi redirect
     setTimeout(() => {
-      router.push({ name: 'GameDashboard' })
+      router.push('/game/dashboard')
     }, 1500)
 
   } catch (error) {

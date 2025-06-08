@@ -639,11 +639,11 @@ const cancelGeneration = async () => {
 }
 
 const goToHR = () => {
-  router.push({ name: 'HR' })
+  router.push('/game/hr')
 }
 
 const goToProduction = () => {
-  router.push({ name: 'Production' })
+  router.push('/game/production')
 }
 
 // Auto-refresh data

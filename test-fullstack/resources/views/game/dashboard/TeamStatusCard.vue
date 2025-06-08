@@ -403,14 +403,14 @@ const getExperienceText = (experience) => {
 }
 
 const goToProduction = () => {
-  router.push({ name: 'Production' })
+  router.push('/game/production')
 }
 
 const goToSales = () => {
-  router.push({ name: 'Sales' })
+  router.push('/game/sales')
 }
 
 const goToHR = () => {
-  router.push({ name: 'HR' })
+  router.push('/game/hr')
 }
 </script>

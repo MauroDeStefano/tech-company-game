@@ -412,7 +412,7 @@ const financialInsights = computed(() => {
       type: 'danger',
       icon: '⚠️',
       text: 'Profitto negativo: i costi superano i ricavi',
-      action: () => router.push({ name: 'HR' }),
+      action: () => router.push('/game/hr'),
       actionText: 'Ottimizza team'
     })
   }
@@ -424,7 +424,7 @@ const financialInsights = computed(() => {
       type: 'danger',
       icon: '🚨',
       text: `Solo ${runway.value} ${runway.value === 1 ? 'mese' : 'mesi'} di liquidità rimanente`,
-      action: () => router.push({ name: 'Production' }),
+      action: () => router.push('/game/production'),
       actionText: 'Completa progetti'
     })
   }
@@ -436,7 +436,7 @@ const financialInsights = computed(() => {
       type: 'success',
       icon: '🚀',
       text: 'Situazione finanziaria ottima: considera di espandere',
-      action: () => router.push({ name: 'HR' }),
+      action: () => router.push('/game/hr'),
       actionText: 'Assumi personale'
     })
   }
@@ -448,7 +448,7 @@ const financialInsights = computed(() => {
       type: 'warning',
       icon: '📊',
       text: 'Nessun progetto completato questo mese',
-      action: () => router.push({ name: 'Sales' }),
+      action: () => router.push('/game/sales'),
       actionText: 'Genera progetti'
     })
   }
@@ -459,14 +459,14 @@ const financialInsights = computed(() => {
 // Methods
 const expandTeam = () => {
   if (canHire.value) {
-    router.push({ name: 'HR' })
+    router.push('/game/hr')
   }
 }
 
 const optimizeCosts = () => {
   if (totalTeamSize.value > 2) {
     notificationStore.info('Per ottimizzare i costi, considera di ridurre il team nella sezione HR')
-    router.push({ name: 'HR' })
+    router.push('/game/hr')
   }
 }
 

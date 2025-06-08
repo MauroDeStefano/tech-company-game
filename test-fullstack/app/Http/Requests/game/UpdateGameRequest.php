@@ -16,7 +16,7 @@ class UpdateGameRequest extends FormRequest
     {
         return [
             'name' => 'sometimes|string|max:255|min:3',
-            'notes' => 'sometimes|string|max:1000',
+            'notes' => 'sometimes|string|max:1000|nullable',
             'status' => 'sometimes|in:' . implode(',', [
                 Game::STATUS_ACTIVE,
                 Game::STATUS_PAUSED,

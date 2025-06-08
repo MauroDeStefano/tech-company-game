@@ -202,7 +202,7 @@ const suggestions = computed(() => {
       text: `Hai ${pendingProjectsCount.value} progetti da assegnare`,
       actionText: 'Assegna ora',
       priority: 'high',
-      action: () => router.push({ name: 'Production' })
+      action: () => router.push('/game/production')
     })
   }
 
@@ -214,7 +214,7 @@ const suggestions = computed(() => {
       text: 'Genera nuovi progetti per mantenere il flusso di lavoro',
       actionText: 'Vai ai Sales',
       priority: 'medium',
-      action: () => router.push({ name: 'Sales' })
+      action: () => router.push('/game/sales')
     })
   }
 
@@ -227,7 +227,7 @@ const suggestions = computed(() => {
       text: 'Il tuo team è piccolo, considera di assumere nuovo personale',
       actionText: 'Assumi ora',
       priority: 'medium',
-      action: () => router.push({ name: 'HR' })
+      action: () => router.push('/game/hr')
     })
   }
 
@@ -249,16 +249,16 @@ const suggestions = computed(() => {
 // Methods
 const assignProject = () => {
   if (!canAssignProject.value) return
-  router.push({ name: 'Production' })
+  router.push('/game/production')
 }
 
 const generateProject = () => {
   if (!canGenerateProject.value) return
-  router.push({ name: 'Sales' })
+  router.push('/game/sales')
 }
 
 const hirePersonnel = () => {
-  router.push({ name: 'HR' })
+  router.push('/game/hr')
 }
 
 const saveGame = async () => {

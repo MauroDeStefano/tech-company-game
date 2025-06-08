@@ -1,5 +1,6 @@
+// src/js/router/game.js
 export default [
-    // Game selection and management
+    // Game selection and management (fuori dal layout game)
     {
         path: '/games',
         name: 'GameList',
@@ -11,29 +12,46 @@ export default [
         }
     },
 
-    // Main game interface with nested routes
+    // Game creation (fuori dal layout game)
+    {
+        path: '/new-game',
+        name: 'NewGame',
+        component: () => import('@/views/game/NewGameView.vue'),
+        meta: {
+            title: 'Nuova Partita',
+            requiresAuth: true,
+            layout: 'LayoutDefault'
+        }
+    },
     {
         path: '/game',
+        name: 'game',
         component: () => import('@/js/layouts/LayoutGame.vue'),
         meta: {
             requiresAuth: true,
             requiresGame: true
         },
         children: [
-            // Game Dashboard - Overview
             {
-                path: '',
+                path: '', 
+                redirect: 'dashboard'
+            },
+
+            // Game Dashboard - Overview (route principale)
+            {
+                path: 'dashboard',  // /game/dashboard
                 name: 'GameDashboard',
                 component: () => import('@/views/game/DashboardView.vue'),
                 meta: {
                     title: 'Dashboard',
-                    icon: '🏠'
+                    icon: '🏠',
+                    description: 'Panoramica della tua software house'
                 }
             },
 
             // Production Section
             {
-                path: 'production',
+                path: 'production',  // /game/production
                 name: 'Production',
                 component: () => import('@/views/game/ProductionView.vue'),
                 meta: {
@@ -45,7 +63,7 @@ export default [
 
             // Sales Section
             {
-                path: 'sales',
+                path: 'sales',  // /game/sales
                 name: 'Sales',
                 component: () => import('@/views/game/SalesView.vue'),
                 meta: {
@@ -57,7 +75,7 @@ export default [
 
             // HR Section
             {
-                path: 'hr',
+                path: 'hr',  // /game/hr
                 name: 'HR',
                 component: () => import('@/views/game/HRView.vue'),
                 meta: {
@@ -69,27 +87,15 @@ export default [
         ]
     },
 
-    // // Game creation
+    // 🎯 AGGIUNTA: Game statistics (fuori dal layout game - pagina standalone)
     {
-        path: '/new-game',
-        name: 'NewGame',
-        component: () => import('@/views/game/NewGameView.vue'),
+        path: '/game/:id/stats',
+        name: 'GameStats',
+        component: () => import('@/views/game/dashboard/GameStatsOverView.vue'),
         meta: {
-            title: 'Nuova Partita',
+            title: 'Statistiche Partita',
             requiresAuth: true,
             layout: 'LayoutDefault'
         }
-    },
-
-    // Game statistics and history
-    // {
-    //     path: '/game/:id/stats',
-    //     name: 'GameStats',
-    //     component: () => import('@/views/game/GameStatsView.vue'),
-    //     meta: {
-    //         title: 'Statistiche Partita',
-    //         requiresAuth: true,
-    //         layout: 'LayoutDefault'
-    //     }
-    // }
+    }
 ]

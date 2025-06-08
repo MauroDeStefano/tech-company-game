@@ -15,17 +15,14 @@
           </div>
 
           <div class="grid grid-cols-3 gap-4">
+            <!-- 🎯 CORREZIONE: Usa il getter dello store per il money -->
             <div class="bg-gray-50 rounded-lg p-3 text-center">
               <span class="text-2xl block mb-1">💰</span>
               <div 
                 class="text-lg font-bold"
-                :class="{
-                  'text-red-600': (gameStore.currentGame?.money || 0) < 0,
-                  'text-yellow-600': (gameStore.currentGame?.money || 0) >= 0 && (gameStore.currentGame?.money || 0) < 2000,
-                  'text-green-600': (gameStore.currentGame?.money || 0) >= 2000
-                }"
+                :class="moneyColorClass"
               >
-                {{ formatCurrency(gameStore.currentGame?.money || 0) }}
+                {{ formatCurrency(currentMoney) }}
               </div>
               <div class="text-xs text-gray-600">Budget Disponibile</div>
             </div>
@@ -75,18 +72,19 @@
                 <div class="flex-1">
                   <div class="font-medium text-gray-900">{{ developer.name }}</div>
                   <div class="flex items-center gap-2 mt-1">
-                    <span class="text-sm text-gray-600">{{ getSeniorityText(developer.seniority) }}</span>
-                    <span class="text-sm text-gray-600">{{ formatCurrency(developer.monthly_salary) }}/mese</span>
+                    <!-- 🎯 CORREZIONE: Usa la struttura corretta per seniority e salary -->
+                    <span class="text-sm text-gray-600">{{ getSeniorityText(developer.seniority?.level || developer.seniority) }}</span>
+                    <span class="text-sm text-gray-600">{{ formatCurrency(developer.salary?.monthly || developer.monthly_salary) }}/mese</span>
                   </div>
                 </div>
                 <span 
                   class="text-xs px-2 py-1 rounded-full"
                   :class="{
-                    'bg-red-100 text-red-700': developer.is_busy,
-                    'bg-green-100 text-green-700': !developer.is_busy
+                    'bg-red-100 text-red-700': developer.status?.is_busy || developer.is_busy,
+                    'bg-green-100 text-green-700': !(developer.status?.is_busy || developer.is_busy)
                   }"
                 >
-                  {{ developer.is_busy ? 'Occupato' : 'Disponibile' }}
+                  {{ (developer.status?.is_busy || developer.is_busy) ? 'Occupato' : 'Disponibile' }}
                 </span>
               </div>
             </div>
@@ -112,18 +110,19 @@
                 <div class="flex-1">
                   <div class="font-medium text-gray-900">{{ salesPerson.name }}</div>
                   <div class="flex items-center gap-2 mt-1">
-                    <span class="text-sm text-gray-600">{{ getExperienceText(salesPerson.experience) }}</span>
-                    <span class="text-sm text-gray-600">{{ formatCurrency(salesPerson.monthly_salary) }}/mese</span>
+                    <!-- 🎯 CORREZIONE: Usa la struttura corretta per experience e salary -->
+                    <span class="text-sm text-gray-600">{{ getExperienceText(salesPerson.experience?.level || salesPerson.experience) }}</span>
+                    <span class="text-sm text-gray-600">{{ formatCurrency(salesPerson.salary?.monthly || salesPerson.monthly_salary) }}/mese</span>
                   </div>
                 </div>
                 <span 
                   class="text-xs px-2 py-1 rounded-full"
                   :class="{
-                    'bg-red-100 text-red-700': salesPerson.is_busy,
-                    'bg-green-100 text-green-700': !salesPerson.is_busy
+                    'bg-red-100 text-red-700': salesPerson.status?.is_busy || salesPerson.is_busy,
+                    'bg-green-100 text-green-700': !(salesPerson.status?.is_busy || salesPerson.is_busy)
                   }"
                 >
-                  {{ salesPerson.is_busy ? 'Occupato' : 'Disponibile' }}
+                  {{ (salesPerson.status?.is_busy || salesPerson.is_busy) ? 'Occupato' : 'Disponibile' }}
                 </span>
               </div>
             </div>
@@ -383,25 +382,40 @@ const salesFilter = ref('all')
 const marketDevelopers = ref([])
 const marketSalesPeople = ref([])
 
-// Computed properties
+// 🎯 CORREZIONE: Computed properties che usano i getters dello store
+const currentMoney = computed(() => {
+  // Usa il getter dello store che gestisce la struttura corretta
+  return gameStore.currentGameMoney || 0
+})
+
+const moneyColorClass = computed(() => {
+  const money = currentMoney.value
+  if (money < 0) return 'text-red-600'
+  if (money < 2000) return 'text-yellow-600'
+  return 'text-green-600'
+})
+
 const currentDevelopers = computed(() => {
-  return gameStore.currentGame?.developers || []
+  // Usa il getter developers che ritorna l'array
+  return gameStore.developers.data || []
 })
 
 const currentSalesPeople = computed(() => {
-  return gameStore.currentGame?.sales_people || []
+  // Usa il getter salesPeople che ritorna l'array
+  return gameStore.salesPeople.data || []
 })
 
 const currentTeamSize = computed(() => {
-  return currentDevelopers.value.length + currentSalesPeople.value.length
+  return gameStore.currentGameTeamSize || 0
 })
 
 const monthlyCosts = computed(() => {
-  return gameStore.currentGame?.monthly_costs || 0
+  // Usa il getter costs dal GameResource
+  return gameStore.currentGame?.costs?.monthly || 0
 })
 
 const isLowBudget = computed(() => {
-  return (gameStore.currentGame?.money || 0) < 3000
+  return currentMoney.value < 3000
 })
 
 const filteredDevelopers = computed(() => {
@@ -514,8 +528,8 @@ const loadMarketSalesPeople = async () => {
 }
 
 const canAfford = (cost) => {
-  return (gameStore.currentGame?.money || 0) >= cost
-}
+  return currentMoney.value >= cost
+};
 
 const hireDeveloper = async (developer) => {
   if (!canAfford(developer.hiring_cost)) {
@@ -536,10 +550,8 @@ const hireDeveloper = async (developer) => {
     // Remove from market
     marketDevelopers.value = marketDevelopers.value.filter(d => d.id !== developer.id)
 
-    // Update game money (should be done by API)
-    if (gameStore.currentGame) {
-      gameStore.currentGame.money -= developer.hiring_cost
-    }
+    // Update game money via store action (better approach)
+    await gameStore.refreshCurrentGame()
 
   } catch (error) {
     notificationStore.error('Errore durante l\'assunzione dello sviluppatore')
@@ -567,10 +579,8 @@ const hireSalesPerson = async (salesPerson) => {
     // Remove from market
     marketSalesPeople.value = marketSalesPeople.value.filter(s => s.id !== salesPerson.id)
 
-    // Update game money (should be done by API)
-    if (gameStore.currentGame) {
-      gameStore.currentGame.money -= salesPerson.hiring_cost
-    }
+    // Update game money via store action (better approach)
+    await gameStore.refreshCurrentGame()
 
   } catch (error) {
     notificationStore.error('Errore durante l\'assunzione del commerciale')
@@ -624,8 +634,13 @@ const getSalesSpecializationText = (specialization) => {
   return specs[specialization] || specialization
 }
 
-// Lifecycle
+// 🎯 DEBUG: Aggiungi per verificare la struttura dati
 onMounted(() => {
+  console.log('🔍 HR Component mounted - Debug info:')
+  console.log('Current game:', gameStore.currentGame)
+  console.log('Current money:', currentMoney.value)
+  console.log('Money structure:', gameStore.currentGame?.money)
+  
   loadMarketDevelopers()
   loadMarketSalesPeople()
 })

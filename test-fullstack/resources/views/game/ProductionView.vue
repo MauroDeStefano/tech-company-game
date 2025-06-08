@@ -654,11 +654,11 @@ const calculateEstimatedTime = (project, developer) => {
 }
 
 const goToHR = () => {
-  router.push({ name: 'HR' })
+  router.push('/game/hr')
 }
 
 const goToSales = () => {
-  router.push({ name: 'Sales' })
+  router.push('/game/sales')
 }
 
 // Auto-refresh data
