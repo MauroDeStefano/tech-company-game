@@ -15,7 +15,7 @@
 
       <!-- Main Content Grid -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
-        
+
         <!-- Game Preview Card -->
         <div class="order-2 lg:order-1">
           <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -26,7 +26,7 @@
                 Anteprima Partita
               </h3>
             </div>
-            
+
             <!-- Preview Content -->
             <div class="space-y-4">
               <div class="flex justify-between items-start">
@@ -35,21 +35,21 @@
                   {{ form.name || 'La tua Software House' }}
                 </span>
               </div>
-              
+
               <div class="flex justify-between items-start">
                 <span class="text-sm font-medium text-gray-500">Patrimonio Iniziale:</span>
                 <span class="text-sm font-semibold text-green-600 text-right">
                   {{ formatCurrency(form.initialMoney || 5000) }}
                 </span>
               </div>
-              
+
               <div class="flex justify-between items-start">
                 <span class="text-sm font-medium text-gray-500">Team Iniziale:</span>
                 <span class="text-sm font-semibold text-gray-900 text-right">
                   1 Sviluppatore + 1 Commerciale
                 </span>
               </div>
-              
+
               <div v-if="form.notes" class="flex justify-between items-start">
                 <span class="text-sm font-medium text-gray-500">Note:</span>
                 <span class="text-sm text-gray-700 text-right max-w-xs">
@@ -64,7 +64,7 @@
                 <span>💪</span>
                 Livello Difficoltà
               </h4>
-              
+
               <div class="flex items-center gap-3 mb-2" :class="difficultyClass">
                 <div class="flex gap-1">
                   <div
@@ -76,7 +76,7 @@
                 </div>
                 <span class="text-sm font-semibold">{{ difficultyText }}</span>
               </div>
-              
+
               <p class="text-xs text-gray-600">{{ difficultyDescription }}</p>
             </div>
           </div>
@@ -100,7 +100,7 @@
                   🏢 Nome della tua Software House
                   <span class="text-red-500 ml-1">*</span>
                 </label>
-                
+
                 <div class="relative">
                   <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <span class="text-gray-400 text-lg">🏢</span>
@@ -119,7 +119,7 @@
                     required
                   />
                 </div>
-                
+
                 <p v-if="errors.name" class="text-red-600 text-sm font-medium">
                   {{ errors.name }}
                 </p>
@@ -134,7 +134,7 @@
                   💰 Patrimonio Iniziale
                   <span class="text-red-500 ml-1">*</span>
                 </label>
-                
+
                 <!-- Preset Buttons -->
                 <div class="grid grid-cols-2 gap-3">
                   <button
@@ -142,8 +142,8 @@
                     :key="preset.value"
                     type="button"
                     class="p-4 border rounded-xl text-left transition-all duration-200 hover:shadow-md"
-                    :class="form.initialMoney === preset.value 
-                      ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500 ring-opacity-20' 
+                    :class="form.initialMoney === preset.value
+                      ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-500 ring-opacity-20'
                       : 'border-gray-300 hover:border-gray-400 hover:bg-gray-50'"
                     @click="setInitialMoney(preset.value)"
                   >
@@ -158,7 +158,7 @@
                   <label class="block text-sm font-medium text-gray-700">
                     Importo Personalizzato
                   </label>
-                  
+
                   <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <span class="text-gray-400 text-lg">💵</span>
@@ -179,7 +179,7 @@
                       @input="clearFieldError('initialMoney')"
                     />
                   </div>
-                  
+
                   <p v-if="errors.initialMoney" class="text-red-600 text-sm font-medium">
                     {{ errors.initialMoney }}
                   </p>
@@ -194,7 +194,7 @@
                 <label class="block text-sm font-semibold text-gray-700">
                   📝 Note della Partita
                 </label>
-                
+
                 <div class="relative">
                   <div class="absolute top-3 left-0 pl-3 pointer-events-none">
                     <span class="text-gray-400 text-lg">📝</span>
@@ -213,7 +213,7 @@
                     @input="clearFieldError('notes')"
                   ></textarea>
                 </div>
-                
+
                 <div class="flex justify-between items-center">
                   <p v-if="errors.notes" class="text-red-600 text-sm font-medium">
                     {{ errors.notes }}
@@ -236,21 +236,21 @@
                   </div>
                   <span class="text-gray-400 group-open:rotate-90 transition-transform duration-200">›</span>
                 </summary>
-                
+
                 <div class="mt-4 p-4 border border-gray-100 rounded-xl bg-gray-50 space-y-4">
                   <!-- Game Mode Selection -->
                   <div class="space-y-3">
                     <label class="block text-sm font-semibold text-gray-700">
                       🎯 Modalità di Gioco
                     </label>
-                    
+
                     <div class="space-y-2">
                       <label
                         v-for="mode in gameModes"
                         :key="mode.id"
                         class="flex items-start gap-3 p-3 border rounded-lg cursor-pointer transition-all duration-200 hover:bg-white"
-                        :class="form.gameMode === mode.id 
-                          ? 'border-purple-500 bg-purple-50' 
+                        :class="form.gameMode === mode.id
+                          ? 'border-purple-500 bg-purple-50'
                           : 'border-gray-200 bg-white'"
                       >
                         <input
@@ -358,12 +358,12 @@
           <p class="text-gray-700 mb-6">
             La tua software house <strong>{{ createdGame?.name }}</strong> è stata creata con successo!
           </p>
-          
+
           <div class="space-y-3 mb-6">
             <div class="flex items-center gap-3">
               <span class="text-lg">💰</span>
               <span class="text-sm text-gray-700">
-                Patrimonio: {{ formatCurrency(createdGame?.money || 0) }}
+                Patrimonio: {{ formatCurrency(form.initialMoney || 0) }}
               </span>
             </div>
             <div class="flex items-center gap-3">
@@ -378,7 +378,7 @@
 
           <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p class="text-sm text-blue-800">
-              <span class="font-semibold">💡 Tip:</span> 
+              <span class="font-semibold">💡 Tip:</span>
               Inizia assegnando progetti ai tuoi sviluppatori per generare entrate e far crescere la tua azienda!
             </p>
           </div>
@@ -534,7 +534,7 @@ const validationRules = {
     }
     return ''
   },
-  
+
   initialMoney: (value) => {
     const num = Number(value)
     if (isNaN(num)) return 'Inserisci un importo valido'
@@ -543,7 +543,7 @@ const validationRules = {
     if (num % 100 !== 0) return 'L\'importo deve essere un multiplo di 100€'
     return ''
   },
-  
+
   notes: (value) => {
     if (!value) return '' // Field is optional
     if (value.length > 500) return 'Le note non possono superare i 500 caratteri'
@@ -579,7 +579,7 @@ const setInitialMoney = (amount) => {
 
 const handleSubmit = async () => {
   validateAllFields()
-  
+
   if (!isFormValid.value) {
     notificationStore.error('Controlla i campi evidenziati in rosso')
     return
@@ -597,14 +597,14 @@ const handleSubmit = async () => {
 
     // Create the game via store
     const result = await gameStore.createGame(gameData)
-    
+
     createdGame.value = result
-    
+
     // 🎯 CORREZIONE 1: Carica immediatamente il game nello store
     await gameStore.loadGame(result.id)
-    
+
     notificationStore.success('Partita creata con successo! 🎉')
-    
+
     // 🎯 CORREZIONE 2: Opzioni di navigazione
     if (form.showTutorial) {
       // Se tutorial attivo, mostra modal poi naviga
@@ -613,17 +613,17 @@ const handleSubmit = async () => {
       // Se no tutorial, naviga direttamente
       router.push('/game/dashboard')
     }
-    
+
   } catch (error) {
     console.error('Error creating game:', error)
-    
+
     // Handle validation errors from server
     if (error.response?.status === 422) {
       const serverErrors = error.response.data.errors
       Object.keys(serverErrors).forEach(field => {
         if (errors.hasOwnProperty(field)) {
-          errors[field] = Array.isArray(serverErrors[field]) 
-            ? serverErrors[field][0] 
+          errors[field] = Array.isArray(serverErrors[field])
+            ? serverErrors[field][0]
             : serverErrors[field]
         }
       })
@@ -638,7 +638,7 @@ const handleSubmit = async () => {
 
 const startGame = async () => {
   closeSuccessModal()
-  
+
   // Assicurati che il game sia caricato nello store
   if (createdGame.value?.id && !gameStore.currentGame?.id) {
     try {
@@ -649,7 +649,7 @@ const startGame = async () => {
       return
     }
   }
-  
+
   router.push('/game/dashboard')
 }
 const closeSuccessModal = () => {
@@ -666,7 +666,7 @@ onMounted(() => {
   // Pre-populate with some random inspiring names
   const inspiringNames = [
     'TechVision Solutions',
-    'CodeCraft Studio', 
+    'CodeCraft Studio',
     'InnovateLab',
     'DigitalForge',
     'ByteWorks',
@@ -676,7 +676,7 @@ onMounted(() => {
     'DevStorm',
     'PixelForge'
   ]
-  
+
   // Set a random placeholder name
   if (!form.name) {
     const randomName = inspiringNames[Math.floor(Math.random() * inspiringNames.length)]

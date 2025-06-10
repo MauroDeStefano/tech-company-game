@@ -18,7 +18,7 @@
             <!-- 🎯 CORREZIONE: Usa il getter dello store per il money -->
             <div class="bg-gray-50 rounded-lg p-3 text-center">
               <span class="text-2xl block mb-1">💰</span>
-              <div 
+              <div
                 class="text-lg font-bold"
                 :class="moneyColorClass"
               >
@@ -58,11 +58,11 @@
               <span class="text-lg">👨‍💻</span>
               Sviluppatori ({{ currentDevelopers.length }})
             </h3>
-            
+
             <div v-if="currentDevelopers.length === 0" class="text-center py-8 text-gray-500">
               <p>Nessuno sviluppatore nel team</p>
             </div>
-            
+
             <div v-else class="space-y-3">
               <div
                 v-for="developer in currentDevelopers"
@@ -77,7 +77,7 @@
                     <span class="text-sm text-gray-600">{{ formatCurrency(developer.salary?.monthly || developer.monthly_salary) }}/mese</span>
                   </div>
                 </div>
-                <span 
+                <span
                   class="text-xs px-2 py-1 rounded-full"
                   :class="{
                     'bg-red-100 text-red-700': developer.status?.is_busy || developer.is_busy,
@@ -96,11 +96,11 @@
               <span class="text-lg">💼</span>
               Commerciali ({{ currentSalesPeople.length }})
             </h3>
-            
+
             <div v-if="currentSalesPeople.length === 0" class="text-center py-8 text-gray-500">
               <p>Nessun commerciale nel team</p>
             </div>
-            
+
             <div v-else class="space-y-3">
               <div
                 v-for="salesPerson in currentSalesPeople"
@@ -115,7 +115,7 @@
                     <span class="text-sm text-gray-600">{{ formatCurrency(salesPerson.salary?.monthly || salesPerson.monthly_salary) }}/mese</span>
                   </div>
                 </div>
-                <span 
+                <span
                   class="text-xs px-2 py-1 rounded-full"
                   :class="{
                     'bg-red-100 text-red-700': salesPerson.status?.is_busy || salesPerson.is_busy,
@@ -137,8 +137,8 @@
             <span>👨‍💻</span>
             Sviluppatori Disponibili
           </h2>
-          <select 
-            v-model="developerFilter" 
+          <select
+            v-model="developerFilter"
             class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">Tutti i livelli</option>
@@ -189,7 +189,7 @@
               <div class="space-y-2">
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-600">Costo Assunzione</span>
-                  <span 
+                  <span
                     class="text-sm font-medium"
                     :class="{ 'text-red-600': !canAfford(developer.hiring_cost), 'text-gray-900': canAfford(developer.hiring_cost) }"
                   >
@@ -248,8 +248,8 @@
             <span>💼</span>
             Commerciali Disponibili
           </h2>
-          <select 
-            v-model="salesFilter" 
+          <select
+            v-model="salesFilter"
             class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="all">Tutti i livelli</option>
@@ -300,7 +300,7 @@
               <div class="space-y-2">
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-600">Costo Assunzione</span>
-                  <span 
+                  <span
                     class="text-sm font-medium"
                     :class="{ 'text-red-600': !canAfford(salesPerson.hiring_cost), 'text-gray-900': canAfford(salesPerson.hiring_cost) }"
                   >
@@ -364,17 +364,14 @@
 </template>
 
 <script setup>
-// 🎯 HR.vue - Implementazione con vere chiamate API
 
-// Nella sezione <script setup> sostituisci i metodi con questi:
-
-// Aggiungi gli import necessari
-import { useAuthStore } from '@/js/stores/auth' // Se hai autenticazione
+import { useAuthStore } from '@/js/stores/auth';
+import { useGameStore } from '@/js/stores/game';
 
 // Stores
 const gameStore = useGameStore()
 const notificationStore = useNotificationStore()
-const authStore = useAuthStore() 
+const authStore = useAuthStore()
 // 🎯 API BASE URL e headers
 const API_BASE = '/api'
 const getHeaders = () => ({
@@ -388,7 +385,7 @@ const getHeaders = () => ({
 const loadMarketDevelopers = async () => {
   try {
     loadingDevelopers.value = true
-    
+
     const response = await fetch(`${API_BASE}/games/${gameStore.currentGameId}/market/developers`, {
       method: 'GET',
       headers: getHeaders(),
@@ -400,7 +397,7 @@ const loadMarketDevelopers = async () => {
     }
 
     const result = await response.json()
-    
+
     if (result.success) {
       marketDevelopers.value = result.data
       console.log('✅ Market developers loaded:', result.meta)
@@ -420,7 +417,7 @@ const loadMarketDevelopers = async () => {
 const loadMarketSalesPeople = async () => {
   try {
     loadingSalesPeople.value = true
-    
+
     const response = await fetch(`${API_BASE}/games/${gameStore.currentGameId}/market/sales-people`, {
       method: 'GET',
       headers: getHeaders(),
@@ -432,7 +429,7 @@ const loadMarketSalesPeople = async () => {
     }
 
     const result = await response.json()
-    
+
     if (result.success) {
       marketSalesPeople.value = result.data
       console.log('✅ Market sales people loaded:', result.meta)
@@ -482,13 +479,13 @@ const hireDeveloper = async (developer) => {
     if (result.success) {
       // ✅ SUCCESSO
       notificationStore.success(result.message)
-      
+
       // Rimuovi dal mercato
       marketDevelopers.value = marketDevelopers.value.filter(d => d.id !== developer.id)
-      
+
       // Aggiorna stato del gioco
       await gameStore.refreshCurrentGame()
-      
+
       console.log('✅ Developer hired successfully:', result.data)
     } else {
       // ❌ Errore dal server ma con status 200
@@ -497,7 +494,7 @@ const hireDeveloper = async (developer) => {
 
   } catch (error) {
     console.error('❌ Hiring error:', error)
-    
+
     // 🎯 GESTIONE ERRORI SPECIFICI
     if (error.message.includes('Budget insufficiente')) {
       notificationStore.error('Budget insufficiente per questa assunzione')
@@ -543,13 +540,13 @@ const hireSalesPerson = async (salesPerson) => {
 
     if (result.success) {
       notificationStore.success(result.message)
-      
+
       // Rimuovi dal mercato
       marketSalesPeople.value = marketSalesPeople.value.filter(s => s.id !== salesPerson.id)
-      
+
       // Aggiorna stato del gioco
       await gameStore.refreshCurrentGame()
-      
+
       console.log('✅ Sales person hired successfully:', result.data)
     } else {
       throw new Error(result.message || 'Errore durante l\'assunzione')
@@ -557,7 +554,7 @@ const hireSalesPerson = async (salesPerson) => {
 
   } catch (error) {
     console.error('❌ Hiring sales person error:', error)
-    
+
     if (error.message.includes('Budget insufficiente')) {
       notificationStore.error('Budget insufficiente per questa assunzione')
     } else if (error.message.includes('fetch')) {
@@ -595,9 +592,9 @@ const getFormattedSalary = (person) => {
 
 const filteredDevelopers = computed(() => {
   let developers = marketDevelopers.value || []
-  
+
   if (developerFilter.value === 'all') return developers
-  
+
   return developers.filter(dev => {
     const seniority = dev.seniority?.level || dev.seniority
     return seniority.toString() === developerFilter.value
@@ -606,9 +603,9 @@ const filteredDevelopers = computed(() => {
 
 const filteredSalesPeople = computed(() => {
   let salesPeople = marketSalesPeople.value || []
-  
+
   if (salesFilter.value === 'all') return salesPeople
-  
+
   return salesPeople.filter(sales => {
     const experience = sales.experience?.level || sales.experience
     return experience.toString() === salesFilter.value
@@ -618,7 +615,7 @@ const filteredSalesPeople = computed(() => {
 // 🎯 TEMPLATE FIXES per compatibilità con API response
 
 // Nel template, cambia:
-// {{ developer.hiring_cost }} 
+// {{ developer.hiring_cost }}
 // in:
 // {{ formatCurrency(getHireCost(developer)) }}
 
@@ -638,13 +635,13 @@ onMounted(async () => {
   console.log('Current money:', currentMoney.value)
   console.log('API Base URL:', API_BASE)
   console.log('Auth token present:', !!authStore.token)
-  
+
   // Carica i dati del mercato
   await Promise.all([
     loadMarketDevelopers(),
     loadMarketSalesPeople()
   ])
-  
+
   console.log('Market data loaded')
 })
 

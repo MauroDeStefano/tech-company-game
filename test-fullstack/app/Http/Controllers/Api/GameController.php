@@ -10,8 +10,16 @@ use App\Http\Requests\game\ResumeGameRequest;
 use App\Http\Resources\GameResource;
 use App\Http\Resources\DeveloperResource;
 use App\Http\Resources\ProjectResource;
+use App\Http\Resources\ProjectGenerationResource;
+use App\Http\Resources\SalesPersonResource;
 use App\Http\Resources\MarketDeveloperResource;
 use App\Http\Resources\MarketSalesPersonResource;
+use App\Http\Resources\UserResource;
+use App\Models\Project;
+use App\Models\User;
+use App\Models\ProjectGeneration;
+use App\Models\SalesPerson;
+use App\Models\Developer;
 use App\Models\Game;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
@@ -27,7 +35,7 @@ class GameController extends Controller
         // Eager loading per performance
         $games = Game::with(['developers', 'salesPeople'])
             ->withCount([
-                'developers', 
+                'developers',
                 'salesPeople',
                 'projects as projects_completed' => function ($query) {
                     $query->where('status', 'completed');
@@ -41,7 +49,7 @@ class GameController extends Controller
             ])
             ->orderBy('updated_at', 'desc')
             ->get();
-        
+
         // Calcola meta data
         $meta = [
             'total_games' => $games->count(),
@@ -94,7 +102,7 @@ class GameController extends Controller
         if ($money < 1000) return 'text-yellow-600';
         return 'text-green-600';
     }
-    
+
     private function getStatusLabel($status): string
     {
         return match($status) {
@@ -104,7 +112,7 @@ class GameController extends Controller
             default => 'Sconosciuto'
         };
     }
-    
+
     private function getStatusBadgeClass($status): string
     {
         return match($status) {
@@ -114,14 +122,14 @@ class GameController extends Controller
             default => 'bg-gray-100 text-gray-500'
         };
     }
-    
+
     private function calculatePlayTimeHours($game): float
     {
         $totalSeconds = $game->updated_at->diffInSeconds($game->created_at);
         $playSeconds = $totalSeconds - ($game->offline_duration_seconds ?? 0);
         return round($playSeconds / 3600, 1);
     }
-    
+
     private function formatPlayTime($hours): string
     {
         if ($hours < 1) {
@@ -131,18 +139,18 @@ class GameController extends Controller
     }
 
     /**
-     * Store method - con fix per creazione 
+     * Store method - con fix per creazione
      */
     public function store(CreateGameRequest $request)
     {
         $gameData = $request->validatedWithDefaults();
-        
+
         $game = Game::create($gameData);
-        
+
         // 🎯 FIX: Carica le relazioni per la response
         $game->load(['developers', 'salesPeople']);
         $game->loadCount(['developers', 'salesPeople']);
-        
+
         return response()->json([
             'success' => true,
             'data' => new GameResource($game),
@@ -155,7 +163,7 @@ class GameController extends Controller
         // Eager load completo
         $game->load([
             'developers',
-            'salesPeople', 
+            'salesPeople',
             'projects' => function($query) {
                 $query->orderBy('created_at', 'desc');
             },
@@ -163,7 +171,7 @@ class GameController extends Controller
                 $query->orderBy('created_at', 'desc');
             }
         ]);
-        
+
         return response()->json([
             'data' => new GameResource($game),
         ]);
@@ -191,13 +199,13 @@ class GameController extends Controller
     public function status(Game $game): JsonResponse
     {
         $game->load(['developers', 'salesPeople', 'projects', 'projectGenerations']);
-        
+
         $completedProjects = $game->projects()->where('status', 'completed')->get();
         $totalRevenue = $completedProjects->sum('value');
         $monthlyCosts = $this->calculateMonthlyCosts($game);
         $totalCosts = $monthlyCosts * ($game->created_at->diffInMonths(Carbon::now()) ?: 1);
         $profitMargin = $totalRevenue > 0 ? (($totalRevenue - $totalCosts) / $totalRevenue) * 100 : 0;
-        
+
         $efficiencyRating = 'Scarso';
         if ($profitMargin >= 50) $efficiencyRating = 'Eccellente';
         elseif ($profitMargin >= 30) $efficiencyRating = 'Buono';
@@ -224,7 +232,7 @@ class GameController extends Controller
         $developersCosts = $game->developers()->sum('salary');
         $salesCosts = $game->salesPeople()->sum('salary');
         $fixedCosts = 1500; // Costi fissi azienda
-        
+
         return $developersCosts + $salesCosts + $fixedCosts;
     }
 
@@ -314,11 +322,11 @@ class GameController extends Controller
         } else {
             $hours = intval($seconds / 3600);
             $remainingMinutes = intval(($seconds % 3600) / 60);
-            
+
             if ($remainingMinutes > 0) {
                 return $hours . ' ore e ' . $remainingMinutes . ' minuti';
             }
-            
+
             return $hours . ' ore';
         }
     }
@@ -360,7 +368,7 @@ class GameController extends Controller
             'meta' => $meta,
         ]);
     }
-    
+
     /**
      * @OA\Post(
      *     path="/api/games/{game}/hire/developer/{developerId}",
@@ -421,7 +429,7 @@ class GameController extends Controller
             // 🎯 SIMULAZIONE: Genera uno sviluppatore dal mercato
             // In un'implementazione reale, avresti una tabella MarketDevelopers
             $marketDeveloper = $this->generateMarketDeveloper($developerId);
-            
+
             if (!$marketDeveloper) {
                 return response()->json([
                     'success' => false,
@@ -431,7 +439,7 @@ class GameController extends Controller
 
             // 🎯 VERIFICA: Budget sufficiente
             $hireCost = $marketDeveloper['monthly_salary']; // Costo = 1 mese di stipendio
-            
+
             if ($game->money < $hireCost) {
                 return response()->json([
                     'success' => false,
@@ -444,7 +452,7 @@ class GameController extends Controller
 
             // 🎯 TRANSAZIONE: Usa database transaction per operazioni atomiche
             DB::beginTransaction();
-            
+
             try {
                 // Crea il nuovo sviluppatore
                 $developer = Developer::create([
@@ -460,7 +468,7 @@ class GameController extends Controller
 
                 // Sottrai il costo dal patrimonio del gioco
                 $game->decrement('money', $hireCost);
-                
+
                 // Ricarica il game con le relazioni aggiornate
                 $game->load(['developers', 'salesPeople']);
 
@@ -521,7 +529,7 @@ class GameController extends Controller
 
             // 🎯 SIMULAZIONE: Genera un commerciale dal mercato
             $marketSalesPerson = $this->generateMarketSalesPerson($salesPersonId);
-            
+
             if (!$marketSalesPerson) {
                 return response()->json([
                     'success' => false,
@@ -531,7 +539,7 @@ class GameController extends Controller
 
             // 🎯 VERIFICA: Budget sufficiente
             $hireCost = $marketSalesPerson['monthly_salary'];
-            
+
             if ($game->money < $hireCost) {
                 return response()->json([
                     'success' => false,
@@ -544,7 +552,7 @@ class GameController extends Controller
 
             // 🎯 TRANSAZIONE: Operazioni atomiche
             DB::beginTransaction();
-            
+
             try {
                 // Crea il nuovo commerciale
                 $salesPerson = SalesPerson::create([
@@ -562,7 +570,7 @@ class GameController extends Controller
 
                 // Sottrai il costo dal patrimonio
                 $game->decrement('money', $hireCost);
-                
+
                 // Ricarica il game
                 $game->load(['developers', 'salesPeople']);
 
@@ -614,7 +622,7 @@ class GameController extends Controller
     {
         try {
             $developers = $this->generateMarketDevelopers();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => MarketDeveloperResource::collection($developers),
@@ -654,7 +662,7 @@ class GameController extends Controller
     {
         try {
             $salesPeople = $this->generateMarketSalesPeople();
-            
+
             return response()->json([
                 'success' => true,
                 'data' => MarketSalesPersonResource::collection($salesPeople),
