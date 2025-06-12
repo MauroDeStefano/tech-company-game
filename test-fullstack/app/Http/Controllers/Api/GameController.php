@@ -24,6 +24,8 @@ use App\Models\Game;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class GameController extends Controller
 {

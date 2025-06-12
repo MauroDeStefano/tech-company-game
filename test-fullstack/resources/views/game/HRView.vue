@@ -15,7 +15,6 @@
           </div>
 
           <div class="grid grid-cols-3 gap-4">
-            <!-- 🎯 CORREZIONE: Usa il getter dello store per il money -->
             <div class="bg-gray-50 rounded-lg p-3 text-center">
               <span class="text-2xl block mb-1">💰</span>
               <div
@@ -72,7 +71,6 @@
                 <div class="flex-1">
                   <div class="font-medium text-gray-900">{{ developer.name }}</div>
                   <div class="flex items-center gap-2 mt-1">
-                    <!-- 🎯 CORREZIONE: Usa la struttura corretta per seniority e salary -->
                     <span class="text-sm text-gray-600">{{ getSeniorityText(developer.seniority?.level || developer.seniority) }}</span>
                     <span class="text-sm text-gray-600">{{ formatCurrency(developer.salary?.monthly || developer.monthly_salary) }}/mese</span>
                   </div>
@@ -110,7 +108,6 @@
                 <div class="flex-1">
                   <div class="font-medium text-gray-900">{{ salesPerson.name }}</div>
                   <div class="flex items-center gap-2 mt-1">
-                    <!-- 🎯 CORREZIONE: Usa la struttura corretta per experience e salary -->
                     <span class="text-sm text-gray-600">{{ getExperienceText(salesPerson.experience?.level || salesPerson.experience) }}</span>
                     <span class="text-sm text-gray-600">{{ formatCurrency(salesPerson.salary?.monthly || salesPerson.monthly_salary) }}/mese</span>
                   </div>
@@ -170,20 +167,20 @@
             v-for="developer in filteredDevelopers"
             :key="developer.id || developer.name"
             class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
-            :class="{ 'opacity-50': !canAfford(developer.hiring_cost) }"
+            :class="{ 'opacity-50': !canAfford(getHireCost(developer)) }"
           >
             <div class="mb-4">
               <h3 class="font-semibold text-gray-900 mb-2">{{ developer.name }}</h3>
               <div class="flex items-center gap-2">
-                <span class="text-sm">{{ '⭐'.repeat(developer.seniority) }}</span>
-                <span class="text-sm text-gray-600">{{ getSeniorityText(developer.seniority) }}</span>
+                <span class="text-sm">{{ '⭐'.repeat(developer.seniority?.level || developer.seniority) }}</span>
+                <span class="text-sm text-gray-600">{{ getSeniorityText(developer.seniority?.level || developer.seniority) }}</span>
               </div>
             </div>
 
             <div class="space-y-3 mb-4">
               <div v-if="developer.specialization" class="flex items-center gap-2">
                 <span>🎯</span>
-                <span class="text-sm text-gray-600">{{ getSpecializationText(developer.specialization) }}</span>
+                <span class="text-sm text-gray-600">{{ getSpecializationText(developer.specialization?.name || developer.specialization) }}</span>
               </div>
 
               <div class="space-y-2">
@@ -191,14 +188,14 @@
                   <span class="text-sm text-gray-600">Costo Assunzione</span>
                   <span
                     class="text-sm font-medium"
-                    :class="{ 'text-red-600': !canAfford(developer.hiring_cost), 'text-gray-900': canAfford(developer.hiring_cost) }"
+                    :class="{ 'text-red-600': !canAfford(getHireCost(developer)), 'text-gray-900': canAfford(getHireCost(developer)) }"
                   >
-                    {{ formatCurrency(developer.hiring_cost) }}
+                    {{ formatCurrency(getHireCost(developer)) }}
                   </span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-600">Stipendio Mensile</span>
-                  <span class="text-sm font-medium text-gray-900">{{ formatCurrency(developer.monthly_salary) }}</span>
+                  <span class="text-sm font-medium text-gray-900">{{ formatCurrency(developer.salary?.monthly || developer.monthly_salary) }}</span>
                 </div>
               </div>
 
@@ -220,7 +217,7 @@
             </div>
 
             <button
-              v-if="canAfford(developer.hiring_cost)"
+              v-if="canAfford(getHireCost(developer))"
               @click="hireDeveloper(developer)"
               :disabled="hiringId === `dev-${developer.id || developer.name}`"
               class="w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200"
@@ -281,20 +278,20 @@
             v-for="salesPerson in filteredSalesPeople"
             :key="salesPerson.id || salesPerson.name"
             class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200"
-            :class="{ 'opacity-50': !canAfford(salesPerson.hiring_cost) }"
+            :class="{ 'opacity-50': !canAfford(getHireCost(salesPerson)) }"
           >
             <div class="mb-4">
               <h3 class="font-semibold text-gray-900 mb-2">{{ salesPerson.name }}</h3>
               <div class="flex items-center gap-2">
-                <span class="text-sm">{{ '⭐'.repeat(salesPerson.experience) }}</span>
-                <span class="text-sm text-gray-600">{{ getExperienceText(salesPerson.experience) }}</span>
+                <span class="text-sm">{{ '⭐'.repeat(salesPerson.experience?.level || salesPerson.experience) }}</span>
+                <span class="text-sm text-gray-600">{{ getExperienceText(salesPerson.experience?.level || salesPerson.experience) }}</span>
               </div>
             </div>
 
             <div class="space-y-3 mb-4">
               <div v-if="salesPerson.specialization" class="flex items-center gap-2">
                 <span>🎯</span>
-                <span class="text-sm text-gray-600">{{ getSalesSpecializationText(salesPerson.specialization) }}</span>
+                <span class="text-sm text-gray-600">{{ getSalesSpecializationText(salesPerson.specialization?.name || salesPerson.specialization) }}</span>
               </div>
 
               <div class="space-y-2">
@@ -302,31 +299,31 @@
                   <span class="text-sm text-gray-600">Costo Assunzione</span>
                   <span
                     class="text-sm font-medium"
-                    :class="{ 'text-red-600': !canAfford(salesPerson.hiring_cost), 'text-gray-900': canAfford(salesPerson.hiring_cost) }"
+                    :class="{ 'text-red-600': !canAfford(getHireCost(salesPerson)), 'text-gray-900': canAfford(getHireCost(salesPerson)) }"
                   >
-                    {{ formatCurrency(salesPerson.hiring_cost) }}
+                    {{ formatCurrency(getHireCost(salesPerson)) }}
                   </span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-600">Stipendio Mensile</span>
-                  <span class="text-sm font-medium text-gray-900">{{ formatCurrency(salesPerson.monthly_salary) }}</span>
+                  <span class="text-sm font-medium text-gray-900">{{ formatCurrency(salesPerson.salary?.monthly || salesPerson.monthly_salary) }}</span>
                 </div>
               </div>
 
               <div class="space-y-2">
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-600">Tempo Generazione</span>
-                  <span class="text-sm font-medium text-gray-900">{{ salesPerson.estimated_generation_time }}min</span>
+                  <span class="text-sm font-medium text-gray-900">{{ salesPerson.generation_capabilities?.estimated_generation_time || salesPerson.estimated_generation_time }}min</span>
                 </div>
                 <div class="flex justify-between">
                   <span class="text-sm text-gray-600">Valore Progetti</span>
-                  <span class="text-sm font-medium text-gray-900">{{ formatCurrency(salesPerson.estimated_project_value) }}</span>
+                  <span class="text-sm font-medium text-gray-900">{{ formatCurrency(salesPerson.generation_capabilities?.estimated_project_value || salesPerson.estimated_project_value) }}</span>
                 </div>
               </div>
             </div>
 
             <button
-              v-if="canAfford(salesPerson.hiring_cost)"
+              v-if="canAfford(getHireCost(salesPerson))"
               @click="hireSalesPerson(salesPerson)"
               :disabled="hiringId === `sales-${salesPerson.id || salesPerson.name}`"
               class="w-full px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-200"
@@ -364,24 +361,148 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted, watch } from 'vue'
+import { useAuthStore } from '@/js/stores/auth'
+import { useGameStore } from '@/js/stores/game'
+import { useNotificationStore } from '@/js/stores/notifications'
+import { formatCurrency } from '@/js/utils/helpers'
 
-import { useAuthStore } from '@/js/stores/auth';
-import { useGameStore } from '@/js/stores/game';
-
-// Stores
+// 🎯 STORES
 const gameStore = useGameStore()
 const notificationStore = useNotificationStore()
 const authStore = useAuthStore()
-// 🎯 API BASE URL e headers
+
+// 🎯 REACTIVE STATE - Queste erano le variabili mancanti!
+const loadingDevelopers = ref(false)
+const loadingSalesPeople = ref(false)
+const marketDevelopers = ref([])
+const marketSalesPeople = ref([])
+const developerFilter = ref('all')
+const salesFilter = ref('all')
+const hiringId = ref(null)
+
+// 🎯 COMPUTED PROPERTIES - Anche questi mancavano!
+const currentMoney = computed(() => gameStore.currentGameMoney || 0)
+
+const currentTeamSize = computed(() => gameStore.currentGameTeamSize || 0)
+
+const monthlyCosts = computed(() => {
+  // Calcola i costi mensili basandosi sui dati del gioco
+  const devCosts = currentDevelopers.value.reduce((sum, dev) => {
+    return sum + (dev.salary?.monthly || dev.monthly_salary || 0)
+  }, 0)
+
+  const salesCosts = currentSalesPeople.value.reduce((sum, sales) => {
+    return sum + (sales.salary?.monthly || sales.monthly_salary || 0)
+  }, 0)
+
+  return devCosts + salesCosts + 1500 // 1500 costi fissi
+})
+
+const moneyColorClass = computed(() => {
+  const money = currentMoney.value
+  if (money < 0) return 'text-red-600'
+  if (money < 1000) return 'text-yellow-600'
+  return 'text-green-600'
+})
+
+const currentDevelopers = computed(() => {
+  return gameStore.developers?.data || gameStore.currentGame?.developers || []
+})
+
+const currentSalesPeople = computed(() => {
+  return gameStore.salesPeople?.data || gameStore.currentGame?.sales_people || []
+})
+
+const isLowBudget = computed(() => {
+  return currentMoney.value < 3000 // Budget limitato sotto 3000€
+})
+
+const filteredDevelopers = computed(() => {
+  let developers = marketDevelopers.value || []
+
+  if (developerFilter.value === 'all') return developers
+
+  return developers.filter(dev => {
+    const seniority = dev.seniority?.level || dev.seniority
+    return seniority.toString() === developerFilter.value
+  })
+})
+
+const filteredSalesPeople = computed(() => {
+  let salesPeople = marketSalesPeople.value || []
+
+  if (salesFilter.value === 'all') return salesPeople
+
+  return salesPeople.filter(sales => {
+    const experience = sales.experience?.level || sales.experience
+    return experience.toString() === salesFilter.value
+  })
+})
+
+// 🎯 HELPER METHODS - Anche questi mancavano!
+const getSeniorityText = (level) => {
+  const map = {
+    1: 'Junior',
+    2: 'Junior-Mid',
+    3: 'Mid',
+    4: 'Senior',
+    5: 'Lead'
+  }
+  return map[level] || 'Unknown'
+}
+
+const getExperienceText = (level) => {
+  const map = {
+    1: 'Trainee',
+    2: 'Junior',
+    3: 'Mid',
+    4: 'Senior',
+    5: 'Manager'
+  }
+  return map[level] || 'Unknown'
+}
+
+const getSpecializationText = (spec) => {
+  const map = {
+    'frontend': 'Frontend',
+    'backend': 'Backend',
+    'fullstack': 'Full Stack',
+    'mobile': 'Mobile',
+    'devops': 'DevOps'
+  }
+  return map[spec] || 'Generica'
+}
+
+const getSalesSpecializationText = (spec) => {
+  const map = {
+    'startup': 'Startup',
+    'sme': 'PMI',
+    'enterprise': 'Enterprise',
+    'ecommerce': 'E-commerce',
+    'consulting': 'Consulting'
+  }
+  return map[spec] || 'Generica'
+}
+
+const getHireCost = (person) => {
+  return person.hire_cost?.amount || person.monthly_salary || 0
+}
+
+const canAfford = (cost) => {
+  const actualCost = typeof cost === 'object' ? cost.amount : cost
+  return currentMoney.value >= actualCost
+}
+
+// 🎯 API CONFIGURATION
 const API_BASE = '/api'
 const getHeaders = () => ({
   'Content-Type': 'application/json',
   'Accept': 'application/json',
-  'Authorization': `Bearer ${authStore.token}`, // Se hai auth token
+  'Authorization': `Bearer ${authStore.token}`
 })
 
-// 🎯 METODI API REALI per caricamento dati mercato
-
+// 🎯 API METHODS
 const loadMarketDevelopers = async () => {
   try {
     loadingDevelopers.value = true
@@ -408,7 +529,7 @@ const loadMarketDevelopers = async () => {
   } catch (error) {
     console.error('❌ Error loading market developers:', error)
     notificationStore.error(`Errore nel caricamento sviluppatori: ${error.message}`)
-    marketDevelopers.value = [] // Fallback
+    marketDevelopers.value = []
   } finally {
     loadingDevelopers.value = false
   }
@@ -440,17 +561,14 @@ const loadMarketSalesPeople = async () => {
   } catch (error) {
     console.error('❌ Error loading market sales people:', error)
     notificationStore.error(`Errore nel caricamento commerciali: ${error.message}`)
-    marketSalesPeople.value = [] // Fallback
+    marketSalesPeople.value = []
   } finally {
     loadingSalesPeople.value = false
   }
 }
 
-// 🎯 METODI API REALI per assunzione
-
 const hireDeveloper = async (developer) => {
-  // Controllo preliminare budget
-  if (!canAfford(developer.hire_cost?.amount || developer.monthly_salary)) {
+  if (!canAfford(getHireCost(developer))) {
     notificationStore.error('Budget insufficiente per questa assunzione')
     return
   }
@@ -464,11 +582,10 @@ const hireDeveloper = async (developer) => {
       headers: getHeaders(),
       body: JSON.stringify({
         developer_id: developer.id,
-        hire_cost: developer.hire_cost?.amount || developer.monthly_salary
+        hire_cost: getHireCost(developer)
       })
     })
 
-    // ⚠️ IMPORTANTE: Controlla SEMPRE response.ok con fetch
     if (!response.ok) {
       const errorData = await response.json()
       throw new Error(errorData.message || `Errore HTTP: ${response.status}`)
@@ -477,33 +594,20 @@ const hireDeveloper = async (developer) => {
     const result = await response.json()
 
     if (result.success) {
-      // ✅ SUCCESSO
       notificationStore.success(result.message)
-
-      // Rimuovi dal mercato
       marketDevelopers.value = marketDevelopers.value.filter(d => d.id !== developer.id)
-
-      // Aggiorna stato del gioco
-      await gameStore.refreshCurrentGame()
-
+      await gameStore.loadGame(gameStore.currentGameId) // Ricarica il gioco
       console.log('✅ Developer hired successfully:', result.data)
     } else {
-      // ❌ Errore dal server ma con status 200
       throw new Error(result.message || 'Errore durante l\'assunzione')
     }
 
   } catch (error) {
     console.error('❌ Hiring error:', error)
-
-    // 🎯 GESTIONE ERRORI SPECIFICI
     if (error.message.includes('Budget insufficiente')) {
       notificationStore.error('Budget insufficiente per questa assunzione')
-    } else if (error.message.includes('fetch')) {
-      notificationStore.error('Errore di connessione. Controlla la tua connessione internet.')
-    } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+    } else if (error.message.includes('401')) {
       notificationStore.error('Sessione scaduta. Effettua di nuovo il login.')
-      // Redirect al login se necessario
-      // authStore.logout()
     } else {
       notificationStore.error(`Errore durante l'assunzione: ${error.message}`)
     }
@@ -513,7 +617,7 @@ const hireDeveloper = async (developer) => {
 }
 
 const hireSalesPerson = async (salesPerson) => {
-  if (!canAfford(salesPerson.hire_cost?.amount || salesPerson.monthly_salary)) {
+  if (!canAfford(getHireCost(salesPerson))) {
     notificationStore.error('Budget insufficiente per questa assunzione')
     return
   }
@@ -527,7 +631,7 @@ const hireSalesPerson = async (salesPerson) => {
       headers: getHeaders(),
       body: JSON.stringify({
         sales_person_id: salesPerson.id,
-        hire_cost: salesPerson.hire_cost?.amount || salesPerson.monthly_salary
+        hire_cost: getHireCost(salesPerson)
       })
     })
 
@@ -540,13 +644,8 @@ const hireSalesPerson = async (salesPerson) => {
 
     if (result.success) {
       notificationStore.success(result.message)
-
-      // Rimuovi dal mercato
       marketSalesPeople.value = marketSalesPeople.value.filter(s => s.id !== salesPerson.id)
-
-      // Aggiorna stato del gioco
-      await gameStore.refreshCurrentGame()
-
+      await gameStore.loadGame(gameStore.currentGameId) // Ricarica il gioco
       console.log('✅ Sales person hired successfully:', result.data)
     } else {
       throw new Error(result.message || 'Errore durante l\'assunzione')
@@ -554,11 +653,8 @@ const hireSalesPerson = async (salesPerson) => {
 
   } catch (error) {
     console.error('❌ Hiring sales person error:', error)
-
     if (error.message.includes('Budget insufficiente')) {
       notificationStore.error('Budget insufficiente per questa assunzione')
-    } else if (error.message.includes('fetch')) {
-      notificationStore.error('Errore di connessione. Controlla la tua connessione internet.')
     } else if (error.message.includes('401')) {
       notificationStore.error('Sessione scaduta. Effettua di nuovo il login.')
     } else {
@@ -569,66 +665,7 @@ const hireSalesPerson = async (salesPerson) => {
   }
 }
 
-// 🎯 HELPER CORRETTO per canAfford che funziona con diverse strutture dati
-const canAfford = (cost) => {
-  const actualCost = typeof cost === 'object' ? cost.amount : cost
-  return currentMoney.value >= actualCost
-}
-
-// 🎯 METODI HELPER per accesso ai dati API
-
-// Funzione per ottenere il costo di assunzione
-const getHireCost = (person) => {
-  return person.hire_cost?.amount || person.monthly_salary || 0
-}
-
-// Funzione per ottenere lo stipendio formattato
-const getFormattedSalary = (person) => {
-  const salary = person.salary?.monthly || person.monthly_salary || 0
-  return formatCurrency(salary)
-}
-
-// 🎯 COMPUTED PROPERTIES corretti per strutture API
-
-const filteredDevelopers = computed(() => {
-  let developers = marketDevelopers.value || []
-
-  if (developerFilter.value === 'all') return developers
-
-  return developers.filter(dev => {
-    const seniority = dev.seniority?.level || dev.seniority
-    return seniority.toString() === developerFilter.value
-  })
-})
-
-const filteredSalesPeople = computed(() => {
-  let salesPeople = marketSalesPeople.value || []
-
-  if (salesFilter.value === 'all') return salesPeople
-
-  return salesPeople.filter(sales => {
-    const experience = sales.experience?.level || sales.experience
-    return experience.toString() === salesFilter.value
-  })
-})
-
-// 🎯 TEMPLATE FIXES per compatibilità con API response
-
-// Nel template, cambia:
-// {{ developer.hiring_cost }}
-// in:
-// {{ formatCurrency(getHireCost(developer)) }}
-
-// {{ developer.monthly_salary }}
-// in:
-// {{ getFormattedSalary(developer) }}
-
-// E per i controlli di disponibilità:
-// :class="{ 'opacity-50': !canAfford(developer.hiring_cost) }"
-// in:
-// :class="{ 'opacity-50': !canAfford(getHireCost(developer)) }"
-
-// 🎯 DEBUGGING onMounted con API reali
+// 🎯 LIFECYCLE HOOKS
 onMounted(async () => {
   console.log('🔍 HR Component mounted - Debug info:')
   console.log('Current game ID:', gameStore.currentGameId)
@@ -645,7 +682,7 @@ onMounted(async () => {
   console.log('Market data loaded')
 })
 
-// 🎯 WATCH per ricaricare quando cambia il gioco
+// 🎯 WATCHERS
 watch(() => gameStore.currentGameId, async (newGameId) => {
   if (newGameId) {
     console.log('Game changed, reloading market data for game:', newGameId)
@@ -656,11 +693,10 @@ watch(() => gameStore.currentGameId, async (newGameId) => {
   }
 })
 
-// 🎯 ERROR HANDLING GLOBALE per non gestiti
+// 🎯 ERROR HANDLING
 window.addEventListener('unhandledrejection', (event) => {
   console.error('❌ Unhandled promise rejection in HR component:', event.reason)
   notificationStore.error('Si è verificato un errore imprevisto.')
   event.preventDefault()
 })
-
 </script>
